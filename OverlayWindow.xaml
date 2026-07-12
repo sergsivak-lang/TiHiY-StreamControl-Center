@@ -1,0 +1,15 @@
+<Window x:Class="TiHiY.StreamControlCenter.OverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TiHiY Chat Overlay" Width="560" Height="430" Topmost="True" AllowsTransparency="True"
+        WindowStyle="None" Background="Transparent" ShowInTaskbar="True" ResizeMode="CanResizeWithGrip">
+    <Border x:Name="OverlayPanel" Background="#B208111A" BorderBrush="#804EA9DC" BorderThickness="1" CornerRadius="6" Padding="10">
+        <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+            <Grid MouseLeftButtonDown="Header_MouseLeftButtonDown"><TextBlock Text="TiHiY CHAT • TWITCH + YOUTUBE" FontWeight="SemiBold" Foreground="#75D2FF"/><StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><Button Content="−" Padding="8,2" Click="Minimize_Click"/><Button Content="×" Padding="8,2" Click="Close_Click"/></StackPanel></Grid>
+            <ListBox x:Name="OverlayChat" Grid.Row="1" Margin="0,8" ItemsSource="{Binding}" Background="Transparent"><ListBox.ItemTemplate><DataTemplate>
+                <StackPanel Margin="0,3"><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding Platform}" Foreground="{Binding Accent}" Margin="0,0,8,0"/><TextBlock Text="{Binding User}" Foreground="{Binding Accent}" FontWeight="Bold"/></StackPanel><TextBlock Text="{Binding Text}" Foreground="White" TextWrapping="Wrap" FontSize="16"/></StackPanel>
+            </DataTemplate></ListBox.ItemTemplate></ListBox>
+            <StackPanel Grid.Row="2" Orientation="Horizontal"><TextBlock Text="Прозорість" VerticalAlignment="Center" Foreground="#AFC8D8"/><Slider x:Name="OpacitySlider" Width="150" Minimum="0.15" Maximum="0.95" Value="0.70" ValueChanged="OpacitySlider_ValueChanged"/><CheckBox x:Name="ClickThroughCheck" Content="Пропускати кліки" Foreground="White" Margin="14,0" Click="ClickThroughCheck_Click"/></StackPanel>
+        </Grid>
+    </Border>
+</Window>
