@@ -1,0 +1,103 @@
+name: Build Cyber Amber v3
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - 'agent/**'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  windows-build-and-preview:
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Show SDK information
+        shell: pwsh
+        run: dotnet --info
+
+      - name: Restore
+        shell: pwsh
+        run: dotnet restore .\TiHiY.StreamControlCenter.sln
+
+      - name: Build Release
+        shell: pwsh
+        run: dotnet build .\TiHiY.StreamControlCenter.sln --configuration Release --no-restore -warnaserror
+
+      - name: Publish self-contained Windows build
+        shell: pwsh
+        run: >-
+          dotnet publish .\TiHiY.StreamControlCenter.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          --output .\artifacts\publish
+          -p:PublishSingleFile=false
+          -p:DebugType=None
+          -p:DebugSymbols=false
+
+      - name: Render real WPF screenshot
+        shell: pwsh
+        run: |
+          $exe = Join-Path $PWD 'artifacts\publish\TiHiY.StreamControlCenter.exe'
+          $shot = Join-Path $PWD 'artifacts\Cyber-Amber-Actual.png'
+          if (-not (Test-Path $exe)) { throw "Published EXE was not found: $exe" }
+
+          $process = Start-Process -FilePath $exe -ArgumentList @('--render-preview', "--output=$shot") -PassThru
+          if (-not $process.WaitForExit(45000)) {
+            try { $process.Kill($true) } catch {}
+            throw 'Preview renderer did not finish within 45 seconds.'
+          }
+          if ($process.ExitCode -ne 0) {
+            $errorFile = [System.IO.Path]::ChangeExtension($shot, '.error.txt')
+            if (Test-Path $errorFile) { Get-Content $errorFile | Write-Host }
+            throw "Preview renderer exited with code $($process.ExitCode)."
+          }
+          if (-not (Test-Path $shot)) { throw 'WPF screenshot was not created.' }
+          $size = (Get-Item $shot).Length
+          if ($size -lt 20000) { throw "WPF screenshot is unexpectedly small: $size bytes" }
+          Write-Host "Real WPF screenshot created: $shot ($size bytes)"
+
+      - name: Copy approved reference
+        shell: pwsh
+        run: Copy-Item .\DesignReference\Cyber-Amber-Approved.png .\artifacts\Cyber-Amber-Approved.png -Force
+
+      - name: Write build report
+        shell: pwsh
+        run: |
+          @"
+          Branch: $env:GITHUB_REF_NAME
+          Commit: $env:GITHUB_SHA
+          Runner: windows-latest
+          SDK: .NET 9
+          Build: SUCCESS
+          Publish: SUCCESS
+          Real WPF screenshot: SUCCESS
+          "@ | Set-Content .\artifacts\BUILD-REPORT.txt -Encoding UTF8
+
+      - name: Upload portable app and visual proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: TiHiY-Cyber-Amber-v3-${{ github.sha }}
+          path: |
+            artifacts/publish/**
+            artifacts/Cyber-Amber-Actual.png
+            artifacts/Cyber-Amber-Approved.png
+            artifacts/BUILD-REPORT.txt
+          if-no-files-found: error
+          retention-days: 14

@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TiHiY.StreamControlCenter", "src\TiHiY.StreamControlCenter\TiHiY.StreamControlCenter.csproj", "{7D96CB99-DFEF-41A9-B0B0-5C6FBD63D1C6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TiHiY.StreamControlCenter", "TiHiY.StreamControlCenter.csproj", "{862F3FB2-962E-460F-B3DC-177DA53307B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -10,9 +10,9 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7D96CB99-DFEF-41A9-B0B0-5C6FBD63D1C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7D96CB99-DFEF-41A9-B0B0-5C6FBD63D1C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7D96CB99-DFEF-41A9-B0B0-5C6FBD63D1C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7D96CB99-DFEF-41A9-B0B0-5C6FBD63D1C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{862F3FB2-962E-460F-B3DC-177DA53307B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{862F3FB2-962E-460F-B3DC-177DA53307B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{862F3FB2-962E-460F-B3DC-177DA53307B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{862F3FB2-962E-460F-B3DC-177DA53307B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

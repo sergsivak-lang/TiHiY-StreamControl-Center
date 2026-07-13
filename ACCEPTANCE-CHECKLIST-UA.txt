@@ -1,0 +1,22 @@
+TiHiY StreamControl Center — Cyber Amber v3
+КРИТЕРІЇ ПРИЙМАННЯ
+
+[ ] GitHub Actions: Build Release — SUCCESS
+[ ] GitHub Actions: Publish win-x64 — SUCCESS
+[ ] GitHub Actions: Render real WPF screenshot — SUCCESS
+[ ] Cyber-Amber-Actual.png існує і відкривається
+[ ] Основне вікно візуально відповідає Cyber-Amber-Approved.png
+[ ] Немає розтягнутої фонової картинки або білих ліній поверх блоків
+[ ] Усі кнопки мають новий themed template та іконки
+[ ] Мультичат прокручується
+[ ] Повзунки OBS змінюють гучність і приймають оновлення з OBS
+[ ] MUTE синхронізується з OBS
+[ ] Вікно змінює розмір без накладання блоків
+[ ] Розділювачі блоків працюють мишкою
+[ ] Закриття хрестиком завершує процес
+[ ] Друга копія програми не запускається
+[ ] Twitch OAuth відкривається у браузері
+[ ] YouTube OAuth відкривається у браузері
+[ ] Discord bot test message працює
+[ ] Donatello /me, /donates, /subscribers працюють через X-Token
+[ ] Chat overlay працює над грою

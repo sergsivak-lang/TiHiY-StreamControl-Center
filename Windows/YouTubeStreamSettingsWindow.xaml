@@ -1,0 +1,28 @@
+<services:ModuleWindowBase x:Class="TiHiY.StreamControlCenter.Windows.YouTubeStreamSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:services="clr-namespace:TiHiY.StreamControlCenter.Services"
+        Title="Налаштування трансляції YouTube" Icon="/TiHiY.StreamControlCenter;component/Assets/TiHiY.StreamControlCenter.ico" Width="1050" Height="760" MinWidth="760" MinHeight="560"
+        WindowStyle="None" ResizeMode="CanResize" WindowStartupLocation="CenterOwner">
+    <Border BorderBrush="{DynamicResource CyanSoft}" BorderThickness="1" Background="{StaticResource Bg0}">
+            <Grid x:Name="DesignSurface" Margin="10">
+                <Grid.RowDefinitions><RowDefinition Height="52"/><RowDefinition/><RowDefinition Height="54"/></Grid.RowDefinitions>
+                <Border Background="{DynamicResource HeaderBackground}" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                    <Grid Margin="14,0"><TextBlock Text="НАЛАШТУВАННЯ ТРАНСЛЯЦІЇ YOUTUBE" FontSize="22" FontWeight="Bold" Foreground="#FF5656" VerticalAlignment="Center"/><StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"><Button Style="{StaticResource TitleButton}" Content="—" Width="40" Padding="0" Click="Minimize_Click"/><Button Style="{StaticResource TitleButton}" Content="□" Width="40" Padding="0" Click="Maximize_Click"/><Button Style="{StaticResource CloseTitleButton}" Content="×" Width="40" Padding="0" Background="{DynamicResource RedButtonBackground}" Click="Close_Click"/></StackPanel></Grid>
+                </Border>
+                <Border Grid.Row="1" Style="{StaticResource PanelBorder}" Margin="0,12">
+                    <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="88"/><RowDefinition Height="78"/><RowDefinition Height="190"/><RowDefinition Height="82"/><RowDefinition Height="82"/><RowDefinition/><RowDefinition Height="58"/></Grid.RowDefinitions>
+                        <StackPanel><TextBlock Text="Трансляція" Foreground="{StaticResource Muted}"/><Grid Margin="0,6,0,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ComboBox x:Name="BroadcastCombo" DisplayMemberPath="Display" SelectionChanged="BroadcastCombo_SelectionChanged"/><Button Grid.Column="1" Content="ОНОВИТИ СПИСОК" Click="RefreshBroadcasts_Click" Background="{DynamicResource BlueButtonBackground}"/></Grid></StackPanel>
+                        <StackPanel Grid.Row="1"><TextBlock Text="Назва трансляції" Foreground="{StaticResource Muted}"/><TextBox x:Name="TitleBox" Margin="0,6,0,0"/></StackPanel>
+                        <StackPanel Grid.Row="2"><TextBlock Text="Опис" Foreground="{StaticResource Muted}"/><TextBox x:Name="DescriptionBox" Height="150" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Disabled" Margin="0,6,0,0"/></StackPanel>
+                        <Grid Grid.Row="3"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><StackPanel Margin="0,0,8,0"><TextBlock Text="Доступ" Foreground="{StaticResource Muted}"/><ComboBox x:Name="PrivacyCombo" Margin="0,6,0,0" SelectedIndex="0"><ComboBoxItem Content="public"/><ComboBoxItem Content="unlisted"/><ComboBoxItem Content="private"/></ComboBox></StackPanel><StackPanel Grid.Column="1" Margin="8,0,0,0"><TextBlock Text="Запланований початок" Foreground="{StaticResource Muted}"/><TextBox x:Name="ScheduledStartBox" Margin="0,6,0,0"/></StackPanel></Grid>
+                        <Grid Grid.Row="4"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="Стан" Foreground="{StaticResource Muted}"/><TextBlock x:Name="LifeCycleText" Text="—" FontSize="17" FontWeight="Bold" Margin="0,8,0,0"/></StackPanel><StackPanel Grid.Column="1"><TextBlock Text="Посилання" Foreground="{StaticResource Muted}"/><TextBox x:Name="StreamUrlBox" IsReadOnly="True" Margin="0,6,0,0"/></StackPanel></Grid>
+                        <Border Grid.Row="5" Background="{DynamicResource PanelDeep}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="5" Padding="12"><TextBlock Text="Це вікно редагує активну або заплановану трансляцію вашого авторизованого YouTube-каналу через YouTube Data API. Для роботи спочатку авторизуйте YouTube у модулі «Канали та Discord»." Foreground="{StaticResource Muted}" TextWrapping="Wrap"/></Border>
+                        <WrapPanel Grid.Row="6" HorizontalAlignment="Right" VerticalAlignment="Center"><Button Content="ПІДКЛЮЧИТИ / АВТОРИЗУВАТИ" Click="OpenChannels_Click" Background="{DynamicResource PurpleButtonBackground}"/><Button Content="ВІДКРИТИ YOUTUBE STUDIO" Click="OpenYouTube_Click"/><Button Content="ЗБЕРЕГТИ В YOUTUBE" Click="SaveBroadcast_Click" Background="{DynamicResource RedButtonBackground}"/></WrapPanel>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="2" Background="{DynamicResource PanelDeep}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="5" Padding="10"><TextBlock x:Name="StatusText" Text="Натисніть «Оновити список»." Foreground="{StaticResource Green}" VerticalAlignment="Center"/></Border>
+            </Grid>
+    </Border>
+</services:ModuleWindowBase>

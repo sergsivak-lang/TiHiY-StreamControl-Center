@@ -1,34 +1,19 @@
 name: Windows Build
-
 on:
   push:
-    branches: [ main, "agent/**" ]
-  pull_request:
-    branches: [ main ]
-
+  workflow_dispatch:
 jobs:
   build:
     runs-on: windows-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup .NET 8
-        uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
-
-      - name: Restore
-        run: dotnet restore TiHiY.StreamControlCenter.sln
-
-      - name: Build
-        run: dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore
-
-      - name: Publish portable Windows build
-        run: dotnet publish src/TiHiY.StreamControlCenter/TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish
-
-      - name: Upload program
-        uses: actions/upload-artifact@v4
+          dotnet-version: '9.0.x'
+      - run: dotnet restore TiHiY.StreamControlCenter.csproj -r win-x64
+      - run: dotnet build TiHiY.StreamControlCenter.csproj -c Release --no-restore
+      - run: dotnet publish TiHiY.StreamControlCenter.csproj -c Release -r win-x64 --self-contained true --no-restore -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o Release
+      - uses: actions/upload-artifact@v4
         with:
-          name: TiHiY-StreamControl-Center-win-x64
-          path: publish/**
+          name: TiHiY-StreamControl-Center-Test-v0.7.8-win-x64
+          path: Release/**

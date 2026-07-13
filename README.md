@@ -1,47 +1,35 @@
-# TiHiY StreamControl Center
+# TiHiY StreamControl Center — Cyber Amber Full UI v3
 
-Тестова робоча основа окремої програми керування стрімом для каналу **TiHiY-DED**.
+Ця гілка створена **з функціональної бази v0.7.8**, а не з невдалого v0.9.0.
 
-## Уже реалізовано
+## Що змінено
 
-- головне вікно українською мовою;
-- вкладки **Чат**, **Overlay**, **Бот і команди**, **Налаштування**;
-- локальний журнал подій усередині програми;
-- тестові повідомлення Twitch та YouTube;
-- локальні команди бота з редагуванням;
-- overlay-чат як окреме Windows-вікно;
-- автоматичне закриття overlay разом із головною програмою;
-- прозорість застосовується тільки до фону overlay;
-- текст чату та статистика залишаються непрозорими;
-- перемикач **Пропускати кліки** керується тільки з головної програми;
-- внизу overlay відображаються глядачі та лайки;
-- локальне збереження налаштувань у `%AppData%\TiHiY\StreamControlCenter\settings.json`;
-- GitHub Actions для автоматичної перевірки та створення Windows-збірки.
+- повністю новий `MainWindow.xaml` у затвердженому Cyber Amber стилі;
+- глобальна система оформлення `Themes/CyberAmber.xaml` для всіх вікон;
+- нові шаблони кнопок, полів, списків, ComboBox, CheckBox, Slider, ProgressBar, ScrollBar та DataGrid;
+- новий логотип і Windows-іконка;
+- функціональні обробники v0.7.8 не видалені;
+- Twitch, YouTube, Discord, Donatello, OBS Audio, overlay і музичний модуль збережені;
+- додано режим `--render-preview`, який рендерить **реальний WPF-скріншот** з поточної збірки;
+- GitHub Actions збирає Windows-версію, запускає WPF renderer і додає фактичний скріншот до artifact.
 
-## Як запустити локально
+## Перевірка через GitHub
 
-1. Встановити **.NET 8 Desktop Runtime** або **.NET 8 SDK**.
-2. Відкрити `TiHiY.StreamControlCenter.sln` у Visual Studio 2022.
-3. Запустити проєкт `TiHiY.StreamControlCenter`.
+1. Запустіть `UPLOAD-TO-GITHUB.bat`.
+2. Відкрийте **GitHub → Actions**.
+3. Оберіть workflow **Build Cyber Amber v3**.
+4. Запустіть його для гілки `agent/cyber-amber-full-ui-v3`.
+5. Після зеленого результату завантажте artifact `TiHiY-Cyber-Amber-v3-...`.
+6. Усередині artifact будуть:
+   - готова portable Windows-програма;
+   - `Cyber-Amber-Actual.png` — фактичний WPF-рендер;
+   - `Cyber-Amber-Approved.png` — затверджений еталон;
+   - `BUILD-REPORT.txt`.
 
-Або в терміналі:
+## Локальна перевірка
 
-```powershell
-dotnet run --project .\src\TiHiY.StreamControlCenter\TiHiY.StreamControlCenter.csproj
-```
+`VERIFY-CYBER-UI.bat` збирає self-contained win-x64 версію, запускає renderer і відкриває фактичний скріншот.
 
-## Як отримати готову збірку з GitHub
+## Важливо
 
-Після успішного запуску workflow **Windows Build** відкрийте його та завантажте artifact:
-
-`TiHiY-StreamControl-Center-win-x64`
-
-## Наступні модулі
-
-- OAuth-підключення Twitch;
-- YouTube Live Chat API;
-- автоматичне отримання реальних глядачів і лайків;
-- алерти;
-- OBS WebSocket;
-- імпорт доступних налаштувань RutonyChat;
-- інсталятор Windows.
+Цей пакет є вихідним кодом для реальної Windows-перевірки. Результат вважається прийнятим лише після зеленої GitHub Actions збірки та порівняння `Cyber-Amber-Actual.png` з еталоном.

@@ -1,0 +1,21 @@
+TiHiY StreamControl Center — Cyber Amber v3
+STATIC PRE-CHECK
+
+Base: TiHiY StreamControl Center v0.7.8 Responsive Donations Local Chat
+Target branch: agent/cyber-amber-full-ui-v3
+Version: 0.9.1-cyber-amber-full-ui-v3
+
+Checked in this environment:
+- all 13 XAML files are well-formed XML;
+- all XAML event handlers exist in matching code-behind files;
+- all referenced theme resource keys are defined;
+- app logo, ICO, approved reference and workflow files exist;
+- no NotImplementedException was found;
+- old bin/obj/publish/log/settings/token files are absent.
+
+Not checked in this environment:
+- actual Windows WPF compilation;
+- actual runtime behavior;
+- real integrations.
+
+GitHub Actions performs the Windows build, publish and real WPF screenshot render.
