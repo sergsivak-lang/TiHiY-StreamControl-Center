@@ -1,0 +1,443 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Cyber Amber palette -->
+    <Color x:Key="ColorBg0">#02070C</Color>
+    <Color x:Key="ColorBg1">#061019</Color>
+    <Color x:Key="ColorPanel">#071722</Color>
+    <Color x:Key="ColorPanel2">#0A2330</Color>
+    <Color x:Key="ColorPanelHover">#103648</Color>
+    <Color x:Key="ColorLine">#1D5E75</Color>
+    <Color x:Key="ColorLineSoft">#123B4B</Color>
+    <Color x:Key="ColorCyan">#39D8FF</Color>
+    <Color x:Key="ColorCyan2">#12AEE8</Color>
+    <Color x:Key="ColorAmber">#FFB21C</Color>
+    <Color x:Key="ColorAmber2">#FF7A18</Color>
+    <Color x:Key="ColorGreen">#26E879</Color>
+    <Color x:Key="ColorYellow">#FFD329</Color>
+    <Color x:Key="ColorRed">#FF4C58</Color>
+    <Color x:Key="ColorText">#ECF8FF</Color>
+    <Color x:Key="ColorMuted">#86A7B6</Color>
+
+    <SolidColorBrush x:Key="Bg0" Color="{StaticResource ColorBg0}"/>
+    <SolidColorBrush x:Key="Bg1" Color="{StaticResource ColorBg1}"/>
+    <SolidColorBrush x:Key="Panel" Color="{StaticResource ColorPanel}"/>
+    <SolidColorBrush x:Key="Panel2" Color="{StaticResource ColorPanel2}"/>
+    <SolidColorBrush x:Key="PanelHover" Color="{StaticResource ColorPanelHover}"/>
+    <SolidColorBrush x:Key="Line" Color="{StaticResource ColorLine}"/>
+    <SolidColorBrush x:Key="LineSoft" Color="{StaticResource ColorLineSoft}"/>
+    <SolidColorBrush x:Key="Cyan" Color="{StaticResource ColorCyan}"/>
+    <SolidColorBrush x:Key="Cyan2" Color="{StaticResource ColorCyan2}"/>
+    <SolidColorBrush x:Key="Amber" Color="{StaticResource ColorAmber}"/>
+    <SolidColorBrush x:Key="Amber2" Color="{StaticResource ColorAmber2}"/>
+    <SolidColorBrush x:Key="Green" Color="{StaticResource ColorGreen}"/>
+    <SolidColorBrush x:Key="Yellow" Color="{StaticResource ColorYellow}"/>
+    <SolidColorBrush x:Key="Red" Color="{StaticResource ColorRed}"/>
+    <SolidColorBrush x:Key="Text" Color="{StaticResource ColorText}"/>
+    <SolidColorBrush x:Key="Muted" Color="{StaticResource ColorMuted}"/>
+
+    <LinearGradientBrush x:Key="WindowGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#02070C" Offset="0"/>
+        <GradientStop Color="#071621" Offset="0.52"/>
+        <GradientStop Color="#02080D" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="PanelGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#0A202C" Offset="0"/>
+        <GradientStop Color="#06121B" Offset="0.6"/>
+        <GradientStop Color="#040C12" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="ButtonGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#12394A" Offset="0"/>
+        <GradientStop Color="#0A202D" Offset="0.5"/>
+        <GradientStop Color="#06131D" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="AmberButtonGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#5A3B0A" Offset="0"/>
+        <GradientStop Color="#2F1E06" Offset="0.55"/>
+        <GradientStop Color="#160D02" Offset="1"/>
+    </LinearGradientBrush>
+
+    <DropShadowEffect x:Key="CyanGlow" Color="#2AD9FF" BlurRadius="12" ShadowDepth="0" Opacity="0.34"/>
+    <DropShadowEffect x:Key="AmberGlow" Color="#FF9F1A" BlurRadius="14" ShadowDepth="0" Opacity="0.42"/>
+    <DropShadowEffect x:Key="PanelShadow" Color="#000000" BlurRadius="18" ShadowDepth="5" Opacity="0.55"/>
+
+    <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+
+    <Style TargetType="Window">
+        <Setter Property="Background" Value="{StaticResource WindowGradient}"/>
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+    <Style TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+    </Style>
+
+    <!-- Reusable HUD panel with cyan/amber corner details. -->
+    <Style x:Key="HudPanel" TargetType="ContentControl">
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+        <Setter Property="Background" Value="{StaticResource PanelGradient}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Line}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="14"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Grid>
+                        <Border x:Name="Outer" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="7" Effect="{StaticResource PanelShadow}"/>
+                        <Border Margin="4" BorderBrush="#163D4B" BorderThickness="1" CornerRadius="4" Opacity="0.72"/>
+                        <Grid IsHitTestVisible="False">
+                            <Path Data="M0,18 L0,0 L26,0" Stroke="{StaticResource Amber}" StrokeThickness="2" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-1"/>
+                            <Path Data="M0,0 L26,0 L26,3" Stroke="{StaticResource Cyan}" StrokeThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="7,5,0,0"/>
+                            <Path Data="M26,18 L26,0 L0,0" Stroke="{StaticResource Amber}" StrokeThickness="2" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-1,-1,0"/>
+                            <Path Data="M0,0 L26,0 L26,3" Stroke="{StaticResource Cyan}" StrokeThickness="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,7,0"/>
+                            <Path Data="M0,0 L0,18 L26,18" Stroke="{StaticResource Cyan}" StrokeThickness="1.5" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="4,0,0,4" Opacity="0.75"/>
+                            <Path Data="M26,0 L26,18 L0,18" Stroke="{StaticResource Amber}" StrokeThickness="1.5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,4,4" Opacity="0.72"/>
+                        </Grid>
+                        <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="HudPanelAmber" TargetType="ContentControl" BasedOn="{StaticResource HudPanel}">
+        <Setter Property="BorderBrush" Value="#B87515"/>
+        <Setter Property="Effect" Value="{StaticResource AmberGlow}"/>
+    </Style>
+
+    <Style x:Key="PanelBorder" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource PanelGradient}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Line}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="7"/>
+        <Setter Property="Padding" Value="14"/>
+    </Style>
+
+    <!-- Main cyber button -->
+    <Style TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+        <Setter Property="Background" Value="{StaticResource ButtonGradient}"/>
+        <Setter Property="BorderBrush" Value="#227C99"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="11,7"/>
+        <Setter Property="Margin" Value="3"/>
+        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="Root">
+                        <Border x:Name="Glow" Margin="2" CornerRadius="4" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" Opacity="0.23"/>
+                        <Border x:Name="Chrome" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <Grid>
+                                <Border Height="2" VerticalAlignment="Top" Margin="8,0" Background="{TemplateBinding BorderBrush}" Opacity="0.75"/>
+                                <Border Height="1" VerticalAlignment="Bottom" Margin="14,0" Background="#113B4A"/>
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  Margin="{TemplateBinding Padding}"
+                                                  RecognizesAccessKey="True"/>
+                            </Grid>
+                        </Border>
+                        <Path Data="M0,7 L0,0 L7,0" Stroke="{StaticResource Amber}" StrokeThickness="1.2" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1" Opacity="0.85"/>
+                        <Path Data="M7,7 L7,0 L0,0" Stroke="{StaticResource Amber}" StrokeThickness="1.2" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="1" Opacity="0.85"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource Cyan}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="#123C50"/>
+                            <Setter TargetName="Glow" Property="Opacity" Value="0.85"/>
+                            <Setter TargetName="Root" Property="Effect" Value="{StaticResource CyanGlow}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="#06121A"/>
+                            <Setter TargetName="Root" Property="RenderTransform">
+                                <Setter.Value><TranslateTransform Y="1"/></Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Root" Property="Opacity" Value="0.38"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="AmberButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Background" Value="{StaticResource AmberButtonGradient}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Amber}"/>
+        <Setter Property="Foreground" Value="#FFF4CF"/>
+    </Style>
+    <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Background" Value="#391017"/>
+        <Setter Property="BorderBrush" Value="#D54150"/>
+    </Style>
+    <Style x:Key="WindowButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Width" Value="38"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="2"/>
+        <Setter Property="Background" Value="#071620"/>
+        <Setter Property="BorderBrush" Value="#164354"/>
+    </Style>
+
+    <Style x:Key="ModuleButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="MinHeight" Value="68"/>
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Padding" Value="6"/>
+        <Setter Property="Margin" Value="5"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Background" Value="#071B27"/>
+        <Setter Property="BorderBrush" Value="#1B6880"/>
+    </Style>
+
+    <Style x:Key="StatusPill" TargetType="Border">
+        <Setter Property="Background" Value="#061923"/>
+        <Setter Property="BorderBrush" Value="#214E5E"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="5"/>
+        <Setter Property="Padding" Value="10,6"/>
+        <Setter Property="Margin" Value="0,0,7,0"/>
+    </Style>
+
+    <Style TargetType="TextBox">
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+        <Setter Property="Background" Value="#041018"/>
+        <Setter Property="BorderBrush" Value="#1B5B70"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CaretBrush" Value="{StaticResource Cyan}"/>
+        <Setter Property="SelectionBrush" Value="#395D7188"/>
+        <Setter Property="Padding" Value="9,7"/>
+        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Grid>
+                        <Border x:Name="Box" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4"/>
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                        <Border Height="1" VerticalAlignment="Bottom" Margin="10,0" Background="#143C4A"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource Cyan}"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.5"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="PasswordBox">
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+        <Setter Property="Background" Value="#041018"/>
+        <Setter Property="BorderBrush" Value="#1B5B70"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="9,7"/>
+        <Setter Property="MinHeight" Value="34"/>
+    </Style>
+
+    <Style x:Key="ComboToggleStyle" TargetType="ToggleButton">
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="ClickMode" Value="Press"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="ComboChrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="30"/></Grid.ColumnDefinitions>
+                            <ContentPresenter Margin="9,0,4,0" VerticalAlignment="Center" HorizontalAlignment="Left" RecognizesAccessKey="True"/>
+                            <Border Grid.Column="1" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,0,0,0">
+                                <Path Data="M0,0 L5,5 L10,0 Z" Fill="{StaticResource Amber}" Width="10" Height="5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ComboChrome" Property="BorderBrush" Value="{StaticResource Cyan}"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ComboChrome" Property="Opacity" Value="0.55"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ComboBox">
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+        <Setter Property="Background" Value="#071923"/>
+        <Setter Property="BorderBrush" Value="#1B5B70"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton x:Name="ToggleButton" Style="{StaticResource ComboToggleStyle}"
+                                      Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                      Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                      ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" Foreground="{TemplateBinding Foreground}"
+                                      IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"/>
+                        <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                            <Border Background="#071923" BorderBrush="{StaticResource Cyan}" BorderThickness="1" CornerRadius="4" MinWidth="{Binding ActualWidth, ElementName=ToggleButton}" MaxHeight="380">
+                                <ScrollViewer Margin="2" CanContentScroll="True"><ItemsPresenter/></ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="ComboBoxItem">
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+        <Setter Property="Background" Value="#071923"/>
+        <Setter Property="Padding" Value="9,7"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Style.Triggers>
+            <Trigger Property="IsHighlighted" Value="True"><Setter Property="Background" Value="#104157"/><Setter Property="Foreground" Value="White"/></Trigger>
+            <Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="#6B410C"/><Setter Property="Foreground" Value="White"/></Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+        <Setter Property="Margin" Value="4"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style TargetType="ListBox">
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+    </Style>
+    <Style TargetType="ListBoxItem">
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="0,1"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="#173547"/></Trigger>
+            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#0D2937"/></Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="ProgressBar">
+        <Setter Property="Height" Value="10"/>
+        <Setter Property="Background" Value="#02080D"/>
+        <Setter Property="Foreground" Value="{StaticResource Amber}"/>
+        <Setter Property="BorderBrush" Value="#2E5867"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ProgressBar">
+                    <Grid>
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3"/>
+                        <Grid x:Name="PART_Track" Margin="2">
+                            <Border x:Name="PART_Indicator" HorizontalAlignment="Left" CornerRadius="2">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#18D86D" Offset="0"/>
+                                        <GradientStop Color="#C9E73B" Offset="0.65"/>
+                                        <GradientStop Color="#FFB21C" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Slider">
+        <Setter Property="Foreground" Value="{StaticResource Amber}"/>
+        <Setter Property="Margin" Value="4,0"/>
+        <Setter Property="MinHeight" Value="22"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid VerticalAlignment="Center">
+                        <Border Height="5" Background="#02080D" BorderBrush="#225066" BorderThickness="1" CornerRadius="2" VerticalAlignment="Center"/>
+                        <Track x:Name="PART_Track" VerticalAlignment="Center">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="Slider.DecreaseLarge" Background="#2A7E92" BorderThickness="0" Height="5" Template="{x:Null}"/>
+                            </Track.DecreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Width="14" Height="20">
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Grid>
+                                                <Border Background="#FFB21C" BorderBrush="#FFE2A0" BorderThickness="1" CornerRadius="2" Effect="{StaticResource AmberGlow}"/>
+                                                <Border Width="2" Height="10" Background="#6E3B00" CornerRadius="1"/>
+                                            </Grid>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="Slider.IncreaseLarge" Background="Transparent" BorderThickness="0" Height="5" Template="{x:Null}"/>
+                            </Track.IncreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ScrollBar">
+        <Setter Property="Background" Value="#030B10"/>
+        <Setter Property="Foreground" Value="#1F6A82"/>
+        <Setter Property="Width" Value="10"/>
+    </Style>
+
+    <Style TargetType="DataGrid">
+        <Setter Property="Background" Value="#041018"/>
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+        <Setter Property="BorderBrush" Value="#1B5B70"/>
+        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="#163A48"/>
+        <Setter Property="RowBackground" Value="#06131C"/>
+        <Setter Property="AlternatingRowBackground" Value="#081A24"/>
+    </Style>
+    <Style TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="#0A2633"/>
+        <Setter Property="Foreground" Value="{StaticResource Cyan}"/>
+        <Setter Property="BorderBrush" Value="#1B5B70"/>
+        <Setter Property="Padding" Value="9,7"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style TargetType="TabControl">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="#1B5B70"/>
+    </Style>
+    <Style TargetType="TabItem">
+        <Setter Property="Foreground" Value="{StaticResource Muted}"/>
+        <Setter Property="Background" Value="#071923"/>
+        <Setter Property="BorderBrush" Value="#1B5B70"/>
+        <Setter Property="Padding" Value="12,7"/>
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True"><Setter Property="Foreground" Value="{StaticResource Amber}"/><Setter Property="Background" Value="#102B38"/></Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="GroupBox">
+        <Setter Property="Foreground" Value="{StaticResource Cyan}"/>
+        <Setter Property="BorderBrush" Value="#1B5B70"/>
+        <Setter Property="Background" Value="#06131C"/>
+        <Setter Property="Padding" Value="10"/>
+        <Setter Property="Margin" Value="4"/>
+    </Style>
+</ResourceDictionary>

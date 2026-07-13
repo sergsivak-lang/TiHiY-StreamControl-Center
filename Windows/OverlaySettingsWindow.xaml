@@ -1,0 +1,123 @@
+<services:ModuleWindowBase x:Class="TiHiY.StreamControlCenter.Windows.OverlaySettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:services="clr-namespace:TiHiY.StreamControlCenter.Services"
+        Title="Overlay для OBS і локальний чат" Width="1180" Height="760" MinWidth="760" MinHeight="520"
+        WindowStyle="None" ResizeMode="CanResize">
+    <Border BorderBrush="#2B829A" BorderThickness="1" Background="{StaticResource WindowGradient}">
+        <Grid x:Name="DesignSurface" Margin="12">
+            <Grid.RowDefinitions><RowDefinition Height="56"/><RowDefinition/><RowDefinition Height="54"/></Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="#061822" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid Margin="14,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="OVERLAY DESIGNER" FontSize="22" FontWeight="Bold" Foreground="{StaticResource Cyan}"/>
+                        <TextBlock Text="  •  OBS CHAT + ALERTS + ЛОКАЛЬНИЙ ЧАТ ПОВЕРХ ГРИ" Foreground="{StaticResource Muted}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="—" Width="40" Height="32" Padding="0" Background="Transparent" BorderThickness="0" Click="Minimize_Click"/>
+                        <Button Content="□" Width="40" Height="32" Padding="0" Background="Transparent" BorderThickness="0" Click="Maximize_Click"/>
+                        <Button Content="×" Width="40" Height="32" Padding="0" Background="#3B0D13" BorderBrush="{StaticResource Red}" BorderThickness="0" Click="Close_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="1" Margin="0,10,0,8">
+                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="7"/><ColumnDefinition/></Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource PanelBorder}" Margin="0,0,7,0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+                        <StackPanel Margin="0,0,5,0">
+                            <TextBlock Text="OBS BROWSER SOURCE" FontSize="18" FontWeight="Bold" Foreground="{StaticResource Cyan}"/>
+
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="105"/></Grid.ColumnDefinitions>
+                                <StackPanel><TextBlock Text="Тема overlay" Foreground="{StaticResource Muted}"/><ComboBox x:Name="ThemeCombo" SelectionChanged="ThemeCombo_SelectionChanged"><ComboBoxItem Content="Star Citizen MFD"/><ComboBoxItem Content="Cobra Team Six"/><ComboBoxItem Content="TiHiY-DED Ukraine"/><ComboBoxItem Content="Minimal Transparent"/><ComboBoxItem Content="Compact Gaming"/></ComboBox></StackPanel>
+                                <StackPanel Grid.Column="1" Margin="8,0,0,0"><TextBlock Text="Порт" Foreground="{StaticResource Muted}"/><TextBox x:Name="PortBox" Text="17845"/></StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="Chat overlay URL — цей чат бачить глядач у трансляції" Foreground="{StaticResource Muted}" Margin="0,8,0,0"/>
+                            <TextBox x:Name="ChatUrlBox" IsReadOnly="True" Margin="0,3,0,3"/>
+                            <WrapPanel><Button Content="ВІДКРИТИ OBS CHAT" Click="OpenChat_Click" Background="#1453A5"/><Button Content="СКОПІЮВАТИ URL" Click="CopyChat_Click"/><Button Content="ПЕРЕЗАПУСТИТИ SERVER" Click="RestartServer_Click"/></WrapPanel>
+
+                            <TextBlock Text="Alerts overlay URL" Foreground="{StaticResource Muted}" Margin="0,8,0,0"/>
+                            <TextBox x:Name="AlertsUrlBox" IsReadOnly="True" Margin="0,3,0,3"/>
+                            <WrapPanel><Button Content="ВІДКРИТИ ALERTS" Click="OpenAlerts_Click" Background="#7A5A10"/><Button Content="СКОПІЮВАТИ URL" Click="CopyAlerts_Click"/></WrapPanel>
+
+                            <TextBlock Text="Now Playing URL" Foreground="{StaticResource Muted}" Margin="0,8,0,0"/>
+                            <TextBox x:Name="NowPlayingUrlBox" IsReadOnly="True" Margin="0,3,0,3"/>
+                            <WrapPanel><Button Content="ВІДКРИТИ NOW PLAYING" Click="OpenNowPlaying_Click" Background="#123B32"/><Button Content="СКОПІЮВАТИ URL" Click="CopyNowPlaying_Click"/></WrapPanel>
+
+                            <Border Background="#0B221B" BorderBrush="#2B7E5B" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,12,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="ЛОКАЛЬНИЙ ЧАТ ПОВЕРХ ГРИ — ДЛЯ ВАС" Foreground="{StaticResource Green}" FontWeight="Bold" FontSize="16"/>
+                                    <TextBlock Text="Окреме прозоре вікно поверх гри. Воно не є OBS Browser Source. Для гарантованого показу використовуйте гру у режимі «без рамки» або «у вікні»." TextWrapping="Wrap" Foreground="{StaticResource Muted}" Margin="0,4,0,7"/>
+                                    <WrapPanel>
+                                        <Button Content="ВІДКРИТИ ЧАТ ПОВЕРХ ГРИ" Click="OpenLocalOverlay_Click" Background="#17613E"/>
+                                        <Button Content="ПРИХОВАТИ" Click="CloseLocalOverlay_Click" Background="#6E1B24"/>
+                                    </WrapPanel>
+                                    <WrapPanel Margin="0,5,0,0">
+                                        <CheckBox x:Name="LocalOverlayAutoStartCheck" Content="Запускати разом із програмою" Checked="LocalOverlaySetting_Changed" Unchecked="LocalOverlaySetting_Changed"/>
+                                        <CheckBox x:Name="LocalOverlayClickThroughCheck" Content="Пропускати кліки крізь overlay" Margin="14,3,3,3" Checked="LocalOverlaySetting_Changed" Unchecked="LocalOverlaySetting_Changed"/>
+                                    </WrapPanel>
+                                    <Grid Margin="0,7,0,0">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="150"/><ColumnDefinition/><ColumnDefinition Width="55"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Прозорість фону" Foreground="{StaticResource Muted}" VerticalAlignment="Center"/>
+                                        <Slider x:Name="LocalOverlayOpacitySlider" Grid.Column="1" Minimum="0" Maximum="0.7" SmallChange="0.05" LargeChange="0.1" ValueChanged="LocalOverlayOpacitySlider_ValueChanged"/>
+                                        <TextBlock x:Name="LocalOverlayOpacityText" Grid.Column="2" Text="12%" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Background="#06131C" BorderBrush="#1D4E5C" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,10,0,0">
+                                <TextBlock Text="OBS: додайте Browser Source 700×900 для чату та 1100×500 для alerts. Локальний чат відкривається кнопкою вище і призначений тільки для вас." TextWrapping="Wrap" Foreground="{StaticResource Muted}"/>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <GridSplitter Grid.Column="1" Width="7" Background="#163847" ShowsPreview="True"/>
+
+                <Border Grid.Column="2" Style="{StaticResource PanelBorder}" Margin="7,0,0,0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+                        <StackPanel Margin="0,0,5,0">
+                            <TextBlock Text="КОЛЬОРИ, ЗВЕРНЕННЯ ТА ЛІЧИЛЬНИКИ" FontSize="18" FontWeight="Bold" Foreground="{StaticResource Cyan}"/>
+                            <TextBlock Text="Слова та фрази для виділення" Foreground="{StaticResource Muted}" Margin="0,8,0,0"/>
+                            <TextBox x:Name="HighlightWordsBox" AcceptsReturn="True" TextWrapping="Wrap" Height="78" Margin="0,4,0,0"/>
+
+                            <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Margin="0,0,6,6"><TextBlock Text="Власник" Foreground="{StaticResource Muted}"/><TextBox x:Name="OwnerColorBox"/></StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="6,0,0,6"><TextBlock Text="Модератор" Foreground="{StaticResource Muted}"/><TextBox x:Name="ModeratorColorBox"/></StackPanel>
+                                <StackPanel Grid.Row="1" Margin="0,0,6,6"><TextBlock Text="Підписник / Member" Foreground="{StaticResource Muted}"/><TextBox x:Name="SubscriberColorBox"/></StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="1" Margin="6,0,0,6"><TextBlock Text="VIP" Foreground="{StaticResource Muted}"/><TextBox x:Name="VipColorBox"/></StackPanel>
+                                <StackPanel Grid.Row="2" Margin="0,0,6,6"><TextBlock Text="Звичайний глядач" Foreground="{StaticResource Muted}"/><TextBox x:Name="ViewerColorBox"/></StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="1" Margin="6,0,0,6"><TextBlock Text="Бот" Foreground="{StaticResource Muted}"/><TextBox x:Name="BotColorBox"/></StackPanel>
+                                <StackPanel Grid.Row="3" Margin="0,0,6,0"><TextBlock Text="Текст звернення" Foreground="{StaticResource Muted}"/><TextBox x:Name="HighlightTextColorBox"/></StackPanel>
+                                <StackPanel Grid.Row="3" Grid.Column="1" Margin="6,0,0,0"><TextBlock Text="Фон звернення" Foreground="{StaticResource Muted}"/><TextBox x:Name="HighlightBackgroundBox"/></StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,10,0,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <StackPanel><TextBlock Text="Twitch viewers" Foreground="{StaticResource Muted}"/><TextBox x:Name="TwitchViewersBox" Text="0"/></StackPanel>
+                                <StackPanel Grid.Column="1" Margin="6,0"><TextBlock Text="YouTube viewers" Foreground="{StaticResource Muted}"/><TextBox x:Name="YouTubeViewersBox" Text="0"/></StackPanel>
+                                <StackPanel Grid.Column="2"><TextBlock Text="YouTube likes" Foreground="{StaticResource Muted}"/><TextBox x:Name="YouTubeLikesBox" Text="0"/></StackPanel>
+                                <Button Grid.Column="3" Content="ЗАСТОСУВАТИ" Click="ApplyStats_Click" VerticalAlignment="Bottom"/>
+                            </Grid>
+
+                            <WrapPanel HorizontalAlignment="Right" Margin="0,12,0,0">
+                                <Button Content="ТЕСТ ЗВЕРНЕННЯ" Click="TestMention_Click"/>
+                                <Button Content="ЗБЕРЕГТИ ОФОРМЛЕННЯ" Click="Save_Click" Background="#1453A5"/>
+                            </WrapPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+
+            <Border Grid.Row="2" Background="#06131C" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="5" Padding="8">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <TextBlock x:Name="StatusText" Text="Overlay Server готовий" Foreground="{StaticResource Green}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                    <Button Grid.Column="1" Content="ВІДКРИТИ ПАПКУ НАЛАШТУВАНЬ" Click="OpenSettingsFolder_Click"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</services:ModuleWindowBase>

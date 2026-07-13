@@ -1,0 +1,72 @@
+name: Build Cyber Amber v4
+
+on:
+  push:
+    branches:
+      - main
+      - 'agent/cyber-amber-real-ui-v4'
+  workflow_dispatch:
+
+jobs:
+  build-and-render:
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore
+        run: dotnet restore TiHiY.StreamControlCenter.sln
+
+      - name: Build Release
+        run: dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore
+
+      - name: Publish Windows x64
+        run: dotnet publish TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish --no-build
+
+      - name: Render actual WPF screenshot
+        shell: pwsh
+        run: |
+          $actual = Join-Path $PWD 'Cyber-Amber-Actual.png'
+          $exe = Join-Path $PWD 'publish\TiHiY.StreamControlCenter.exe'
+          if (!(Test-Path $exe)) { throw "Published EXE not found: $exe" }
+          & $exe "--ci-screenshot=$actual"
+          if ($LASTEXITCODE -ne 0) { throw "Application screenshot mode failed with exit code $LASTEXITCODE" }
+          if (!(Test-Path $actual)) {
+            Get-ChildItem -Recurse -Filter '*.error.txt' | ForEach-Object { Get-Content $_.FullName }
+            throw 'Cyber-Amber-Actual.png was not created.'
+          }
+          $size = (Get-Item $actual).Length
+          if ($size -lt 50000) { throw "Screenshot is unexpectedly small: $size bytes" }
+
+      - name: Build report
+        shell: pwsh
+        run: |
+          @"
+          TiHiY StreamControl Center — Cyber Amber v4
+          Commit: $env:GITHUB_SHA
+          Branch: $env:GITHUB_REF_NAME
+          Runner: $env:RUNNER_OS
+          Build: SUCCESS
+          WPF startup: SUCCESS
+          Actual screenshot: Cyber-Amber-Actual.png
+          Approved reference: Design/Cyber-Amber-Approved.png
+          "@ | Set-Content -Encoding UTF8 BUILD-REPORT.txt
+
+      - name: Upload test artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TiHiY-Cyber-Amber-v4-${{ github.run_number }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            publish/**
+            Cyber-Amber-Actual.png
+            Design/Cyber-Amber-Approved.png
+            BUILD-REPORT.txt

@@ -1,10 +1,6 @@
-.vs/
-.vscode/
-.idea/
 bin/
 obj/
-publish/
+Release/
+BuildLogs/
+.vs/
 *.user
-*.suo
-*.userosscache
-*.sln.docstates

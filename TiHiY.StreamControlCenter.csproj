@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <NuGetAudit>false</NuGetAudit>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>TiHiY.StreamControlCenter</AssemblyName>
+    <RootNamespace>TiHiY.StreamControlCenter</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
+    <Version>0.9.1</Version>
+    <AssemblyVersion>0.9.1.0</AssemblyVersion>
+    <FileVersion>0.9.1.0</FileVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets\AppIcon.png" />
+    <Content Include="Design\Cyber-Amber-Approved.png" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

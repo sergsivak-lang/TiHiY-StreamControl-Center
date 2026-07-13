@@ -1,47 +1,19 @@
-# TiHiY StreamControl Center
+# TiHiY StreamControl Center Test v0.7.8
 
-Тестова робоча основа окремої програми керування стрімом для каналу **TiHiY-DED**.
+Тестова WPF-програма для Twitch, YouTube, Discord, OBS Audio та Donatello.
 
-## Уже реалізовано
+## Donatello API
 
-- головне вікно українською мовою;
-- вкладки **Чат**, **Overlay**, **Бот і команди**, **Налаштування**;
-- локальний журнал подій усередині програми;
-- тестові повідомлення Twitch та YouTube;
-- локальні команди бота з редагуванням;
-- overlay-чат як окреме Windows-вікно;
-- автоматичне закриття overlay разом із головною програмою;
-- прозорість застосовується тільки до фону overlay;
-- текст чату та статистика залишаються непрозорими;
-- перемикач **Пропускати кліки** керується тільки з головної програми;
-- внизу overlay відображаються глядачі та лайки;
-- локальне збереження налаштувань у `%AppData%\TiHiY\StreamControlCenter\settings.json`;
-- GitHub Actions для автоматичної перевірки та створення Windows-збірки.
+Програма використовує офіційний API Token у заголовку `X-Token` та endpoints `/me`, `/donates`, `/subscribers`. Токен зберігається у Windows Credential Manager.
 
-## Як запустити локально
+Нові події можуть одночасно з’являтися у панелі донатів, мультичаті, OBS Alerts overlay та окремому Discord-каналі монетизації.
 
-1. Встановити **.NET 8 Desktop Runtime** або **.NET 8 SDK**.
-2. Відкрити `TiHiY.StreamControlCenter.sln` у Visual Studio 2022.
-3. Запустити проєкт `TiHiY.StreamControlCenter`.
+## Discord
 
-Або в терміналі:
+Є два незалежні списки каналів:
+- початок Twitch/YouTube трансляцій;
+- донати й платні підписки Donatello/Twitch/YouTube.
 
-```powershell
-dotnet run --project .\src\TiHiY.StreamControlCenter\TiHiY.StreamControlCenter.csproj
-```
+## OBS
 
-## Як отримати готову збірку з GitHub
-
-Після успішного запуску workflow **Windows Build** відкрийте його та завантажте artifact:
-
-`TiHiY-StreamControl-Center-win-x64`
-
-## Наступні модулі
-
-- OAuth-підключення Twitch;
-- YouTube Live Chat API;
-- автоматичне отримання реальних глядачів і лайків;
-- алерти;
-- OBS WebSocket;
-- імпорт доступних налаштувань RutonyChat;
-- інсталятор Windows.
+У модулі Overlay доступні URL чату, Alerts і Now Playing.
