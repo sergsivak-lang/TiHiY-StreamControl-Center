@@ -1,0 +1,80 @@
+name: Build Windows Portable
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, develop, 'agent/**' ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build-win-x64:
+    runs-on: windows-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Show SDK information
+        shell: pwsh
+        run: dotnet --info
+
+      - name: Restore
+        shell: pwsh
+        run: dotnet restore .\TiHiY.StreamControlCenter.csproj -r win-x64
+
+      - name: Build
+        shell: pwsh
+        run: dotnet build .\TiHiY.StreamControlCenter.csproj -c Release --no-restore
+
+      - name: Publish portable EXE
+        shell: pwsh
+        run: >-
+          dotnet publish .\TiHiY.StreamControlCenter.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          --no-restore
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:DebugType=None
+          -o .\artifact\win-x64
+
+      - name: Verify published files
+        shell: pwsh
+        run: |
+          $exe = '.\artifact\win-x64\TiHiY.StreamControlCenter.exe'
+          if (-not (Test-Path $exe)) {
+            throw "Published EXE was not found: $exe"
+          }
+          Get-ChildItem .\artifact\win-x64 -Recurse | Format-Table FullName, Length
+
+      - name: Startup smoke test
+        shell: pwsh
+        run: |
+          $exe = Resolve-Path '.\artifact\win-x64\TiHiY.StreamControlCenter.exe'
+          $process = Start-Process -FilePath $exe -WorkingDirectory (Split-Path $exe) -PassThru
+          Start-Sleep -Seconds 8
+          $process.Refresh()
+          if ($process.HasExited) {
+            throw "Application exited during startup smoke test. Exit code: $($process.ExitCode)"
+          }
+          Stop-Process -Id $process.Id -Force
+          Write-Host 'Startup smoke test passed: application remained running for 8 seconds.'
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TiHiY-StreamControl-Center-win-x64
+          path: artifact/win-x64/**
+          if-no-files-found: error
+          retention-days: 14

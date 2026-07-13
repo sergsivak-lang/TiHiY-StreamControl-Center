@@ -1,47 +1,66 @@
 # TiHiY StreamControl Center
 
-Тестова робоча основа окремої програми керування стрімом для каналу **TiHiY-DED**.
+Windows WPF application for multichat, OBS audio control, Donatello donations, Twitch/YouTube integrations, Discord notifications, overlays and music.
 
-## Уже реалізовано
+## Current development status
 
-- головне вікно українською мовою;
-- вкладки **Чат**, **Overlay**, **Бот і команди**, **Налаштування**;
-- локальний журнал подій усередині програми;
-- тестові повідомлення Twitch та YouTube;
-- локальні команди бота з редагуванням;
-- overlay-чат як окреме Windows-вікно;
-- автоматичне закриття overlay разом із головною програмою;
-- прозорість застосовується тільки до фону overlay;
-- текст чату та статистика залишаються непрозорими;
-- перемикач **Пропускати кліки** керується тільки з головної програми;
-- внизу overlay відображаються глядачі та лайки;
-- локальне збереження налаштувань у `%AppData%\TiHiY\StreamControlCenter\settings.json`;
-- GitHub Actions для автоматичної перевірки та створення Windows-збірки.
+This repository is the working source base for the Cyber Amber rebuild. The current UI is **not yet accepted as visually matching** `docs/Cyber-Amber-TARGET.png`.
 
-## Як запустити локально
+- Target design: `docs/Cyber-Amber-TARGET.png`
+- Current failed visual reference: `docs/v0.9.0-CURRENT-FAILED.png`
+- Visual changes must preserve existing functional services and event handlers.
+- Do not call a release complete until Windows CI succeeds and a real local screenshot is compared with the target.
 
-1. Встановити **.NET 8 Desktop Runtime** або **.NET 8 SDK**.
-2. Відкрити `TiHiY.StreamControlCenter.sln` у Visual Studio 2022.
-3. Запустити проєкт `TiHiY.StreamControlCenter`.
+## Requirements
 
-Або в терміналі:
+- Windows 10/11 x64
+- .NET 9 SDK x64
+- OBS Studio with OBS WebSocket 5.x for OBS audio integration
 
-```powershell
-dotnet run --project .\src\TiHiY.StreamControlCenter\TiHiY.StreamControlCenter.csproj
+## Local build
+
+Run:
+
+```bat
+BUILD-AND-RUN.bat
 ```
 
-## Як отримати готову збірку з GitHub
+The published application is created in:
 
-Після успішного запуску workflow **Windows Build** відкрийте його та завантажте artifact:
+```text
+Release\TiHiY.StreamControlCenter.exe
+```
 
-`TiHiY-StreamControl-Center-win-x64`
+## Local verification and screenshot
 
-## Наступні модулі
+Run:
 
-- OAuth-підключення Twitch;
-- YouTube Live Chat API;
-- автоматичне отримання реальних глядачів і лайків;
-- алерти;
-- OBS WebSocket;
-- імпорт доступних налаштувань RutonyChat;
-- інсталятор Windows.
+```bat
+VERIFY-LOCAL.bat
+```
+
+It builds the application, launches it, checks that the process stays alive, and saves a real screenshot to:
+
+```text
+Verification\TiHiY-StreamControl-Center.png
+```
+
+## GitHub Actions
+
+Open **Actions → Build Windows Portable → Run workflow**.
+
+After a successful run, download the artifact:
+
+```text
+TiHiY-StreamControl-Center-win-x64
+```
+
+The workflow performs restore, Release build, self-contained publish, and an 8-second startup smoke test on `windows-latest`.
+
+## Security
+
+Do not commit API tokens, Discord bot tokens, OAuth client secrets, OBS passwords, local settings, `Release`, `bin`, `obj`, or `BuildLogs`. Runtime credentials are expected to be stored through Windows Credential Manager.
+
+## Safe GitHub upload
+
+Run `UPLOAD-TO-GITHUB.bat`. It clones the existing repository, creates `agent/cyber-amber-rebuild`, replaces that branch contents with this package, pushes it, and opens the Pull Request page. It does not force-push `main`.

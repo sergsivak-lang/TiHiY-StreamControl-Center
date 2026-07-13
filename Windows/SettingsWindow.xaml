@@ -1,0 +1,191 @@
+<services:ModuleWindowBase x:Class="TiHiY.StreamControlCenter.Windows.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:services="clr-namespace:TiHiY.StreamControlCenter.Services"
+        xmlns:ui="clr-namespace:TiHiY.StreamControlCenter.Services"
+        Title="Налаштування та теми" Width="1260" Height="790" MinWidth="920" MinHeight="620"
+        WindowStyle="None" ResizeMode="CanResize">
+    <Border Style="{StaticResource AppWindowFrame}">
+        <Grid Background="{DynamicResource AppBackgroundBrush}">
+            <Rectangle Fill="{DynamicResource CircuitBackdropBrush}" IsHitTestVisible="False"/>
+        <Grid x:Name="DesignSurface" Margin="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="58"/>
+                <RowDefinition/>
+                <RowDefinition Height="58"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Style="{StaticResource TitleBarBorder}" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid Margin="14,0">
+                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="40" Height="40" CornerRadius="9" BorderBrush="{DynamicResource Accent}" BorderThickness="1" Padding="2">
+                            <Image Source="/TiHiY.StreamControlCenter;component/Assets/AppIcon.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Border>
+                        <StackPanel Margin="11,0,0,0">
+                            <TextBlock FontSize="22" FontWeight="Bold"><Run Text="НАЛАШТУВАННЯ • " Foreground="{DynamicResource Cyan}"/><Run Text="ТЕМИ ПРОГРАМИ" Foreground="{DynamicResource Accent}"/></TextBlock>
+                            <TextBlock Text="OBS • масштаб • оформлення всіх вікон • журнал" Foreground="{DynamicResource Muted}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="&#xE921;" Width="40" Height="32" Padding="0" Background="Transparent" BorderThickness="0" Click="Minimize_Click" Style="{StaticResource WindowControlButton}"/>
+                        <Button Content="&#xE922;" Width="40" Height="32" Padding="0" Background="Transparent" BorderThickness="0" Click="Maximize_Click" Style="{StaticResource WindowControlButton}"/>
+                        <Button Content="&#xE8BB;" Width="40" Height="32" Padding="0" Background="{DynamicResource CloseBg}" BorderThickness="0" Click="Close_Click" Style="{StaticResource WindowControlButton}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="1" Margin="0,12,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="430" MinWidth="350"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*" MinWidth="470"/>
+                </Grid.ColumnDefinitions>
+
+                <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <Border Style="{StaticResource PanelBorder}" Margin="0,0,0,8">
+                            <StackPanel>
+                                <TextBlock Text="OBS WEBSOCKET" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Cyan}"/>
+                                <TextBlock Text="Адреса OBS WebSocket" Foreground="{DynamicResource Muted}" Margin="0,12,0,4"/>
+                                <TextBox x:Name="ObsUrlBox" Text="ws://127.0.0.1:4455"/>
+                                <TextBlock Text="Пароль" Foreground="{DynamicResource Muted}" Margin="0,10,0,4"/>
+                                <PasswordBox x:Name="ObsPasswordBox"/>
+                                <WrapPanel Margin="0,8,0,4">
+                                    <CheckBox x:Name="RememberPasswordCheck" Content="Зберегти пароль у Windows Credential Manager"/>
+                                    <CheckBox x:Name="AutoConnectCheck" Content="Автопідключення"/>
+                                </WrapPanel>
+                                <WrapPanel Margin="0,6,0,0">
+                                    <Button Content="ЗБЕРЕГТИ Й ПІДКЛЮЧИТИ" Click="SaveAndConnect_Click" Style="{StaticResource AccentButton}" ui:CyberUi.IconGlyph="&#xE74E;"/>
+                                    <Button Content="ВІДКЛЮЧИТИ OBS" Click="Disconnect_Click" ui:CyberUi.IconGlyph="&#xE8A7;"/>
+                                    <Button Content="ЗАБУТИ ПАРОЛЬ" Click="ForgetPassword_Click" Background="{DynamicResource DangerBg}" ui:CyberUi.IconGlyph="&#xE74D;"/>
+                                </WrapPanel>
+                                <TextBlock x:Name="ObsStatusText" Text="OBS не підключено" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="4,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource PanelBorder}" Margin="0,0,0,8">
+                            <StackPanel>
+                                <TextBlock Text="МАСШТАБУВАННЯ ІНТЕРФЕЙСУ" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Cyan}"/>
+                                <CheckBox x:Name="AutoScaleCheck" Content="Автоматично підлаштовувати всі вікна" Margin="0,10,0,5" Checked="AutoScaleCheck_Changed" Unchecked="AutoScaleCheck_Changed"/>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <TextBlock Text="Ручний масштаб" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Content="&#xE921;" Width="40" Click="ScaleDown_Click" Style="{StaticResource WindowControlButton}"/>
+                                        <Border Background="{DynamicResource InputBg}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="4" Width="70" Margin="2">
+                                            <TextBlock x:Name="ScaleText" Text="100%" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+                                        </Border>
+                                        <Button Content="+" Width="40" Click="ScaleUp_Click"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Text="Діапазон 60–150%. Масштаб діє на головне та всі модульні вікна." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource PanelBorder}">
+                            <StackPanel>
+                                <TextBlock Text="ПОВЕДІНКА ТЕМИ" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Cyan}"/>
+                                <CheckBox x:Name="AnimationsCheck" Content="Плавні анімації інтерфейсу" Margin="0,10,0,4" Checked="ThemeOption_Changed" Unchecked="ThemeOption_Changed"/>
+                                <CheckBox x:Name="OverlayThemeCheck" Content="Застосовувати тему до підтримуваних overlay" Checked="ThemeOption_Changed" Unchecked="ThemeOption_Changed"/>
+                                <TextBlock Text="Зміна теми застосовується відразу до всіх уже відкритих вікон." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <GridSplitter Grid.Column="1" Width="8" Background="{DynamicResource Line}" HorizontalAlignment="Stretch"/>
+
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="330"/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Style="{StaticResource PanelBorder}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="48"/><RowDefinition/></Grid.RowDefinitions>
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="ТЕМИ ПРОГРАМИ" FontSize="19" FontWeight="Bold" Foreground="{DynamicResource Cyan}"/>
+                                    <TextBlock Text="Основна тема Cyber Amber та чотири варіанти на вибір" Foreground="{DynamicResource Muted}"/>
+                                </StackPanel>
+                                <TextBlock x:Name="SelectedThemeText" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource Accent}" FontSize="15" FontWeight="Bold"/>
+                            </Grid>
+
+                            <ItemsControl Grid.Row="1" ItemsSource="{Binding ThemeChoices}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><UniformGrid Columns="5" Rows="1"/></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Tag="{Binding Id}" Click="ThemeCard_Click" Style="{StaticResource ThemeCardButton}">
+                                            <Border x:Name="Card" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="7" Padding="9" Background="{DynamicResource PanelDark}">
+                                                <Grid>
+                                                    <Grid.RowDefinitions><RowDefinition Height="92"/><RowDefinition Height="34"/><RowDefinition/></Grid.RowDefinitions>
+                                                    <Border CornerRadius="5" BorderBrush="{Binding PrimaryBrush}" BorderThickness="1" Background="{DynamicResource Bg0}" Padding="7">
+                                                        <Grid>
+                                                            <Grid.RowDefinitions><RowDefinition Height="16"/><RowDefinition/><RowDefinition Height="18"/></Grid.RowDefinitions>
+                                                            <Grid Grid.Row="0"><Border Background="{Binding PrimaryBrush}" Width="55" Height="4" HorizontalAlignment="Left"/><Border Background="{Binding AccentBrush}" Width="28" Height="4" HorizontalAlignment="Right"/></Grid>
+                                                            <Grid Grid.Row="1" Margin="0,6"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="34"/></Grid.ColumnDefinitions><StackPanel><Border Height="8" Background="{Binding PrimaryBrush}" Opacity="0.85" Margin="0,0,0,5"/><Border Height="8" Background="{Binding AccentBrush}" Opacity="0.75" Margin="0,0,0,5"/><Border Height="8" Background="{DynamicResource Line}"/></StackPanel><Border Grid.Column="1" Margin="6,0,0,0" BorderBrush="{Binding AccentBrush}" BorderThickness="1" CornerRadius="3"/></Grid>
+                                                            <Border Grid.Row="2" Background="{Binding AccentBrush}" CornerRadius="2" Opacity="0.8"/>
+                                                        </Grid>
+                                                    </Border>
+                                                    <TextBlock Grid.Row="1" Text="{Binding DisplayName}" Foreground="{Binding AccentBrush}" FontWeight="Bold" FontSize="13" VerticalAlignment="Center" TextAlignment="Center"/>
+                                                    <TextBlock Grid.Row="2" Text="{Binding Description}" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" TextAlignment="Center" FontSize="10.5"/>
+                                                </Grid>
+                                            </Border>
+                                        </Button>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource Accent}"/>
+                                                <Setter TargetName="Card" Property="BorderThickness" Value="2"/>
+                                                <Setter TargetName="Card" Property="Background" Value="{DynamicResource AccentSoft}"/>
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </Border>
+
+                    <GridSplitter Grid.Row="1" Height="8" Background="{DynamicResource Line}" HorizontalAlignment="Stretch"/>
+
+                    <Border Grid.Row="2" Style="{StaticResource PanelBorder}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="40"/><RowDefinition/><RowDefinition Height="50"/></Grid.RowDefinitions>
+                            <Grid>
+                                <TextBlock Text="ЖУРНАЛ ПОДІЙ" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Cyan}"/>
+                                <TextBlock Text="Останні 14 записів" HorizontalAlignment="Right" Foreground="{DynamicResource Muted}"/>
+                            </Grid>
+                            <ListBox Grid.Row="1" ItemsSource="{Binding VisibleLogs}" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="{DynamicResource ListSeparator}" BorderThickness="0,0,0,1" Padding="7,5">
+                                            <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Muted}"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="ОЧИСТИТИ" Click="ClearLog_Click" ui:CyberUi.IconGlyph="&#xE74D;"/>
+                                <Button Content="ВІДКРИТИ ПАПКУ LOGS" Click="OpenLogs_Click" Background="{DynamicResource SuccessBg}" ui:CyberUi.IconGlyph="&#xE8B7;"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
+
+            <Border Grid.Row="2" Background="{DynamicResource InputBg}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="5" Padding="9">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <TextBlock x:Name="StatusText" Text="Токени та паролі зберігаються у Windows Credential Manager" Foreground="{DynamicResource Green}" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" Content="ЗАСТОСУВАТИ ТЕМУ" Click="ApplyTheme_Click" Style="{StaticResource AccentButton}" ui:CyberUi.IconGlyph="&#xE771;"/>
+                    <Button Grid.Column="2" Content="ВІДКРИТИ ПАПКУ НАЛАШТУВАНЬ" Click="OpenSettingsFolder_Click" ui:CyberUi.IconGlyph="&#xE8B7;"/>
+                </Grid>
+            </Border>
+        </Grid>
+        </Grid>
+    </Border>
+</services:ModuleWindowBase>

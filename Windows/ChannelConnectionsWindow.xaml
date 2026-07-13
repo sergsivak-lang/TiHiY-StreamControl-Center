@@ -1,0 +1,94 @@
+<services:ModuleWindowBase x:Class="TiHiY.StreamControlCenter.Windows.ChannelConnectionsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:services="clr-namespace:TiHiY.StreamControlCenter.Services"
+        xmlns:ui="clr-namespace:TiHiY.StreamControlCenter.Services"
+        Title="Канали та Discord" Width="1360" Height="860" MinWidth="980" MinHeight="650"
+        WindowStyle="None" ResizeMode="CanResize" WindowStartupLocation="CenterOwner">
+    <Border Style="{StaticResource AppWindowFrame}">
+        <Grid Background="{DynamicResource AppBackgroundBrush}">
+            <Rectangle Fill="{DynamicResource CircuitBackdropBrush}" IsHitTestVisible="False"/>
+            <Grid x:Name="DesignSurface" Margin="9">
+                <Grid.RowDefinitions><RowDefinition Height="66"/><RowDefinition/><RowDefinition Height="72"/></Grid.RowDefinitions>
+                <Border Grid.Row="0" Style="{StaticResource TitleBarBorder}" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                    <Grid Margin="14,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="48" Height="48" CornerRadius="24" Background="{DynamicResource InputBg}" BorderBrush="{DynamicResource Cyan}" BorderThickness="1"><Image Source="/TiHiY.StreamControlCenter;component/Assets/AppIcon.png" Stretch="Uniform"/></Border>
+                            <StackPanel Margin="11,0,0,0"><TextBlock Text="КАНАЛИ ТРАНСЛЯЦІЙ ТА DISCORD" Style="{StaticResource SectionTitle}" FontSize="22"/><TextBlock Text="OAuth-підключення Twitch і YouTube • Discord-бот і канали сповіщень" Foreground="{DynamicResource Muted}"/></StackPanel>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="&#xE921;" Click="Minimize_Click" Style="{StaticResource WindowControlButton}"/><Button Content="&#xE922;" Click="Maximize_Click" Style="{StaticResource WindowControlButton}"/><Button Content="&#xE8BB;" Click="Close_Click" Style="{StaticResource WindowControlButton}" Background="{DynamicResource CloseBg}" BorderBrush="{DynamicResource Red}"/></StackPanel>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="1" Margin="0,10">
+                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="8"/><ColumnDefinition/><ColumnDefinition Width="8"/><ColumnDefinition/></Grid.ColumnDefinitions>
+
+                    <!-- Twitch -->
+                    <ContentControl Grid.Column="0" Style="{StaticResource CyberPanel}" BorderBrush="#A970FF">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel Margin="1">
+                                <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel Orientation="Horizontal"><Border Width="34" Height="34" CornerRadius="4" Background="#29134D" BorderBrush="#A970FF" BorderThickness="1"><TextBlock Text="T" Foreground="White" FontWeight="Black" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="TWITCH" Foreground="#A970FF" FontFamily="{StaticResource HeadingFont}" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="9,0,0,0"/></StackPanel><Border Grid.Column="1" Style="{StaticResource StatusBadgeBorder}" BorderBrush="#A970FF"><TextBlock x:Name="TwitchStatusText" Text="Статус: НЕ ПІДКЛЮЧЕНО" Foreground="{DynamicResource Yellow}" TextWrapping="Wrap"/></Border></Grid>
+                                <TextBlock Text="НАЛАШТУВАННЯ ПІДКЛЮЧЕННЯ" Foreground="{DynamicResource Cyan}" FontWeight="Bold"/>
+                                <TextBlock Text="Канал" Foreground="{DynamicResource Muted}" Margin="0,10,0,4"/><TextBox x:Name="TwitchChannelBox"/>
+                                <TextBlock Text="Client ID" Foreground="{DynamicResource Muted}" Margin="0,10,0,4"/><TextBox x:Name="TwitchClientIdBox"/>
+                                <TextBlock Text="Client Secret" Foreground="{DynamicResource Muted}" Margin="0,10,0,4"/><PasswordBox x:Name="TwitchClientSecretBox"/>
+                                <CheckBox x:Name="TwitchAutoConnectCheck" Content="Автопідключення при запуску" Margin="0,12,0,8"/>
+                                <Border Style="{StaticResource InsetPanelBorder}" Margin="0,6,0,8"><StackPanel><TextBlock Text="REDIRECT URI" Foreground="{DynamicResource Cyan}" FontWeight="Bold"/><TextBlock Text="http://localhost:17846/twitch/" Foreground="{DynamicResource Text}" Margin="0,5,0,0"/><TextBlock Text="Додайте цю адресу в Twitch Developer Console." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,0"/></StackPanel></Border>
+                                <WrapPanel HorizontalAlignment="Left"><Button Content="АВТОРИЗУВАТИ" ui:CyberUi.IconGlyph="&#xE77B;" Click="AuthorizeTwitch_Click" Background="#29134D" BorderBrush="#A970FF"/><Button Content="ПІДКЛЮЧИТИ" ui:CyberUi.IconGlyph="&#xE8A7;" Click="ConnectTwitch_Click"/><Button Content="ВІДКЛЮЧИТИ" ui:CyberUi.IconGlyph="&#xE711;" Click="DisconnectTwitch_Click"/></WrapPanel>
+                                <Button Content="ЗАБУТИ TWITCH-АВТОРИЗАЦІЮ" ui:CyberUi.IconGlyph="&#xE74D;" Click="ForgetTwitch_Click" Background="{DynamicResource DangerBg}" BorderBrush="{DynamicResource Red}" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </ContentControl>
+
+                    <GridSplitter Grid.Column="1" Width="8" Background="{DynamicResource Accent}" Opacity="0.25" ShowsPreview="True"/>
+
+                    <!-- Discord -->
+                    <ContentControl Grid.Column="2" Style="{StaticResource CyberPanel}" BorderBrush="#4DA3FF">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel Margin="1">
+                                <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel Orientation="Horizontal"><Border Width="34" Height="34" CornerRadius="4" Background="#10243C" BorderBrush="#4DA3FF" BorderThickness="1"><TextBlock Text="&#xE716;" FontFamily="{StaticResource IconFont}" Foreground="#61B3FF" FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="DISCORD BOT" Foreground="#6EA8FF" FontFamily="{StaticResource HeadingFont}" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="9,0,0,0"/></StackPanel><Border Grid.Column="1" Style="{StaticResource StatusBadgeBorder}" BorderBrush="#4DA3FF"><TextBlock x:Name="DiscordStatusText" Text="Не налаштовано" Foreground="{DynamicResource Yellow}" TextWrapping="Wrap"/></Border></Grid>
+                                <TextBlock Text="Application ID" Foreground="{DynamicResource Muted}"/><TextBox x:Name="DiscordApplicationIdBox" Margin="0,4,0,8"/>
+                                <TextBlock Text="Bot Token" Foreground="{DynamicResource Muted}"/><PasswordBox x:Name="DiscordTokenBox" Margin="0,4,0,8"/>
+                                <WrapPanel><Button Content="СТВОРИТИ БОТА" ui:CyberUi.IconGlyph="&#xE710;" Click="OpenDiscordPortal_Click"/><Button Content="ДОДАТИ НА СЕРВЕР" ui:CyberUi.IconGlyph="&#xE716;" Click="OpenDiscordInvite_Click"/></WrapPanel>
+                                <TextBlock Text="ID ТЕКСТОВИХ КАНАЛІВ" Foreground="{DynamicResource Cyan}" FontWeight="Bold" Margin="0,10,0,4"/>
+                                <TextBox x:Name="DiscordChannelsBox" Height="70" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" ToolTip="Через кому або з нового рядка"/>
+                                <CheckBox x:Name="DiscordEnabledCheck" Content="Увімкнути сповіщення про старт" Margin="0,10,0,2"/>
+                                <StackPanel Orientation="Horizontal"><CheckBox x:Name="DiscordTwitchCheck" Content="Twitch"/><CheckBox x:Name="DiscordYouTubeCheck" Content="YouTube"/></StackPanel>
+                                <TextBlock Text="ШАБЛОН ПОВІДОМЛЕННЯ" Foreground="{DynamicResource Cyan}" FontWeight="Bold" Margin="0,10,0,4"/>
+                                <TextBox x:Name="DiscordTemplateBox" Height="94" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+                                <WrapPanel Margin="0,8,0,0"><Button Content="ЗБЕРЕГТИ" ui:CyberUi.IconGlyph="&#xE74E;" Click="SaveDiscord_Click" Style="{StaticResource AccentButton}"/><Button Content="ТЕСТ У КАНАЛИ" ui:CyberUi.IconGlyph="&#xE724;" Click="TestDiscord_Click"/><Button Content="ЗАБУТИ TOKEN" ui:CyberUi.IconGlyph="&#xE74D;" Click="ForgetDiscord_Click" Background="{DynamicResource DangerBg}" BorderBrush="{DynamicResource Red}"/></WrapPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </ContentControl>
+
+                    <GridSplitter Grid.Column="3" Width="8" Background="{DynamicResource Accent}" Opacity="0.25" ShowsPreview="True"/>
+
+                    <!-- YouTube -->
+                    <ContentControl Grid.Column="4" Style="{StaticResource CyberPanel}" BorderBrush="#FF4B4B">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel Margin="1">
+                                <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel Orientation="Horizontal"><Border Width="34" Height="34" CornerRadius="4" Background="#351013" BorderBrush="#FF4B4B" BorderThickness="1"><TextBlock Text="▶" Foreground="White" Background="#E00000" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="YOUTUBE" Foreground="#FF5656" FontFamily="{StaticResource HeadingFont}" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="9,0,0,0"/></StackPanel><Border Grid.Column="1" Style="{StaticResource StatusBadgeBorder}" BorderBrush="#FF4B4B"><TextBlock x:Name="YouTubeStatusText" Text="Статус: НЕ ПІДКЛЮЧЕНО" Foreground="{DynamicResource Yellow}" TextWrapping="Wrap"/></Border></Grid>
+                                <TextBlock Text="НАЛАШТУВАННЯ OAUTH 2.0" Foreground="{DynamicResource Cyan}" FontWeight="Bold"/>
+                                <TextBlock Text="Назва каналу" Foreground="{DynamicResource Muted}" Margin="0,10,0,4"/><TextBox x:Name="YouTubeChannelBox"/>
+                                <TextBlock Text="Google OAuth Client ID" Foreground="{DynamicResource Muted}" Margin="0,10,0,4"/><TextBox x:Name="YouTubeClientIdBox"/>
+                                <TextBlock Text="Google OAuth Client Secret" Foreground="{DynamicResource Muted}" Margin="0,10,0,4"/><PasswordBox x:Name="YouTubeClientSecretBox"/>
+                                <CheckBox x:Name="YouTubeAutoConnectCheck" Content="Автопідключення при запуску" Margin="0,12,0,8"/>
+                                <Border Style="{StaticResource InsetPanelBorder}" Margin="0,6,0,8"><StackPanel><TextBlock Text="REDIRECT URI" Foreground="{DynamicResource Cyan}" FontWeight="Bold"/><TextBlock Text="http://127.0.0.1:17847/" Foreground="{DynamicResource Text}" Margin="0,5,0,0"/><TextBlock Text="У Google Cloud має бути ввімкнений YouTube Data API v3." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,0"/></StackPanel></Border>
+                                <WrapPanel><Button Content="АВТОРИЗУВАТИ" ui:CyberUi.IconGlyph="&#xE77B;" Click="AuthorizeYouTube_Click" Background="#351013" BorderBrush="#FF4B4B"/><Button Content="ПІДКЛЮЧИТИ" ui:CyberUi.IconGlyph="&#xE8A7;" Click="ConnectYouTube_Click"/><Button Content="ВІДКЛЮЧИТИ" ui:CyberUi.IconGlyph="&#xE711;" Click="DisconnectYouTube_Click"/></WrapPanel>
+                                <Button Content="ЗАБУТИ YOUTUBE-АВТОРИЗАЦІЮ" ui:CyberUi.IconGlyph="&#xE74D;" Click="ForgetYouTube_Click" Background="{DynamicResource DangerBg}" BorderBrush="{DynamicResource Red}" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </ContentControl>
+                </Grid>
+
+                <ContentControl Grid.Row="2" Style="{StaticResource CyberPanel}" Padding="9">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <Border Width="34" Height="34" CornerRadius="4" BorderBrush="{DynamicResource Green}" BorderThickness="1" Background="{DynamicResource InputBg}"><TextBlock Text="&#xE946;" FontFamily="{StaticResource IconFont}" Foreground="{DynamicResource Green}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center"><TextBlock x:Name="FooterStatusText" Text="Токени та секрети зберігаються у Windows Credential Manager." Foreground="{DynamicResource Green}"/><TextBlock Text="Client Secret і Bot Token не записуються у settings.json." Foreground="{DynamicResource Muted}" FontSize="11"/></StackPanel>
+                        <Button Grid.Column="2" Content="ЗБЕРЕГТИ ЗВИЧАЙНІ НАЛАШТУВАННЯ" ui:CyberUi.IconGlyph="&#xE74E;" Click="SaveGeneral_Click" Style="{StaticResource AccentButton}"/>
+                    </Grid>
+                </ContentControl>
+            </Grid>
+        </Grid>
+    </Border>
+</services:ModuleWindowBase>

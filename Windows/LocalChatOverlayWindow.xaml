@@ -1,0 +1,65 @@
+<Window x:Class="TiHiY.StreamControlCenter.Windows.LocalChatOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="clr-namespace:TiHiY.StreamControlCenter.Services"
+        xmlns:models="clr-namespace:TiHiY.StreamControlCenter.Models"
+        Title="TiHiY Local Chat Overlay" Width="620" Height="420" MinWidth="360" MinHeight="220"
+        WindowStyle="None" ResizeMode="CanResizeWithGrip" AllowsTransparency="True"
+        Background="Transparent" Topmost="True" ShowInTaskbar="False"
+        WindowStartupLocation="CenterScreen" SourceInitialized="Window_SourceInitialized"
+        Loaded="Window_Loaded" Closing="Window_Closing">
+    <Border x:Name="OverlayFrame" Background="#22000000" BorderBrush="{DynamicResource Accent}" BorderThickness="1" CornerRadius="8" Padding="8">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="ControlBar" Margin="2,0,2,6">
+                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <Border Background="Transparent" MouseLeftButtonDown="Window_MouseLeftButtonDown">
+                    <TextBlock Text="ЧАТ ПОВЕРХ ГРИ • ВИДНО ТІЛЬКИ ВАМ" Foreground="{DynamicResource Cyan}" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock x:Name="ModeText" Text="КЕРУВАННЯ" Foreground="{DynamicResource Muted}" FontSize="10" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <Button Content="&#xE8BB;" Width="30" Height="24" Padding="0" Margin="0" Click="Close_Click" Style="{StaticResource WindowControlButton}"/>
+                </StackPanel>
+            </Grid>
+
+            <ListBox x:Name="OverlayChatList" Grid.Row="1" ItemsSource="{Binding Messages}"
+                     Background="Transparent" BorderThickness="0" Padding="0"
+                     ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     IsHitTestVisible="False">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Focusable" Value="False"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0,0,0,4"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type models:ChatMessage}">
+                        <Border Background="{Binding Background}" CornerRadius="4" Padding="6,4">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="26"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Width="22" Height="20" CornerRadius="4" Background="{Binding PlatformColor}" VerticalAlignment="Top">
+                                    <TextBlock Text="{Binding PlatformIcon}" Foreground="White" FontWeight="Black" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Grid.Column="1" Text="{Binding User, StringFormat={}{0}:}" Foreground="{Binding Foreground}" FontWeight="Bold" Margin="4,0,6,0" TextWrapping="NoWrap"/>
+                                <TextBlock Grid.Column="2" Text="{Binding Text}" Foreground="{Binding Foreground}" TextWrapping="Wrap"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,36 @@
+ЗАВАНТАЖЕННЯ ПРОЄКТУ НА GITHUB — ВИПРАВЛЕНА ВЕРСІЯ
+
+Репозиторій:
+https://github.com/sergsivak-lang/TiHiY-StreamControl-Center
+
+1. Розпакуйте архів у звичайну папку.
+2. Переконайтеся, що встановлено Git for Windows.
+3. Запустіть UPLOAD-TO-GITHUB.bat.
+4. Якщо GitHub попросить авторизацію, підтвердьте її у браузері.
+5. Скрипт створить і завантажить окрему гілку:
+   agent/cyber-amber-rebuild-v2
+6. Після успіху відкриється сторінка створення Pull Request.
+7. Натисніть Create pull request.
+8. НЕ зливайте Pull Request у main до завершення перевірки GitHub Actions.
+
+Якщо завантаження не вдалося:
+- відкрийте github-upload.log у цій самій папці;
+- надішліть файл або його останні рядки в чат.
+
+ПЕРЕВІРКА В GITHUB ACTIONS
+
+1. Відкрийте вкладку Actions.
+2. Виберіть Build Windows Portable.
+3. Відкрийте запуск для гілки agent/cyber-amber-rebuild-v2.
+4. Дочекайтеся результату.
+5. Якщо статус зелений, завантажте artifact:
+   TiHiY-StreamControl-Center-win-x64
+6. Pull Request поки не зливайте.
+
+ЛОКАЛЬНИЙ СКРІНШОТ
+
+1. У папці проєкту запустіть VERIFY-LOCAL.bat.
+2. Після збірки програма запуститься, а скріншот буде створено тут:
+   Verification\TiHiY-StreamControl-Center.png
+3. Порівняйте його з:
+   docs\Cyber-Amber-TARGET.png

@@ -1,0 +1,59 @@
+<services:ModuleWindowBase x:Class="TiHiY.StreamControlCenter.Windows.YouTubeStreamSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:services="clr-namespace:TiHiY.StreamControlCenter.Services"
+        xmlns:ui="clr-namespace:TiHiY.StreamControlCenter.Services"
+        Title="Налаштування трансляції YouTube" Width="1340" Height="840" MinWidth="940" MinHeight="620"
+        WindowStyle="None" ResizeMode="CanResize" WindowStartupLocation="CenterOwner">
+    <Border Style="{StaticResource AppWindowFrame}">
+        <Grid Background="{DynamicResource AppBackgroundBrush}">
+            <Rectangle Fill="{DynamicResource CircuitBackdropBrush}" IsHitTestVisible="False"/>
+            <Grid x:Name="DesignSurface" Margin="9">
+                <Grid.RowDefinitions><RowDefinition Height="68"/><RowDefinition/><RowDefinition Height="70"/></Grid.RowDefinitions>
+                <Border Grid.Row="0" Style="{StaticResource TitleBarBorder}" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                    <Grid Margin="14,0"><Grid.ColumnDefinitions><ColumnDefinition Width="280"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"><Border Width="46" Height="46" CornerRadius="23" BorderBrush="{DynamicResource Cyan}" BorderThickness="1" Background="{DynamicResource InputBg}"><Image Source="/TiHiY.StreamControlCenter;component/Assets/AppIcon.png" Stretch="Uniform"/></Border><TextBlock Text="TiHiY StreamControl Center" FontFamily="{StaticResource HeadingFont}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Cyan}" VerticalAlignment="Center" Margin="10,0,0,0"/></StackPanel>
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="НАЛАШТУВАННЯ ТРАНСЛЯЦІЇ YOUTUBE" Style="{StaticResource SectionTitle}" FontSize="23"/><TextBlock Text="Керуйте активними та запланованими трансляціями YouTube" Foreground="{DynamicResource Muted}" HorizontalAlignment="Center"/></StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="&#xE921;" Click="Minimize_Click" Style="{StaticResource WindowControlButton}"/><Button Content="&#xE922;" Click="Maximize_Click" Style="{StaticResource WindowControlButton}"/><Button Content="&#xE8BB;" Click="Close_Click" Style="{StaticResource WindowControlButton}" Background="{DynamicResource CloseBg}" BorderBrush="{DynamicResource Red}"/></StackPanel>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="1" Margin="0,10">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="0.78*" MinWidth="340"/><ColumnDefinition Width="8"/><ColumnDefinition Width="1.72*" MinWidth="560"/></Grid.ColumnDefinitions>
+                    <ContentControl Grid.Column="0" Style="{StaticResource CyberPanel}" BorderBrush="{DynamicResource Accent}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="42"/><RowDefinition Height="52"/><RowDefinition/><RowDefinition Height="54"/></Grid.RowDefinitions>
+                            <Grid><TextBlock Text="ВАШІ ТРАНСЛЯЦІЇ YOUTUBE" Style="{StaticResource SectionTitle}"/><Button Content="ОНОВИТИ" ui:CyberUi.IconGlyph="&#xE72C;" Click="RefreshBroadcasts_Click" HorizontalAlignment="Right" BorderBrush="{DynamicResource Cyan}"/></Grid>
+                            <ComboBox Grid.Row="1" x:Name="BroadcastCombo" DisplayMemberPath="Display" SelectionChanged="BroadcastCombo_SelectionChanged" Margin="0,5"/>
+                            <ContentControl Grid.Row="2" Style="{StaticResource CyberInsetPanel}" Padding="5">
+                                <ListBox x:Name="BroadcastList" ItemsSource="{Binding Broadcasts}" SelectionChanged="BroadcastList_SelectionChanged" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                    <ListBox.ItemTemplate><DataTemplate><Border Background="{DynamicResource PanelDark}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="2" Margin="2,3" Padding="10"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition/></Grid.ColumnDefinitions><Ellipse Width="10" Height="10" Fill="{DynamicResource Accent}" VerticalAlignment="Top" Margin="0,7,0,0"/><StackPanel Grid.Column="1"><TextBlock Text="{Binding Title}" FontWeight="Bold" TextWrapping="Wrap"/><TextBlock Text="{Binding ScheduledStartTime, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Foreground="{DynamicResource Muted}" Margin="0,4,0,0"/><StackPanel Orientation="Horizontal" Margin="0,4,0,0"><Border Background="{DynamicResource InputBg}" BorderBrush="{DynamicResource Cyan}" BorderThickness="1" CornerRadius="2" Padding="5,2"><TextBlock Text="{Binding LifeCycleStatus}" Foreground="{DynamicResource Cyan}" FontWeight="Bold"/></Border><Border Background="{DynamicResource InputBg}" BorderBrush="{DynamicResource Accent}" BorderThickness="1" CornerRadius="2" Padding="5,2" Margin="7,0,0,0"><TextBlock Text="{Binding PrivacyStatus}" Foreground="{DynamicResource Accent}"/></Border></StackPanel></StackPanel></Grid></Border></DataTemplate></ListBox.ItemTemplate>
+                                </ListBox>
+                            </ContentControl>
+                            <Button Grid.Row="3" Content="ВІДКРИТИ DASHBOARD YOUTUBE STUDIO" ui:CyberUi.IconGlyph="&#xE8A7;" Click="OpenYouTube_Click" Style="{StaticResource AccentButton}" HorizontalAlignment="Stretch"/>
+                        </Grid>
+                    </ContentControl>
+                    <GridSplitter Grid.Column="1" Width="8" Background="{DynamicResource Accent}" Opacity="0.26" ShowsPreview="True"/>
+                    <ContentControl Grid.Column="2" Style="{StaticResource CyberPanel}" BorderBrush="{DynamicResource Cyan}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <Grid Margin="1,0,6,0">
+                                <Grid.RowDefinitions><RowDefinition Height="42"/><RowDefinition Height="78"/><RowDefinition Height="205"/><RowDefinition Height="92"/><RowDefinition Height="96"/><RowDefinition Height="Auto"/><RowDefinition Height="64"/></Grid.RowDefinitions>
+                                <TextBlock Text="ПАРАМЕТРИ ТРАНСЛЯЦІЇ" Style="{StaticResource SectionTitle}"/>
+                                <StackPanel Grid.Row="1" Margin="0,5,0,0"><TextBlock Text="Назва трансляції" Foreground="{DynamicResource Muted}"/><TextBox x:Name="TitleBox" Margin="0,6,0,0"/></StackPanel>
+                                <StackPanel Grid.Row="2" Margin="0,7,0,0"><TextBlock Text="Опис" Foreground="{DynamicResource Muted}"/><TextBox x:Name="DescriptionBox" Height="164" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Margin="0,6,0,0"/></StackPanel>
+                                <Grid Grid.Row="3" Margin="0,7,0,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><StackPanel Margin="0,0,8,0"><TextBlock Text="Доступ / Приватність" Foreground="{DynamicResource Muted}"/><ComboBox x:Name="PrivacyCombo" Margin="0,6,0,0" SelectedIndex="0"><ComboBoxItem Content="public"/><ComboBoxItem Content="unlisted"/><ComboBoxItem Content="private"/></ComboBox></StackPanel><StackPanel Grid.Column="1" Margin="8,0,0,0"><TextBlock Text="Запланований початок" Foreground="{DynamicResource Muted}"/><TextBox x:Name="ScheduledStartBox" Margin="0,6,0,0" ToolTip="Формат: РРРР-ММ-ДД ГГ:ХХ"/></StackPanel></Grid>
+                                <Grid Grid.Row="4" Margin="0,7,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="0.45*"/><ColumnDefinition Width="1.55*"/></Grid.ColumnDefinitions><ContentControl Style="{StaticResource CyberInsetPanel}" Margin="0,0,8,0"><StackPanel><TextBlock Text="СТАН ТРАНСЛЯЦІЇ" Foreground="{DynamicResource Muted}"/><TextBlock x:Name="LifeCycleText" Text="—" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Green}" Margin="0,8,0,0"/></StackPanel></ContentControl><StackPanel Grid.Column="1" Margin="8,0,0,0"><TextBlock Text="Пряме посилання" Foreground="{DynamicResource Muted}"/><TextBox x:Name="StreamUrlBox" IsReadOnly="True" Margin="0,6,0,0"/></StackPanel></Grid>
+                                <ContentControl Grid.Row="5" Style="{StaticResource CyberInsetPanel}" Margin="0,10,0,0"><StackPanel><TextBlock Text="YOUTUBE DATA API" Foreground="{DynamicResource Cyan}" FontWeight="Bold"/><TextBlock Text="Зміни застосовуються до вибраної трансляції авторизованого каналу. OAuth-токени зберігаються локально у Windows Credential Manager." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel></ContentControl>
+                                <WrapPanel Grid.Row="6" HorizontalAlignment="Right" VerticalAlignment="Center"><Button Content="ПІДКЛЮЧИТИ / АВТОРИЗУВАТИ" ui:CyberUi.IconGlyph="&#xE77B;" Click="OpenChannels_Click" BorderBrush="#A970FF"/><Button Content="ЗБЕРЕГТИ В YOUTUBE" ui:CyberUi.IconGlyph="&#xE74E;" Click="SaveBroadcast_Click" Background="{DynamicResource DangerBg}" BorderBrush="{DynamicResource Red}"/></WrapPanel>
+                            </Grid>
+                        </ScrollViewer>
+                    </ContentControl>
+                </Grid>
+
+                <ContentControl Grid.Row="2" Style="{StaticResource CyberPanel}" Padding="9">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Width="34" Height="34" CornerRadius="4" BorderBrush="{DynamicResource Green}" BorderThickness="1" Background="{DynamicResource InputBg}"><TextBlock Text="&#xE946;" FontFamily="{StaticResource IconFont}" Foreground="{DynamicResource Green}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Grid.Column="1" x:Name="StatusText" Text="Натисніть «Оновити»." Foreground="{DynamicResource Green}" VerticalAlignment="Center" TextWrapping="Wrap"/><Button Grid.Column="2" Content="ЗАКРИТИ" ui:CyberUi.IconGlyph="&#xE8BB;" Click="Close_Click" Style="{StaticResource AccentButton}"/></Grid>
+                </ContentControl>
+            </Grid>
+        </Grid>
+    </Border>
+</services:ModuleWindowBase>

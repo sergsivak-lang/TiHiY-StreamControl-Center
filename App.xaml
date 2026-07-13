@@ -1,0 +1,627 @@
+<Application x:Class="TiHiY.StreamControlCenter.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="clr-namespace:TiHiY.StreamControlCenter.Services"
+             ShutdownMode="OnMainWindowClose">
+    <Application.Resources>
+        <!-- Base colors. ThemeService updates both the Color and Brush keys at runtime. -->
+        <Color x:Key="Bg0Color">#02070D</Color>
+        <Color x:Key="Bg1Color">#06111B</Color>
+        <Color x:Key="PanelColor">#071823</Color>
+        <Color x:Key="Panel2Color">#0B2230</Color>
+        <Color x:Key="PanelHoverColor">#15313D</Color>
+        <Color x:Key="LineColor">#6A430A</Color>
+        <Color x:Key="CyanColor">#27D9FF</Color>
+        <Color x:Key="AccentColor">#FFAA00</Color>
+        <Color x:Key="AccentSoftColor">#4A2D00</Color>
+        <Color x:Key="AccentLineColor">#FFAA00</Color>
+        <Color x:Key="GreenColor">#2BEB82</Color>
+        <Color x:Key="YellowColor">#FFD24A</Color>
+        <Color x:Key="RedColor">#FF4B55</Color>
+        <Color x:Key="TextColor">#F3F8FC</Color>
+        <Color x:Key="MutedColor">#8CA4B3</Color>
+        <Color x:Key="InputBgColor">#030D16</Color>
+        <Color x:Key="HeaderBgColor">#040C14</Color>
+        <Color x:Key="BlueColor">#0E5CB4</Color>
+        <Color x:Key="PurpleColor">#6E3CC7</Color>
+        <Color x:Key="DangerBgColor">#7B1F27</Color>
+        <Color x:Key="CloseBgColor">#7B1F27</Color>
+        <Color x:Key="SuccessBgColor">#123B2D</Color>
+        <Color x:Key="SelectionBgColor">#4A2D00</Color>
+        <Color x:Key="PanelDarkColor">#06111B</Color>
+        <Color x:Key="ButtonBorderColor">#6A430A</Color>
+        <Color x:Key="ListSeparatorColor">#6A430A</Color>
+        <Color x:Key="ThemePrimaryColor">#27D9FF</Color>
+        <Color x:Key="ThemeAccentColor">#FFAA00</Color>
+
+        <SolidColorBrush x:Key="Bg0" Color="{DynamicResource Bg0Color}"/>
+        <SolidColorBrush x:Key="Bg1" Color="{DynamicResource Bg1Color}"/>
+        <SolidColorBrush x:Key="Panel" Color="{DynamicResource PanelColor}"/>
+        <SolidColorBrush x:Key="Panel2" Color="{DynamicResource Panel2Color}"/>
+        <SolidColorBrush x:Key="PanelHover" Color="{DynamicResource PanelHoverColor}"/>
+        <SolidColorBrush x:Key="Line" Color="{DynamicResource LineColor}"/>
+        <SolidColorBrush x:Key="Cyan" Color="{DynamicResource CyanColor}"/>
+        <SolidColorBrush x:Key="Accent" Color="{DynamicResource AccentColor}"/>
+        <SolidColorBrush x:Key="AccentSoft" Color="{DynamicResource AccentSoftColor}"/>
+        <SolidColorBrush x:Key="AccentLine" Color="{DynamicResource AccentLineColor}"/>
+        <SolidColorBrush x:Key="Green" Color="{DynamicResource GreenColor}"/>
+        <SolidColorBrush x:Key="Yellow" Color="{DynamicResource YellowColor}"/>
+        <SolidColorBrush x:Key="Red" Color="{DynamicResource RedColor}"/>
+        <SolidColorBrush x:Key="Text" Color="{DynamicResource TextColor}"/>
+        <SolidColorBrush x:Key="Muted" Color="{DynamicResource MutedColor}"/>
+        <SolidColorBrush x:Key="InputBg" Color="{DynamicResource InputBgColor}"/>
+        <SolidColorBrush x:Key="HeaderBg" Color="{DynamicResource HeaderBgColor}"/>
+        <SolidColorBrush x:Key="Blue" Color="{DynamicResource BlueColor}"/>
+        <SolidColorBrush x:Key="Purple" Color="{DynamicResource PurpleColor}"/>
+        <SolidColorBrush x:Key="DangerBg" Color="{DynamicResource DangerBgColor}"/>
+        <SolidColorBrush x:Key="CloseBg" Color="{DynamicResource CloseBgColor}"/>
+        <SolidColorBrush x:Key="SuccessBg" Color="{DynamicResource SuccessBgColor}"/>
+        <SolidColorBrush x:Key="SelectionBg" Color="{DynamicResource SelectionBgColor}"/>
+        <SolidColorBrush x:Key="PanelDark" Color="{DynamicResource PanelDarkColor}"/>
+        <SolidColorBrush x:Key="ButtonBorder" Color="{DynamicResource ButtonBorderColor}"/>
+        <SolidColorBrush x:Key="ListSeparator" Color="{DynamicResource ListSeparatorColor}"/>
+        <SolidColorBrush x:Key="ThemePrimary" Color="{DynamicResource ThemePrimaryColor}"/>
+        <SolidColorBrush x:Key="ThemeAccent" Color="{DynamicResource ThemeAccentColor}"/>
+
+        <!-- Derived cyber brushes. They react to live theme changes. -->
+        <LinearGradientBrush x:Key="AppBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="{DynamicResource Bg0Color}" Offset="0"/>
+            <GradientStop Color="{DynamicResource Bg1Color}" Offset="0.52"/>
+            <GradientStop Color="{DynamicResource Bg0Color}" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="HeaderGradientBrush" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="{DynamicResource HeaderBgColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource Panel2Color}" Offset="0.5"/>
+            <GradientStop Color="{DynamicResource HeaderBgColor}" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="PanelGradientBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="{DynamicResource PanelColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource Bg1Color}" Offset="0.52"/>
+            <GradientStop Color="{DynamicResource Panel2Color}" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="PanelAltGradientBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="{DynamicResource Panel2Color}" Offset="0"/>
+            <GradientStop Color="{DynamicResource PanelColor}" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="ButtonGradientBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="{DynamicResource Panel2Color}" Offset="0"/>
+            <GradientStop Color="{DynamicResource PanelColor}" Offset="0.52"/>
+            <GradientStop Color="{DynamicResource Bg1Color}" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AccentButtonGradientBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="{DynamicResource AccentSoftColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource Panel2Color}" Offset="0.55"/>
+            <GradientStop Color="{DynamicResource Bg1Color}" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="MeterGradientBrush" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#18E35C" Offset="0"/>
+            <GradientStop Color="#A8E832" Offset="0.55"/>
+            <GradientStop Color="{DynamicResource YellowColor}" Offset="0.76"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0.9"/>
+            <GradientStop Color="{DynamicResource RedColor}" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="TitleTextGradientBrush" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="{DynamicResource CyanColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource CyanColor}" Offset="0.58"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0.72"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
+        </LinearGradientBrush>
+        <ImageBrush x:Key="CircuitBackdropBrush"
+                    ImageSource="/TiHiY.StreamControlCenter;component/Assets/BackdropCyberAmber.png"
+                    Stretch="UniformToFill" Opacity="0.13"/>
+
+        <DropShadowEffect x:Key="WindowGlowEffect" Color="{DynamicResource AccentColor}" BlurRadius="18" ShadowDepth="0" Opacity="0.20"/>
+        <DropShadowEffect x:Key="PanelGlowEffect" Color="{DynamicResource AccentColor}" BlurRadius="9" ShadowDepth="0" Opacity="0.12"/>
+        <DropShadowEffect x:Key="CyanGlowEffect" Color="{DynamicResource CyanColor}" BlurRadius="12" ShadowDepth="0" Opacity="0.30"/>
+        <DropShadowEffect x:Key="AccentGlowEffect" Color="{DynamicResource AccentColor}" BlurRadius="14" ShadowDepth="0" Opacity="0.34"/>
+
+        <FontFamily x:Key="UiFont">Segoe UI</FontFamily>
+        <FontFamily x:Key="HeadingFont">Bahnschrift</FontFamily>
+        <FontFamily x:Key="IconFont">Segoe MDL2 Assets</FontFamily>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+
+        <!-- Whole-window visual shell -->
+        <Style TargetType="Window">
+            <Setter Property="Background" Value="{DynamicResource Bg0}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+            <Setter Property="Icon" Value="/TiHiY.StreamControlCenter;component/Assets/AppIcon.ico"/>
+            <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <Style x:Key="AppWindowFrame" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource AppBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentLine}"/>
+            <Setter Property="BorderThickness" Value="1.2"/>
+            <Setter Property="CornerRadius" Value="0"/>
+            <Setter Property="Effect" Value="{DynamicResource WindowGlowEffect}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <Style x:Key="TitleBarBorder" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource HeaderGradientBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <Style x:Key="CyberHeaderStrip" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource HeaderGradientBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="12,6"/>
+        </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+        </Style>
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource HeadingFont}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="17.5"/>
+            <Setter Property="Foreground" Value="{DynamicResource Cyan}"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="Effect" Value="{DynamicResource CyanGlowEffect}"/>
+        </Style>
+        <Style x:Key="MutedText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+        </Style>
+
+        <!-- Full cyber control buttons. The icon comes from ui:CyberUi.IconGlyph. -->
+        <Style TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+            <Setter Property="Background" Value="{DynamicResource ButtonGradientBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Cyan}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,7"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="MinHeight" Value="34"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource HeadingFont}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="Glow" Margin="-2" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="3" Opacity="0" Effect="{DynamicResource AccentGlowEffect}"/>
+                            <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3">
+                                <Grid ClipToBounds="True">
+                                    <Rectangle Height="1" VerticalAlignment="Top" Margin="10,0" Fill="{TemplateBinding BorderBrush}" Opacity="0.55"/>
+                                    <Rectangle Width="22" Height="2" HorizontalAlignment="Left" VerticalAlignment="Bottom" Fill="{DynamicResource Accent}" Opacity="0.70"/>
+                                    <Rectangle Width="2" Height="18" HorizontalAlignment="Right" VerticalAlignment="Top" Fill="{TemplateBinding BorderBrush}" Opacity="0.65"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}">
+                                        <Border x:Name="IconBox" Width="25" Height="25" CornerRadius="3" Margin="0,0,8,0" Background="{DynamicResource InputBg}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
+                                            <TextBlock x:Name="IconPresenter" Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(ui:CyberUi.IconGlyph)}" FontFamily="{StaticResource IconFont}" FontSize="15" Foreground="{TemplateBinding BorderBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ContentPresenter x:Name="ContentHost" RecognizesAccessKey="True" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="ui:CyberUi.IconGlyph" Value="{x:Null}"><Setter TargetName="IconBox" Property="Visibility" Value="Collapsed"/></Trigger>
+                            <Trigger Property="ui:CyberUi.IconGlyph" Value=""><Setter TargetName="IconBox" Property="Visibility" Value="Collapsed"/></Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Accent}"/><Setter TargetName="Chrome" Property="Background" Value="{DynamicResource PanelHover}"/><Setter TargetName="Glow" Property="Opacity" Value="0.75"/></Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Glow" Property="Opacity" Value="0.55"/></Trigger>
+                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="Chrome" Property="Opacity" Value="0.72"/><Setter TargetName="Glow" Property="Opacity" Value="1"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Chrome" Property="Opacity" Value="0.34"/><Setter TargetName="Glow" Property="Opacity" Value="0"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="AccentButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="{DynamicResource AccentButtonGradientBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+        </Style>
+        <Style x:Key="CyanButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="BorderBrush" Value="{DynamicResource Cyan}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+        </Style>
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="{DynamicResource DangerBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Red}"/>
+        </Style>
+        <Style x:Key="WindowControlButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="MinWidth" Value="38"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Margin" Value="2,0"/>
+        </Style>
+
+        <Style x:Key="ModuleButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="MinHeight" Value="52"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Background" Value="{DynamicResource ButtonGradientBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Cyan}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="Glow" Margin="-2" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="3" Opacity="0" Effect="{DynamicResource AccentGlowEffect}"/>
+                            <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="3">
+                                <Grid ClipToBounds="True" Margin="8,4">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                    <Border Width="34" Height="34" CornerRadius="4" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" Background="{DynamicResource InputBg}" VerticalAlignment="Center">
+                                        <Grid>
+                                            <Rectangle Fill="{TemplateBinding BorderBrush}" Opacity="0.08"/>
+                                            <TextBlock Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(ui:CyberUi.IconGlyph)}" FontFamily="{StaticResource IconFont}" FontSize="20" Foreground="{TemplateBinding BorderBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                    <ContentPresenter Grid.Column="1" Margin="8,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    <Rectangle Grid.ColumnSpan="2" Height="1" Fill="{TemplateBinding BorderBrush}" Opacity="0.45" VerticalAlignment="Top" Margin="18,0,4,0"/>
+                                    <Rectangle Grid.ColumnSpan="2" Width="26" Height="2" Fill="{DynamicResource Accent}" Opacity="0.8" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Accent}"/><Setter TargetName="Glow" Property="Opacity" Value="0.8"/><Setter TargetName="Chrome" Property="Background" Value="{DynamicResource PanelHover}"/></Trigger>
+                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="Chrome" Property="Opacity" Value="0.70"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Chrome" Property="Opacity" Value="0.36"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Input fields -->
+        <Style TargetType="TextBox">
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+            <Setter Property="Background" Value="{DynamicResource InputBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource Accent}"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentSoft}"/>
+            <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid>
+                            <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4"/>
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Cyan}"/><Setter TargetName="Chrome" Property="Effect" Value="{DynamicResource CyanGlowEffect}"/></Trigger>
+                            <Trigger Property="IsReadOnly" Value="True"><Setter TargetName="Chrome" Property="Opacity" Value="0.72"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Chrome" Property="Opacity" Value="0.42"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="PasswordBox">
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+            <Setter Property="Background" Value="{DynamicResource InputBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Grid>
+                            <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4"/>
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Cyan}"/><Setter TargetName="Chrome" Property="Effect" Value="{DynamicResource CyanGlowEffect}"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Chrome" Property="Opacity" Value="0.42"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ComboBox -->
+        <ControlTemplate x:Key="ComboToggleTemplate" TargetType="ToggleButton">
+            <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="32"/></Grid.ColumnDefinitions>
+                    <Border Grid.Column="1" BorderBrush="{DynamicResource Line}" BorderThickness="1,0,0,0">
+                        <Path Data="M 0 0 L 5 5 L 10 0 Z" Fill="{DynamicResource Accent}" Width="10" Height="5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Cyan}"/></Trigger>
+                <Trigger Property="IsChecked" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+            <Setter Property="Background" Value="{DynamicResource InputBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="MinHeight" Value="34"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton" Template="{StaticResource ComboToggleTemplate}" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Focusable="False" ClickMode="Press" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
+                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Left" VerticalAlignment="Center" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" IsHitTestVisible="False"/>
+                            <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                                <Border Background="{DynamicResource Panel2}" BorderBrush="{DynamicResource Accent}" BorderThickness="1" CornerRadius="4" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="360" Effect="{DynamicResource AccentGlowEffect}">
+                                    <ScrollViewer Margin="3" SnapsToDevicePixels="True"><StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/></ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasItems" Value="False"><Setter TargetName="PART_Popup" Property="MinHeight" Value="32"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.42"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+            <Setter Property="Background" Value="{DynamicResource Panel2}"/>
+            <Setter Property="Padding" Value="9,7"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="1" CornerRadius="3" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{DynamicResource AccentSoft}"/><Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger>
+                            <Trigger Property="IsSelected" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Blue}"/><Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Cyan}"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Chrome" Property="Opacity" Value="0.4"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Neon checkbox / radio -->
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="Box" Width="17" Height="17" CornerRadius="3" Background="{DynamicResource InputBg}" BorderBrush="{DynamicResource Line}" BorderThickness="1" VerticalAlignment="Center">
+                                <Path x:Name="Tick" Data="M 2 8 L 6 12 L 14 3" Stroke="{DynamicResource Accent}" StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Visibility="Collapsed"/>
+                            </Border>
+                            <ContentPresenter Margin="7,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True"><Setter TargetName="Tick" Property="Visibility" Value="Visible"/><Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Accent}"/><Setter TargetName="Box" Property="Effect" Value="{DynamicResource AccentGlowEffect}"/></Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Cyan}"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.38"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <StackPanel Orientation="Horizontal">
+                            <Grid Width="17" Height="17" VerticalAlignment="Center">
+                                <Ellipse x:Name="Ring" Fill="{DynamicResource InputBg}" Stroke="{DynamicResource Line}" StrokeThickness="1"/>
+                                <Ellipse x:Name="Dot" Width="8" Height="8" Fill="{DynamicResource Accent}" Visibility="Collapsed"/>
+                            </Grid>
+                            <ContentPresenter Margin="7,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True"><Setter TargetName="Dot" Property="Visibility" Value="Visible"/><Setter TargetName="Ring" Property="Stroke" Value="{DynamicResource Accent}"/></Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Ring" Property="Stroke" Value="{DynamicResource Cyan}"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.38"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Lists -->
+        <Style TargetType="ListBox">
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        </Style>
+        <Style TargetType="ListBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="1" CornerRadius="3" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{DynamicResource PanelHover}"/><Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Line}"/></Trigger>
+                            <Trigger Property="IsSelected" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{DynamicResource AccentSoft}"/><Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Chrome" Property="Opacity" Value="0.4"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Sliders and level meters -->
+        <Style TargetType="Slider">
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid Height="22" VerticalAlignment="Center">
+                            <Border Height="7" VerticalAlignment="Center" Background="{DynamicResource InputBg}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="3"/>
+                            <Track x:Name="PART_Track" VerticalAlignment="Center" Height="7">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static Slider.DecreaseLarge}" IsTabStop="False">
+                                        <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="{DynamicResource MeterGradientBrush}" CornerRadius="3"/></ControlTemplate></RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static Slider.IncreaseLarge}" IsTabStop="False">
+                                        <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Width="16" Height="16">
+                                        <Thumb.Template><ControlTemplate TargetType="Thumb"><Ellipse Fill="{DynamicResource Accent}" Stroke="{DynamicResource Text}" StrokeThickness="1.5" Effect="{DynamicResource AccentGlowEffect}"/></ControlTemplate></Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ProgressBar">
+            <Setter Property="Foreground" Value="{DynamicResource MeterGradientBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource InputBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3">
+                            <Grid x:Name="PART_Track" ClipToBounds="True"><Border x:Name="PART_Indicator" HorizontalAlignment="Left" Background="{TemplateBinding Foreground}" CornerRadius="2" Effect="{DynamicResource AccentGlowEffect}"/></Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Scrollbars -->
+        <Style TargetType="ScrollBar">
+            <Setter Property="Background" Value="{DynamicResource InputBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+            <Setter Property="Width" Value="11"/>
+            <Setter Property="Height" Value="11"/>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Vertical">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ScrollBar">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="5" Padding="2">
+                                    <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                        <Track.DecreaseRepeatButton><RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Opacity="0" IsTabStop="False"/></Track.DecreaseRepeatButton>
+                                        <Track.Thumb><Thumb MinHeight="25"><Thumb.Template><ControlTemplate TargetType="Thumb"><Border x:Name="ThumbChrome" Background="{DynamicResource Accent}" CornerRadius="4" Opacity="0.78"/><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ThumbChrome" Property="Opacity" Value="1"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
+                                        <Track.IncreaseRepeatButton><RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Opacity="0" IsTabStop="False"/></Track.IncreaseRepeatButton>
+                                    </Track>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ScrollBar">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="5" Padding="2">
+                                    <Track x:Name="PART_Track">
+                                        <Track.DecreaseRepeatButton><RepeatButton Command="{x:Static ScrollBar.PageLeftCommand}" Opacity="0" IsTabStop="False"/></Track.DecreaseRepeatButton>
+                                        <Track.Thumb><Thumb MinWidth="25"><Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="{DynamicResource Accent}" CornerRadius="4" Opacity="0.82"/></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
+                                        <Track.IncreaseRepeatButton><RepeatButton Command="{x:Static ScrollBar.PageRightCommand}" Opacity="0" IsTabStop="False"/></Track.IncreaseRepeatButton>
+                                    </Track>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Common cyber panels. Border variants keep existing windows compatible; ContentControl variants add the HUD corner geometry. -->
+        <Style x:Key="PanelBorder" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource PanelGradientBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="2"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Effect" Value="{DynamicResource PanelGlowEffect}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+        <Style x:Key="InsetPanelBorder" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource InputBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="2"/>
+            <Setter Property="Padding" Value="8"/>
+        </Style>
+        <Style x:Key="StatusBadgeBorder" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource PanelAltGradientBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+        </Style>
+
+        <Style x:Key="CyberPanel" TargetType="ContentControl">
+            <Setter Property="Background" Value="{DynamicResource PanelGradientBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContentControl">
+                        <Grid SnapsToDevicePixels="True">
+                            <Border x:Name="PanelGlow" Margin="-1" BorderBrush="{DynamicResource Accent}" BorderThickness="1" CornerRadius="3" Opacity="0.14" Effect="{DynamicResource PanelGlowEffect}"/>
+                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2"/>
+                            <Border Margin="3" BorderBrush="{DynamicResource Cyan}" BorderThickness="0.35" CornerRadius="1" Opacity="0.30"/>
+                            <Path Data="M0,28 L0,8 L8,0 L86,0" Stroke="{DynamicResource Accent}" StrokeThickness="2" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                            <Path Data="M0,28 L0,8 L8,0 L86,0" Stroke="{DynamicResource Cyan}" StrokeThickness="1.4" HorizontalAlignment="Right" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5"><Path.RenderTransform><ScaleTransform ScaleX="-1"/></Path.RenderTransform></Path>
+                            <Path Data="M0,28 L0,8 L8,0 L86,0" Stroke="{DynamicResource Cyan}" StrokeThickness="1.4" HorizontalAlignment="Left" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,0.5"><Path.RenderTransform><ScaleTransform ScaleY="-1"/></Path.RenderTransform></Path>
+                            <Path Data="M0,28 L0,8 L8,0 L86,0" Stroke="{DynamicResource Accent}" StrokeThickness="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,0.5"><Path.RenderTransform><ScaleTransform ScaleX="-1" ScaleY="-1"/></Path.RenderTransform></Path>
+                            <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CyberInsetPanel" TargetType="ContentControl" BasedOn="{StaticResource CyberPanel}">
+            <Setter Property="Background" Value="{DynamicResource InputBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+            <Setter Property="Padding" Value="9"/>
+        </Style>
+
+        <Style x:Key="ThemeCardButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Background" Value="{DynamicResource PanelGradientBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        </Style>
+
+        <Style TargetType="Separator"><Setter Property="Background" Value="{DynamicResource Line}"/><Setter Property="Margin" Value="3"/></Style>
+        <Style TargetType="ToolTip"><Setter Property="Foreground" Value="{DynamicResource Text}"/><Setter Property="Background" Value="{DynamicResource Panel2}"/><Setter Property="BorderBrush" Value="{DynamicResource Accent}"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Padding" Value="8,5"/></Style>
+        <Style TargetType="ContextMenu"><Setter Property="Foreground" Value="{DynamicResource Text}"/><Setter Property="Background" Value="{DynamicResource Panel2}"/><Setter Property="BorderBrush" Value="{DynamicResource Accent}"/><Setter Property="BorderThickness" Value="1"/></Style>
+        <Style TargetType="MenuItem"><Setter Property="Foreground" Value="{DynamicResource Text}"/><Setter Property="Background" Value="{DynamicResource Panel2}"/><Setter Property="Padding" Value="10,6"/></Style>
+        <Style TargetType="TabControl"><Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/></Style>
+        <Style TargetType="TabItem"><Setter Property="Foreground" Value="{DynamicResource Muted}"/><Setter Property="Background" Value="{DynamicResource Panel2}"/><Setter Property="BorderBrush" Value="{DynamicResource Line}"/><Setter Property="Padding" Value="12,7"/><Style.Triggers><Trigger Property="IsSelected" Value="True"><Setter Property="Foreground" Value="{DynamicResource Accent}"/><Setter Property="BorderBrush" Value="{DynamicResource Accent}"/><Setter Property="FontWeight" Value="Bold"/></Trigger></Style.Triggers></Style>
+    </Application.Resources>
+</Application>

@@ -1,0 +1,42 @@
+<services:ModuleWindowBase x:Class="TiHiY.StreamControlCenter.Windows.JournalWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:services="clr-namespace:TiHiY.StreamControlCenter.Services"
+        xmlns:ui="clr-namespace:TiHiY.StreamControlCenter.Services"
+        Title="Журнал подій" Width="1180" Height="760" MinWidth="760" MinHeight="500"
+        WindowStyle="None" ResizeMode="CanResize" WindowStartupLocation="CenterOwner">
+    <Border Style="{StaticResource AppWindowFrame}">
+        <Grid Background="{DynamicResource AppBackgroundBrush}">
+            <Rectangle Fill="{DynamicResource CircuitBackdropBrush}" IsHitTestVisible="False"/>
+            <Grid x:Name="DesignSurface" Margin="10">
+                <Grid.RowDefinitions><RowDefinition Height="62"/><RowDefinition Height="58"/><RowDefinition/><RowDefinition Height="58"/></Grid.RowDefinitions>
+                <Border Grid.Row="0" Style="{StaticResource TitleBarBorder}" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                    <Grid Margin="14,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="42" Height="42" CornerRadius="21" Background="{DynamicResource InputBg}" BorderBrush="{DynamicResource Cyan}" BorderThickness="1"><TextBlock Text="&#xE8A5;" FontFamily="{StaticResource IconFont}" FontSize="22" Foreground="{DynamicResource Cyan}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                            <StackPanel Margin="11,0,0,0"><TextBlock Text="ЖУРНАЛ ПОДІЙ" Style="{StaticResource SectionTitle}" FontSize="22"/><TextBlock Text="Події, помилки, підключення та дії модулів" Foreground="{DynamicResource Muted}"/></StackPanel>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="&#xE921;" Click="Minimize_Click" Style="{StaticResource WindowControlButton}"/><Button Content="&#xE922;" Click="Maximize_Click" Style="{StaticResource WindowControlButton}"/><Button Content="&#xE8BB;" Click="Close_Click" Style="{StaticResource WindowControlButton}" Background="{DynamicResource CloseBg}" BorderBrush="{DynamicResource Red}"/></StackPanel>
+                    </Grid>
+                </Border>
+                <ContentControl Grid.Row="1" Style="{StaticResource CyberPanel}" Padding="8" Margin="0,8,0,5">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <TextBox x:Name="SearchBox" VerticalContentAlignment="Center" ToolTip="Фільтр журналу"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal"><Button Content="ФІЛЬТРУВАТИ" ui:CyberUi.IconGlyph="&#xE71C;" Click="Filter_Click"/><Button Content="ОЧИСТИТИ ФІЛЬТР" ui:CyberUi.IconGlyph="&#xE894;" Click="ResetFilter_Click"/><Button Content="ВІДКРИТИ ПАПКУ" ui:CyberUi.IconGlyph="&#xE8B7;" Click="OpenFolder_Click"/></StackPanel>
+                    </Grid>
+                </ContentControl>
+                <ContentControl Grid.Row="2" Style="{StaticResource CyberPanel}" Margin="0,5,0,5">
+                    <ListBox x:Name="LogList" ItemsSource="{Binding VisibleEntries}" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectionMode="Extended">
+                        <ListBox.ItemTemplate><DataTemplate><Border BorderBrush="{DynamicResource ListSeparator}" BorderThickness="0,0,0,0.35" Padding="7,5"><TextBlock Text="{Binding}" TextWrapping="Wrap" Foreground="{DynamicResource Text}"/></Border></DataTemplate></ListBox.ItemTemplate>
+                    </ListBox>
+                </ContentControl>
+                <ContentControl Grid.Row="3" Style="{StaticResource CyberPanel}" Padding="8" Margin="0,5,0,0">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <TextBlock x:Name="StatusText" Text="Журнал готовий" Foreground="{DynamicResource Green}" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal"><Button Content="КОПІЮВАТИ ВИБРАНЕ" ui:CyberUi.IconGlyph="&#xE8C8;" Click="CopySelected_Click"/><Button Content="ОЧИСТИТИ ПОТОЧНИЙ СПИСОК" ui:CyberUi.IconGlyph="&#xE74D;" Click="ClearView_Click" Background="{DynamicResource DangerBg}" BorderBrush="{DynamicResource Red}"/><Button Content="ЗАКРИТИ" ui:CyberUi.IconGlyph="&#xE8BB;" Click="Close_Click" Style="{StaticResource AccentButton}"/></StackPanel>
+                    </Grid>
+                </ContentControl>
+            </Grid>
+        </Grid>
+    </Border>
+</services:ModuleWindowBase>
