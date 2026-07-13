@@ -28,7 +28,7 @@ jobs:
         run: dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore
 
       - name: Publish Windows x64
-        run: dotnet publish TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish --no-build
+        run: dotnet publish TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish 
 
       - name: Render actual WPF screenshot
         shell: pwsh
