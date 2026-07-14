@@ -1,0 +1,9 @@
+Статична перевірка v1.0.5.2
+
+- 14 XAML-файлів успішно розібрано XML-парсером.
+- Нові ресурси Ukraine включаються через Assets\Themes\**\*.png.
+- Додано ThemeCornerImage, ThemeWheatImage, ThemeMapImage.
+- Версія NuGet: 1.0.5-ukraine-premium.1.
+- bin/obj/.vs/BuildLogs у пакеті відсутні.
+
+Примітка: .NET/WPF SDK у середовищі відсутній, тому Windows-збірка тут не виконувалась.

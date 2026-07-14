@@ -1,0 +1,11 @@
+TiHiY StreamControl Center v1.0.5.2 — XAML Color Build Fix
+
+Виправлено:
+- GradientStop.Color більше не отримує SolidColorBrush через DynamicResource.
+- Невірний ресурс замінено на прямі значення Color #48CCFF та #F7B81E.
+- Перевірено всі XAML на некоректну довжину HEX-кольорів.
+- Перевірено XML-структуру 14 XAML-файлів.
+- Перевірено наявність XAML-обробників у C#.
+- Видалено bin, obj, .vs та BuildLogs.
+
+Дизайн і функціональні зміни v1.0.5.1 не змінювалися.

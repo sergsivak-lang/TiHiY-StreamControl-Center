@@ -1,0 +1,17 @@
+TiHiY StreamControl Center v1.0.5.2 — статична перевірка
+
+XAML-файлів перевірено: 14
+XML-помилок: 0
+Відсутніх event-handler: 0
+
+Перевірено:
+- окрема папка Assets/Themes/Ukraine;
+- рекурсивне включення вкладених PNG у csproj;
+- ThemeOrnamentImage/ThemeOrnamentOpacity;
+- реальний preview image у SettingsWindow;
+- DynamicResource для базових фонів, рамок і тексту;
+- відсутність bin/obj/.vs/BuildLogs;
+- коректна NuGet-версія 1.0.4-ukraine.9.
+
+Обмеження:
+.NET/WPF SDK у цьому середовищі відсутній, тому фактичне Windows-складання не виконувалось.
