@@ -2,7 +2,7 @@ name: Windows Build
 
 on:
   push:
-    branches: [ main, "agent/**" ]
+    branches: [ main, "agent/**", "feature/**" ]
   pull_request:
     branches: [ main ]
 
@@ -13,10 +13,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET 8
+      - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
 
       - name: Restore
         run: dotnet restore TiHiY.StreamControlCenter.sln
@@ -25,7 +25,7 @@ jobs:
         run: dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore
 
       - name: Publish portable Windows build
-        run: dotnet publish src/TiHiY.StreamControlCenter/TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish
+        run: dotnet publish TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish
 
       - name: Upload program
         uses: actions/upload-artifact@v4
