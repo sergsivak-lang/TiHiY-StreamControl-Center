@@ -16,6 +16,17 @@
     <AssemblyVersion>1.0.5.3</AssemblyVersion>
     <FileVersion>1.0.5.3</FileVersion>
   </PropertyGroup>
+
+  <!-- The repository still contains an archived WinForms prototype under src/.
+       It must never be compiled into the current WPF application. -->
+  <ItemGroup>
+    <Compile Remove="src\**\*.cs" />
+    <EmbeddedResource Remove="src\**\*" />
+    <None Remove="src\**\*" />
+    <Page Remove="src\**\*.xaml" />
+    <ApplicationDefinition Remove="src\**\App.xaml" />
+  </ItemGroup>
+
   <ItemGroup>
     <Resource Include="Assets\AppIcon.png" />
     <Resource Include="Assets\Platforms\*.png" />
