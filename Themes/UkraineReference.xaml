@@ -1,0 +1,149 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Vector assets for the approved Ukraine reference theme. They remain sharp at 2K/4K. -->
+    <DrawingImage x:Key="UkraineTridentShield">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#1011274A" Geometry="M50,2 L92,18 L88,64 C84,83 70,96 50,108 C30,96 16,83 12,64 L8,18 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#FFF7B81E" Thickness="4" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="Transparent" Geometry="M50,18 L50,84 M50,40 C42,33 37,27 34,20 M50,40 C58,33 63,27 66,20 M34,20 L34,47 C34,59 40,67 50,76 C60,67 66,59 66,47 L66,20 M34,47 L22,36 L22,62 C22,72 31,81 42,88 M66,47 L78,36 L78,62 C78,72 69,81 58,88 M50,84 L42,94 M50,84 L58,94">
+                    <GeometryDrawing.Pen><Pen Brush="#FFFFD23F" Thickness="6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="Transparent" Geometry="M50,18 L50,84 M34,20 L34,47 C34,59 40,67 50,76 C60,67 66,59 66,47 L66,20">
+                    <GeometryDrawing.Pen><Pen Brush="#FFFFF2A6" Thickness="1.4" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <DrawingImage x:Key="UkraineWheatDrawing">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="Transparent" Geometry="M50,100 C48,72 50,42 50,8 M50,82 C38,74 30,64 26,53 M50,70 C62,62 70,52 74,41 M50,58 C38,50 32,40 30,29 M50,46 C62,38 68,28 70,17">
+                    <GeometryDrawing.Pen><Pen Brush="#FFF7B81E" Thickness="3" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#FFF7B81E" Geometry="M25,53 C12,47 10,35 13,27 C26,31 33,40 25,53 Z M31,29 C18,23 18,11 22,4 C34,9 40,18 31,29 Z M75,41 C88,35 90,23 87,15 C74,19 67,28 75,41 Z M69,17 C81,11 81,2 77,-4 C66,0 61,8 69,17 Z"/>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <DrawingImage x:Key="UkraineMapDrawing">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#221AA8E8" Geometry="M12,48 L24,36 L38,35 L47,24 L63,27 L73,18 L91,22 L104,16 L118,22 L130,18 L144,27 L159,25 L168,36 L184,39 L190,51 L179,60 L168,59 L160,71 L143,70 L132,79 L116,75 L103,86 L88,81 L74,86 L62,76 L48,78 L38,67 L24,66 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#AA48CCFF" Thickness="2" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#88F7B81E" Geometry="M166,71 C176,68 184,73 188,84 C179,83 172,80 166,71 Z"/>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <LinearGradientBrush x:Key="UkraineHeaderGradient" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#EE04152A" Offset="0"/>
+        <GradientStop Color="#EE0A3154" Offset="0.46"/>
+        <GradientStop Color="#DD18243A" Offset="0.72"/>
+        <GradientStop Color="#EE07162A" Offset="1"/>
+    </LinearGradientBrush>
+
+    <Style x:Key="UkraineHeaderBadge" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource UkraineHeaderGradient}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Amber}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="CornerRadius" Value="5"/>
+        <Setter Property="Padding" Value="8,5"/>
+    </Style>
+
+    <!-- Premium frame matching the approved mockup: dark navy, gold outer edge, cyan inner edge. -->
+    <Style x:Key="HudPanel" TargetType="ContentControl">
+        <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+        <Setter Property="Background" Value="{DynamicResource PanelGradient}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Amber}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="16,14"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Grid x:Name="Root" SnapsToDevicePixels="True" ClipToBounds="True">
+                        <Border Margin="5,7,0,0" Background="#85000000" CornerRadius="7"/>
+                        <Border x:Name="Outer" Background="{TemplateBinding Background}" BorderBrush="{DynamicResource Amber}" BorderThickness="2" CornerRadius="7"/>
+                        <Border Margin="4" Background="#18040D1B" BorderBrush="{DynamicResource Cyan}" BorderThickness="1" CornerRadius="5"/>
+                        <Border Margin="8" Background="Transparent" BorderBrush="#55F7B81E" BorderThickness="1" CornerRadius="4"/>
+                        <Border Height="3" VerticalAlignment="Top" Margin="72,5,72,0" CornerRadius="2">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#00F7B81E" Offset="0"/>
+                                    <GradientStop Color="#FFF7B81E" Offset="0.32"/>
+                                    <GradientStop Color="#FF48CCFF" Offset="0.68"/>
+                                    <GradientStop Color="#0048CCFF" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+
+                        <Image Source="{StaticResource UkraineTridentShield}" Opacity="{DynamicResource ThemePremiumAccentOpacity}"
+                               Width="82" Height="92" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                               Margin="0,0,18,14" IsHitTestVisible="False"/>
+
+                        <Grid IsHitTestVisible="False">
+                            <Path Data="M0,28 L0,8 L8,0 L58,0" Stroke="{DynamicResource Amber}" StrokeThickness="2.4" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1"/>
+                            <Path Data="M58,28 L58,8 L50,0 L0,0" Stroke="{DynamicResource Amber}" StrokeThickness="2.4" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,1,1,0"/>
+                            <Path Data="M0,0 L0,18 L8,26 L46,26" Stroke="{DynamicResource Cyan}" StrokeThickness="1.5" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5"/>
+                            <Path Data="M46,0 L46,18 L38,26 L0,26" Stroke="{DynamicResource Cyan}" StrokeThickness="1.5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5"/>
+                            <Image Source="{StaticResource UkraineWheatDrawing}" Opacity="{DynamicResource ThemePremiumAccentOpacity}"
+                                   Width="86" Height="82" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="12,0,0,10"/>
+                        </Grid>
+                        <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Outer" Property="BorderBrush" Value="{DynamicResource Yellow}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ModuleButton" TargetType="Button">
+        <Setter Property="Width" Value="146"/>
+        <Setter Property="MinWidth" Value="136"/>
+        <Setter Property="MaxWidth" Value="154"/>
+        <Setter Property="Height" Value="42"/>
+        <Setter Property="MinHeight" Value="38"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+        <Setter Property="Background" Value="{DynamicResource ButtonGradient}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Cyan}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="9,4"/>
+        <Setter Property="Margin" Value="5,4"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontSize" Value="9.8"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="Root" ClipToBounds="True">
+                        <Border x:Name="Outer" Background="{TemplateBinding Background}" BorderBrush="{DynamicResource Amber}" BorderThickness="1.5" CornerRadius="4"/>
+                        <Border Margin="3" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="3"/>
+                        <Path Data="M0,9 L0,0 L16,0" Stroke="{DynamicResource Amber}" StrokeThickness="1.8" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2"/>
+                        <Path Data="M16,9 L16,0 L0,0" Stroke="{DynamicResource Amber}" StrokeThickness="1.8" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="2"/>
+                        <Border Height="2" Margin="26,3,26,0" VerticalAlignment="Top" Background="{DynamicResource Cyan}" Opacity="0.7"/>
+                        <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="{TemplateBinding Padding}">
+                            <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                        </Viewbox>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Outer" Property="BorderBrush" Value="{DynamicResource Yellow}"/>
+                            <Setter TargetName="Root" Property="Effect" Value="{StaticResource AmberGlow}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="Root" Property="Opacity" Value="0.78"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Root" Property="Opacity" Value="0.42"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
