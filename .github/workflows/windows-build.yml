@@ -22,7 +22,21 @@ jobs:
         run: dotnet restore TiHiY.StreamControlCenter.sln
 
       - name: Build
-        run: dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore
+        shell: pwsh
+        run: |
+          dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore *> build.log
+          $exitCode = $LASTEXITCODE
+          Write-Host "==== BUILD ERRORS / WARNINGS ===="
+          Get-Content build.log | Select-String -Pattern ': error |: warning |MSB[0-9]+|XDG[0-9]+|MC[0-9]+' | ForEach-Object { Write-Host $_.Line }
+          Write-Host "==== END BUILD DIAGNOSTICS ===="
+          if ($exitCode -ne 0) { exit $exitCode }
+
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-diagnostics
+          path: build.log
 
       - name: Publish portable Windows build
         run: dotnet publish TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish
