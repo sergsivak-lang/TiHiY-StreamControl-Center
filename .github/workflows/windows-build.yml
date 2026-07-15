@@ -29,11 +29,20 @@ jobs:
             "Themes/CyberAmber.xaml",
             "Themes/Compatibility.xaml",
             "Themes/UkraineReference.xaml",
+            "Localization/Strings.uk-UA.xaml",
+            "Localization/Strings.en-US.xaml",
+            "Build/Generate-AppIcon.ps1",
             "Services/AppServices.cs",
             "Services/ObsWebSocketService.cs",
             "Services/YouTubeService.cs",
             "Services/ResponsiveBlockService.cs",
             "Services/ThemeService.cs",
+            "Services/ThemePreviewRenderer.cs",
+            "Services/LanguageService.cs",
+            "Services/UiTextLocalizer.cs",
+            "Services/ButtonIconService.cs",
+            "Services/MainWindowVisualTuner.cs",
+            "Services/ShortcutService.cs",
             "Models/DonationEvent.cs",
             "Windows/JournalWindow.xaml",
             "Windows/JournalWindow.xaml.cs",
@@ -91,83 +100,123 @@ jobs:
           name: TiHiY-StreamControl-Center-win-x64
           path: publish/**
 
-      - name: Smoke test main window with applied Ukraine reference theme
+      - name: Verify branded executable icon
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path preview | Out-Null
-          $diagnosticLog = Join-Path $PWD "preview/smoke-test.log"
-          "Ukraine reference theme smoke test started at $(Get-Date -Format o)" | Set-Content $diagnosticLog -Encoding utf8
+          $exe = (Resolve-Path "publish/TiHiY.StreamControlCenter.exe").Path
+          if (-not (Test-Path "Assets/AppIcon.ico")) { throw "Generated Assets/AppIcon.ico is missing." }
+          if (-not (Test-Path "Assets/AppIcon.png")) { throw "Generated Assets/AppIcon.png is missing." }
 
+          Add-Type -AssemblyName System.Drawing
+          $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($exe)
+          if ($null -eq $icon) { throw "The published EXE has no extractable application icon." }
+          try {
+            $bitmap = $icon.ToBitmap()
+            try {
+              $bitmap.Save((Join-Path $PWD "preview/TiHiY-Executable-Icon.png"), [System.Drawing.Imaging.ImageFormat]::Png)
+            }
+            finally { $bitmap.Dispose() }
+          }
+          finally { $icon.Dispose() }
+          Write-Host "Branded application icon verified in published EXE."
+
+      - name: Smoke test real windows, theme, languages and shortcut
+        shell: pwsh
+        run: |
+          $diagnosticLog = Join-Path $PWD "preview/smoke-test.log"
+          "Ukraine reference theme smoke tests started at $(Get-Date -Format o)" | Set-Content $diagnosticLog -Encoding utf8
           $exe = (Resolve-Path "publish/TiHiY.StreamControlCenter.exe").Path
           $workingDirectory = Split-Path $exe
-          $shot = Join-Path $PWD "preview/TiHiY-StreamControl-Center-Ukraine-Reference.png"
-          $failure = $null
-          $process = $null
 
-          try {
-            $startInfo = [Diagnostics.ProcessStartInfo]::new()
-            $startInfo.FileName = $exe
-            $startInfo.WorkingDirectory = $workingDirectory
-            $startInfo.UseShellExecute = $false
-            $startInfo.CreateNoWindow = $true
-            $startInfo.RedirectStandardOutput = $true
-            $startInfo.RedirectStandardError = $true
-            $startInfo.ArgumentList.Add("--ci-screenshot=$shot")
-            $startInfo.ArgumentList.Add("--ci-apply-ukraine-theme")
+          function Invoke-AppCapture {
+            param(
+              [Parameter(Mandatory = $true)][string]$Name,
+              [Parameter(Mandatory = $true)][string]$Shot,
+              [Parameter(Mandatory = $true)][string[]]$Arguments
+            )
 
-            $process = [Diagnostics.Process]::new()
-            $process.StartInfo = $startInfo
-            if (-not $process.Start()) { throw "Process.Start returned false." }
-            "Process started with PID $($process.Id)." | Add-Content $diagnosticLog
+            $process = $null
+            try {
+              $startInfo = [Diagnostics.ProcessStartInfo]::new()
+              $startInfo.FileName = $exe
+              $startInfo.WorkingDirectory = $workingDirectory
+              $startInfo.UseShellExecute = $false
+              $startInfo.CreateNoWindow = $true
+              $startInfo.RedirectStandardOutput = $true
+              $startInfo.RedirectStandardError = $true
+              foreach ($argument in $Arguments) { $startInfo.ArgumentList.Add($argument) }
 
-            $stdoutTask = $process.StandardOutput.ReadToEndAsync()
-            $stderrTask = $process.StandardError.ReadToEndAsync()
+              $process = [Diagnostics.Process]::new()
+              $process.StartInfo = $startInfo
+              if (-not $process.Start()) { throw "$Name: Process.Start returned false." }
+              "$Name started with PID $($process.Id)." | Add-Content $diagnosticLog
 
-            if (-not $process.WaitForExit(45000)) {
-              $process.Kill($true)
-              $process.WaitForExit()
-              $failure = "Ukraine reference theme smoke test timed out."
-            } elseif ($process.ExitCode -ne 0) {
-              $failure = "Application exited with code $($process.ExitCode) while applying the Ukraine reference theme."
-            } elseif (-not (Test-Path $shot)) {
-              $failure = "Application did not create the Ukraine reference theme screenshot."
-            }
+              $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+              $stderrTask = $process.StandardError.ReadToEndAsync()
 
-            $stdout = $stdoutTask.GetAwaiter().GetResult()
-            $stderr = $stderrTask.GetAwaiter().GetResult()
-            if ($stdout) { "---- STDOUT ----`n$stdout" | Add-Content $diagnosticLog }
-            if ($stderr) { "---- STDERR ----`n$stderr" | Add-Content $diagnosticLog }
-            "Exit code: $($process.ExitCode)" | Add-Content $diagnosticLog
-          }
-          catch {
-            $failure = "Smoke-test launcher failed: $($_.Exception.Message)"
-            $_.Exception.ToString() | Add-Content $diagnosticLog
-          }
-          finally {
-            if ($process) { $process.Dispose() }
-            $appLogFolder = Join-Path $env:APPDATA "TiHiY/StreamControlCenter/Logs"
-            if (Test-Path $appLogFolder) {
-              Get-ChildItem $appLogFolder -File -ErrorAction SilentlyContinue | Copy-Item -Destination preview -Force
-            }
-          }
-
-          if ($failure) {
-            Write-Host "==== UKRAINE THEME STARTUP DIAGNOSTICS ===="
-            Get-ChildItem preview -File -ErrorAction SilentlyContinue | ForEach-Object {
-              Write-Host "---- $($_.Name) ----"
-              if ($_.Extension -eq ".txt" -or $_.Extension -eq ".log") {
-                Get-Content $_.FullName -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_ }
+              if (-not $process.WaitForExit(60000)) {
+                $process.Kill($true)
+                $process.WaitForExit()
+                throw "$Name timed out."
               }
-            }
-            Write-Host "==== END UKRAINE THEME STARTUP DIAGNOSTICS ===="
-            throw $failure
-          }
-          Write-Host "Main window with applied Ukraine reference theme opened successfully."
 
-      - name: Upload Ukraine reference theme screenshot and startup logs
+              $stdout = $stdoutTask.GetAwaiter().GetResult()
+              $stderr = $stderrTask.GetAwaiter().GetResult()
+              if ($stdout) { "---- $Name STDOUT ----`n$stdout" | Add-Content $diagnosticLog }
+              if ($stderr) { "---- $Name STDERR ----`n$stderr" | Add-Content $diagnosticLog }
+              "$Name exit code: $($process.ExitCode)" | Add-Content $diagnosticLog
+
+              if ($process.ExitCode -ne 0) { throw "$Name exited with code $($process.ExitCode)." }
+              if (-not (Test-Path $Shot)) { throw "$Name did not create screenshot: $Shot" }
+              if ((Get-Item $Shot).Length -lt 25000) { throw "$Name screenshot is unexpectedly small." }
+            }
+            finally {
+              if ($process) { $process.Dispose() }
+              Start-Sleep -Milliseconds 700
+            }
+          }
+
+          $mainShot = Join-Path $PWD "preview/TiHiY-StreamControl-Center-Ukraine-Reference.png"
+          $settingsUaShot = Join-Path $PWD "preview/TiHiY-Settings-Ukraine-Theme-Preview-UA.png"
+          $settingsEnShot = Join-Path $PWD "preview/TiHiY-Settings-Ukraine-Theme-Preview-EN.png"
+          $shortcut = Join-Path $PWD "preview/TiHiY StreamControl Center.lnk"
+
+          Invoke-AppCapture -Name "MainWindow-UA" -Shot $mainShot -Arguments @(
+            "--ci-screenshot=$mainShot",
+            "--ci-apply-ukraine-theme",
+            "--ci-shortcut=$shortcut"
+          )
+          if (-not (Test-Path $shortcut)) { throw "The application did not create the requested .lnk shortcut." }
+          if ((Get-Item $shortcut).Length -lt 100) { throw "The generated .lnk shortcut is unexpectedly small." }
+
+          Invoke-AppCapture -Name "Settings-UA" -Shot $settingsUaShot -Arguments @(
+            "--ci-screenshot=$settingsUaShot",
+            "--ci-apply-ukraine-theme",
+            "--ci-open-settings",
+            "--ci-settings-theme-preview",
+            "--ci-language=uk-UA"
+          )
+
+          Invoke-AppCapture -Name "Settings-EN" -Shot $settingsEnShot -Arguments @(
+            "--ci-screenshot=$settingsEnShot",
+            "--ci-apply-ukraine-theme",
+            "--ci-open-settings",
+            "--ci-settings-theme-preview",
+            "--ci-language=en-US"
+          )
+
+          $appLogFolder = Join-Path $env:APPDATA "TiHiY/StreamControlCenter/Logs"
+          if (Test-Path $appLogFolder) {
+            Get-ChildItem $appLogFolder -File -ErrorAction SilentlyContinue | Copy-Item -Destination preview -Force
+          }
+
+          Write-Host "Main window, themed settings window, UA/EN localization, EXE icon and shortcut verified."
+
+      - name: Upload verified screenshots, icon, shortcut and startup logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: TiHiY-Ukraine-Reference-Theme-Screenshot
+          name: TiHiY-Ukraine-Reference-Theme-Verification
           path: preview/**
           if-no-files-found: warn
