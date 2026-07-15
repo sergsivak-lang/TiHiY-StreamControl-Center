@@ -36,7 +36,6 @@ public partial class App : Application
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
         try
         {
-            // Service construction stays inside the guarded startup block so startup failures are logged and shown.
             WriteStartupStage("01 Services construction");
             Services = new AppServices();
             WriteStartupStage("02 Services initialized in memory");
@@ -46,6 +45,7 @@ public partial class App : Application
             WriteStartupStage("04 MainWindow constructed");
             MainWindow = main;
             main.Show();
+            UiTextLocalizer.Apply(main, Services.Language.CurrentLanguage);
             WriteStartupStage("05 MainWindow shown");
 
             if (ciMode)
@@ -66,7 +66,6 @@ public partial class App : Application
                 Window captureWindow = main;
                 if (openSettingsInCi)
                 {
-                    // Reproduce the real user path that previously crashed when the Ukraine preview PNG was absent.
                     Services.Settings.Value.UiTheme = "Україна";
                     var settings = new TiHiY.StreamControlCenter.Windows.SettingsWindow
                     {
