@@ -23,6 +23,7 @@ jobs:
             "TiHiY.StreamControlCenter.sln",
             "TiHiY.StreamControlCenter.csproj",
             "App.xaml",
+            "App.xaml.cs",
             "MainWindow.xaml",
             "GlobalUsings.cs",
             "Themes/CyberAmber.xaml",
@@ -34,7 +35,9 @@ jobs:
             "Services/ThemeService.cs",
             "Models/DonationEvent.cs",
             "Windows/JournalWindow.xaml",
-            "Windows/JournalWindow.xaml.cs"
+            "Windows/JournalWindow.xaml.cs",
+            "Windows/SettingsWindow.xaml",
+            "Windows/SettingsWindow.xaml.cs"
           )
           foreach ($requiredFile in $requiredFiles) {
             if (-not (Test-Path $requiredFile)) {
@@ -87,16 +90,16 @@ jobs:
           name: TiHiY-StreamControl-Center-win-x64
           path: publish/**
 
-      - name: Smoke test application startup
+      - name: Smoke test Settings window with Ukraine theme
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path preview | Out-Null
           $diagnosticLog = Join-Path $PWD "preview/smoke-test.log"
-          "Smoke test started at $(Get-Date -Format o)" | Set-Content $diagnosticLog -Encoding utf8
+          "Settings smoke test started at $(Get-Date -Format o)" | Set-Content $diagnosticLog -Encoding utf8
 
           $exe = (Resolve-Path "publish/TiHiY.StreamControlCenter.exe").Path
           $workingDirectory = Split-Path $exe
-          $shot = Join-Path $PWD "preview/TiHiY-StreamControl-Center.png"
+          $shot = Join-Path $PWD "preview/TiHiY-StreamControl-Center-Settings-Ukraine.png"
           $failure = $null
           $process = $null
 
@@ -109,6 +112,7 @@ jobs:
             $startInfo.RedirectStandardOutput = $true
             $startInfo.RedirectStandardError = $true
             $startInfo.ArgumentList.Add("--ci-screenshot=$shot")
+            $startInfo.ArgumentList.Add("--ci-open-settings")
 
             $process = [Diagnostics.Process]::new()
             $process.StartInfo = $startInfo
@@ -121,11 +125,11 @@ jobs:
             if (-not $process.WaitForExit(45000)) {
               $process.Kill($true)
               $process.WaitForExit()
-              $failure = "Application startup smoke test timed out."
+              $failure = "Settings smoke test timed out."
             } elseif ($process.ExitCode -ne 0) {
-              $failure = "Application exited with code $($process.ExitCode) during startup smoke test."
+              $failure = "Application exited with code $($process.ExitCode) while opening Settings."
             } elseif (-not (Test-Path $shot)) {
-              $failure = "Application did not create the CI screenshot."
+              $failure = "Application did not create the Settings screenshot."
             }
 
             $stdout = $stdoutTask.GetAwaiter().GetResult()
@@ -147,22 +151,22 @@ jobs:
           }
 
           if ($failure) {
-            Write-Host "==== STARTUP DIAGNOSTICS ===="
+            Write-Host "==== SETTINGS STARTUP DIAGNOSTICS ===="
             Get-ChildItem preview -File -ErrorAction SilentlyContinue | ForEach-Object {
               Write-Host "---- $($_.Name) ----"
               if ($_.Extension -eq ".txt" -or $_.Extension -eq ".log") {
                 Get-Content $_.FullName -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_ }
               }
             }
-            Write-Host "==== END STARTUP DIAGNOSTICS ===="
+            Write-Host "==== END SETTINGS STARTUP DIAGNOSTICS ===="
             throw $failure
           }
-          Write-Host "Application startup smoke test completed successfully."
+          Write-Host "Settings window with Ukraine theme opened successfully."
 
-      - name: Upload application screenshot and startup logs
+      - name: Upload Settings screenshot and startup logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: TiHiY-StreamControl-Center-Screenshot
+          name: TiHiY-StreamControl-Center-Settings-Screenshot
           path: preview/**
           if-no-files-found: warn
