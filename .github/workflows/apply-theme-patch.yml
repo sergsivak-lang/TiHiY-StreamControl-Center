@@ -1,0 +1,92 @@
+name: Apply Ukraine Exact Final Files
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/ukraine-reference-theme-v2
+          fetch-depth: 0
+
+      - name: Restore code and Ukraine Exact assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64
+          import gzip
+          import io
+          import pathlib
+          import tarfile
+
+          parts = pathlib.Path('ThemePatchParts')
+
+          code_text = (
+              (parts / 'MainWindow.xaml.cs.gz.b64.a').read_text(encoding='utf-8').strip()
+              + (parts / 'MainWindow.xaml.cs.gz.b64.b').read_text(encoding='utf-8').strip()
+          )
+          if len(code_text) != 17724:
+              raise RuntimeError(f'MainWindow code container length is {len(code_text)}, expected 17724')
+          code = gzip.decompress(base64.b64decode(code_text, validate=True))
+          pathlib.Path('MainWindow.xaml.cs').write_bytes(code)
+          print(f'Restored MainWindow.xaml.cs: {len(code)} bytes')
+
+          assets_text = (
+              (parts / 'Assets-00.tar.gz.b64.a').read_text(encoding='utf-8').strip()
+              + (parts / 'Assets-00.tar.gz.b64.b').read_text(encoding='utf-8').strip()
+              + (parts / 'Assets-01.tar.gz.b64').read_text(encoding='utf-8').strip()
+          )
+          if len(assets_text) != 23396:
+              raise RuntimeError(f'Asset container length is {len(assets_text)}, expected 23396')
+          payload = base64.b64decode(assets_text, validate=True)
+          with tarfile.open(fileobj=io.BytesIO(payload), mode='r:gz') as archive:
+              members = archive.getmembers()
+              for member in members:
+                  path = pathlib.Path(member.name)
+                  if path.is_absolute() or '..' in path.parts:
+                      raise RuntimeError(f'Unsafe archive path: {member.name}')
+              archive.extractall('.')
+          print(f'Restored UkraineExact assets: {len(members)} archive members')
+
+          required = [
+              'Assets/Themes/UkraineExact/header-emblem.png',
+              'Assets/Themes/UkraineExact/header-wheat.png',
+              'Assets/Themes/UkraineExact/header-map.png',
+              'Assets/Themes/UkraineExact/panel-corner.png',
+              'Assets/Themes/UkraineExact/small-wheat.png',
+              'Assets/Themes/UkraineExact/footer-wheat.png',
+              'Assets/Themes/UkraineExact/module-ornament.png',
+          ]
+          for item in required:
+              file = pathlib.Path(item)
+              if not file.is_file() or file.stat().st_size < 100:
+                  raise RuntimeError(f'Missing or invalid asset: {item}')
+              print(f'{item}: {file.stat().st_size} bytes')
+          PY
+
+      - name: Remove staging infrastructure
+        shell: bash
+        run: |
+          rm -rf ThemePatchParts
+          rm -f ThemePatch.b64 ThemePatch.zip patch-ok.txt patch-diagnostic.txt reconstruct-diagnostic.txt
+          rm -f .github/workflows/export-source.yml
+          rm -f .github/workflows/apply-theme-patch.yml
+
+      - name: Commit real functional files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Complete functional Ukraine Exact interface"
+          git push origin HEAD:feature/ukraine-reference-theme-v2
