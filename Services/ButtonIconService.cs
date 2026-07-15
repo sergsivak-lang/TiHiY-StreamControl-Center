@@ -13,13 +13,14 @@ public static class ButtonIconService
         new(["ЗАСТОС", "APPLY"], "\uE73E"),
         new(["СКАСУВ", "CANCEL"], "\uE711"),
         new(["ЗАКРИТ", "CLOSE"], "\uE8BB"),
+        new(["АВТОРИЗ", "AUTHOR"], "\uE77B"),
         new(["ПІДКЛЮЧ", "CONNECT"], "\uE8A7"),
         new(["ВІДКЛЮЧ", "DISCONNECT"], "\uE8A8"),
         new(["ОНОВ", "REFRESH"], "\uE72C"),
         new(["ОЧИСТ", "CLEAR"], "\uE74D"),
         new(["ВИДАЛ", "DELETE", "REMOVE"], "\uE74D"),
         new(["ДОДАТ", "ADD"], "\uE710"),
-        new(["ВІДКРИТИ ПАПК", "OPEN FOLDER", "FOLDER"], "\uE838"),
+        new(["ВІДКРИТИ ПАПК", "OPEN FOLDER", "FOLDER", "ОГЛЯД", "BROWSE"], "\uE838"),
         new(["ЖУРНАЛ", "LOG"], "\uE81C"),
         new(["КАНАЛ", "CHANNEL"], "\uE716"),
         new(["DISCORD"], "\uE716"),
@@ -37,6 +38,8 @@ public static class ButtonIconService
         new(["НАЗАД", "BACK", "PREVIOUS"], "\uE72B"),
         new(["ДАЛІ", "NEXT"], "\uE72A"),
         new(["КОПІЮВ", "COPY"], "\uE8C8"),
+        new(["РЕДАГ", "EDIT"], "\uE70F"),
+        new(["СКИНУТИ", "RESET", "ВІДНОВИТИ", "RESTORE"], "\uE777"),
         new(["ЕКСПОРТ", "EXPORT"], "\uEDE1"),
         new(["ІМПОРТ", "IMPORT"], "\uE8B5"),
         new(["ПЕРЕВІР", "CHECK", "VERIFY"], "\uE73E")
@@ -65,12 +68,11 @@ public static class ButtonIconService
         if (label.Length <= 2 || label.All(c => char.IsDigit(c) || char.IsPunctuation(c) || char.IsSymbol(c) || char.IsWhiteSpace(c))) return;
 
         var normalized = label.Trim().ToUpperInvariant();
-        var rule = Rules.FirstOrDefault(x => x.Keywords.Any(normalized.Contains));
-        if (rule is null) return;
+        var glyphText = Rules.FirstOrDefault(x => x.Keywords.Any(normalized.Contains))?.Glyph ?? "\uE8A7";
 
         var glyph = new TextBlock
         {
-            Text = rule.Glyph,
+            Text = glyphText,
             FontFamily = new FontFamily("Segoe MDL2 Assets"),
             FontSize = Math.Max(13, button.FontSize + 2),
             VerticalAlignment = VerticalAlignment.Center,
