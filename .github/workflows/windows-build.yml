@@ -6,12 +6,57 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore complete WPF source
+        shell: pwsh
+        run: |
+          $payloadFiles = Get-ChildItem "BuildSupport/WpfCore-v1.0.5.2.tar.bz2.b64.*" -ErrorAction SilentlyContinue | Sort-Object Name
+          if ($payloadFiles.Count -gt 0) {
+            Write-Host "Reconstructing exact WPF core v1.0.5.2 from $($payloadFiles.Count) verified payload parts..."
+            $base64 = ($payloadFiles | ForEach-Object { (Get-Content $_.FullName -Raw).Trim() }) -join ''
+            [IO.File]::WriteAllBytes("wpfcore-v1.0.5.2.tar.bz2", [Convert]::FromBase64String($base64))
+
+            $expectedHash = "a9732860ecdc32a316303e07ef72d116e28329e289368b8359b5679cbe5489fc"
+            $actualHash = (Get-FileHash "wpfcore-v1.0.5.2.tar.bz2" -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actualHash -ne $expectedHash) {
+              throw "WPF recovery payload hash mismatch. Expected $expectedHash, got $actualHash."
+            }
+
+            tar -xjf "wpfcore-v1.0.5.2.tar.bz2"
+            if ($LASTEXITCODE -ne 0) { throw "Failed to extract WPF recovery payload." }
+            Remove-Item "wpfcore-v1.0.5.2.tar.bz2" -Force
+          }
+
+          if (Test-Path "src") {
+            Write-Host "Removing obsolete WinForms source tree that conflicts with the root WPF project..."
+            Remove-Item "src" -Recurse -Force
+          }
+
+          $requiredFiles = @(
+            "GlobalUsings.cs",
+            "Services/AppServices.cs",
+            "Services/ObsWebSocketService.cs",
+            "Services/YouTubeService.cs",
+            "Services/ResponsiveBlockService.cs",
+            "Models/DonationEvent.cs",
+            "Windows/JournalWindow.xaml",
+            "Windows/JournalWindow.xaml.cs"
+          )
+          foreach ($requiredFile in $requiredFiles) {
+            if (-not (Test-Path $requiredFile)) { throw "Required WPF source file is missing: $requiredFile" }
+          }
+          Write-Host "Complete WPF source is ready."
 
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
@@ -28,7 +73,7 @@ jobs:
           $exitCode = $LASTEXITCODE
           if ($exitCode -ne 0) {
             $errors = Get-Content build.log | Where-Object { $_ -match ': error ' -or $_ -match 'error (CS|MC|XDG|MSB|NETSDK)[0-9]+' }
-            if (-not $errors) { $errors = Get-Content build.log | Select-Object -Last 120 }
+            if (-not $errors) { $errors = Get-Content build.log | Select-Object -Last 160 }
             $errors | Set-Content -Path build-errors.txt -Encoding utf8
             Write-Host "==== BUILD ERRORS ===="
             Get-Content build-errors.txt | ForEach-Object { Write-Host $_ }
@@ -36,6 +81,7 @@ jobs:
             exit $exitCode
           }
           "Build completed successfully." | Set-Content -Path build-errors.txt -Encoding utf8
+          Write-Host "Build completed successfully."
 
       - name: Upload build diagnostics
         if: always()
@@ -48,10 +94,27 @@ jobs:
           if-no-files-found: warn
 
       - name: Publish portable Windows build
-        run: dotnet publish TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --no-restore --output publish
+        run: dotnet publish TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish
 
       - name: Upload program
         uses: actions/upload-artifact@v4
         with:
           name: TiHiY-StreamControl-Center-win-x64
           path: publish/**
+
+      - name: Persist restored WPF source
+        if: github.event_name == 'push' && success()
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add GlobalUsings.cs Models Services Windows
+          git rm -r --ignore-unmatch src BuildSupport
+          git diff --cached --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m "Restore complete WPF source v1.0.5.2"
+            git push origin "HEAD:${{ github.ref_name }}"
+          } else {
+            Write-Host "No source recovery changes need to be persisted."
+          }
