@@ -56,7 +56,6 @@ public sealed class AppSettings
     public string DonationGoalTitle { get; set; } = "Новий ПК для стрімів";
     public decimal DonationGoalAmount { get; set; } = 10000m;
     public string DonationGoalCurrency { get; set; } = "UAH";
-
     public string DonatelloDiscordChannelId { get; set; } = string.Empty;
     public string DonatelloLastMessageId { get; set; } = string.Empty;
 
@@ -70,7 +69,6 @@ public sealed class AppSettings
 
     public string OverlayTheme { get; set; } = "Star Citizen MFD";
     public string UiTheme { get; set; } = "TiHiY Default / Cyber Amber";
-    public Dictionary<string, string> DashboardBlockSlots { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public string HighlightWords { get; set; } = "TiHiY-DED,tihiy_ded,@TiHiY-DED,@tihiy_ded,Тихий Дід,дід";
     public string OwnerColor { get; set; } = "#FFD329";
     public string ModeratorColor { get; set; } = "#45B6FF";
@@ -91,7 +89,26 @@ public sealed class AppSettings
     public double LocalChatOverlayWidth { get; set; } = 520;
     public double LocalChatOverlayHeight { get; set; } = 720;
 
+    public bool AutoNoticesEnabled { get; set; } = true;
+    public bool UiScaleAuto { get; set; } = true;
+    public int UiScalePercent { get; set; } = 100;
+    public bool AudioAutoDetect { get; set; } = true;
+    public List<string> SelectedAudioInputs { get; set; } = new();
+    public List<string> PinnedAudioInputs { get; set; } = new();
     public List<string> QuickMixerInputUuids { get; set; } = new();
+    public List<ScheduledNotice> ScheduledNotices { get; set; } = new();
+    public List<BotCommand> BotCommands { get; set; } = new();
+    public List<string> MusicPlaylistPaths { get; set; } = new();
+
+    public int DashboardLayoutVersion { get; set; }
+    public double MainLeftColumnWidth { get; set; } = 1.02;
+    public double MainBottomLeftColumnWidth { get; set; } = 1.02;
+    public double MainTopRowHeight { get; set; } = 1.12;
+    public double FooterHeight { get; set; } = 180;
+    public double FooterSystemColumnWeight { get; set; } = 0.22;
+    public double FooterEventsColumnWeight { get; set; } = 0.38;
+    public double FooterMonitorColumnWeight { get; set; } = 0.40;
+    public Dictionary<string, string> DashboardBlockSlots { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public Dictionary<string, WindowPlacement> WindowPlacements { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public Dictionary<string, double> MainLayoutValues { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }
