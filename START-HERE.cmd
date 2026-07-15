@@ -1,10 +1,14 @@
 @echo off
 setlocal EnableExtensions
 cd /d "%~dp0"
-title TiHiY StreamControl Center v1.0.3.6 Rearranged Blocks Test
+
+set "APP_VERSION=v1.0.5.2"
+if exist "VERSION.txt" set /p APP_VERSION=<"VERSION.txt"
+
+title TiHiY StreamControl Center %APP_VERSION%
 
 echo ================================================================
-echo  TiHiY StreamControl Center v1.0.3.6
+echo  TiHiY StreamControl Center %APP_VERSION%
 echo  FUNCTIONAL CORE - CYBER BLUE + AMBER
 echo ================================================================
 echo.
@@ -28,7 +32,7 @@ exit /b %RC%
 
 :missing_project
 echo ERROR: Project file was not found.
-echo Extract the FULL v1.0.3.6 ZIP into a NEW folder.
+echo Extract the FULL %APP_VERSION% ZIP into a NEW folder.
 goto failed
 
 :no_dotnet

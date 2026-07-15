@@ -2,9 +2,12 @@ name: Windows Build
 
 on:
   push:
-    branches: [ main, "agent/**" ]
+    branches: [ main, "agent/**", "feature/**" ]
   pull_request:
     branches: [ main ]
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -13,22 +16,157 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET 8
+      - name: Verify WPF source tree
+        shell: pwsh
+        run: |
+          $requiredFiles = @(
+            "TiHiY.StreamControlCenter.sln",
+            "TiHiY.StreamControlCenter.csproj",
+            "App.xaml",
+            "App.xaml.cs",
+            "MainWindow.xaml",
+            "GlobalUsings.cs",
+            "Themes/CyberAmber.xaml",
+            "Themes/Compatibility.xaml",
+            "Services/AppServices.cs",
+            "Services/ObsWebSocketService.cs",
+            "Services/YouTubeService.cs",
+            "Services/ResponsiveBlockService.cs",
+            "Services/ThemeService.cs",
+            "Models/DonationEvent.cs",
+            "Windows/JournalWindow.xaml",
+            "Windows/JournalWindow.xaml.cs",
+            "Windows/SettingsWindow.xaml",
+            "Windows/SettingsWindow.xaml.cs"
+          )
+          foreach ($requiredFile in $requiredFiles) {
+            if (-not (Test-Path $requiredFile)) {
+              throw "Required WPF source file is missing: $requiredFile"
+            }
+          }
+          Write-Host "Complete WPF source tree verified."
+
+      - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
 
       - name: Restore
         run: dotnet restore TiHiY.StreamControlCenter.sln
 
       - name: Build
-        run: dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore
+        shell: pwsh
+        run: |
+          dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore *> build.log
+          $exitCode = $LASTEXITCODE
+          if ($exitCode -ne 0) {
+            $errors = Get-Content build.log | Where-Object { $_ -match ': error ' -or $_ -match 'error (CS|MC|XDG|MSB|NETSDK|BG)[0-9]+' }
+            if (-not $errors) { $errors = Get-Content build.log | Select-Object -Last 160 }
+            $errors | Set-Content -Path build-errors.txt -Encoding utf8
+            Write-Host "==== BUILD ERRORS ===="
+            Get-Content build-errors.txt | ForEach-Object { Write-Host $_ }
+            Write-Host "==== END BUILD ERRORS ===="
+            exit $exitCode
+          }
+          "Build completed successfully." | Set-Content -Path build-errors.txt -Encoding utf8
+          Write-Host "Build completed successfully."
 
-      - name: Publish portable Windows build
-        run: dotnet publish src/TiHiY.StreamControlCenter/TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-diagnostics
+          path: |
+            build.log
+            build-errors.txt
+          if-no-files-found: warn
+
+      - name: Publish self-contained Windows build
+        run: dotnet publish TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=false --output publish
 
       - name: Upload program
         uses: actions/upload-artifact@v4
         with:
           name: TiHiY-StreamControl-Center-win-x64
           path: publish/**
+
+      - name: Smoke test Settings window with Ukraine theme
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path preview | Out-Null
+          $diagnosticLog = Join-Path $PWD "preview/smoke-test.log"
+          "Settings smoke test started at $(Get-Date -Format o)" | Set-Content $diagnosticLog -Encoding utf8
+
+          $exe = (Resolve-Path "publish/TiHiY.StreamControlCenter.exe").Path
+          $workingDirectory = Split-Path $exe
+          $shot = Join-Path $PWD "preview/TiHiY-StreamControl-Center-Settings-Ukraine.png"
+          $failure = $null
+          $process = $null
+
+          try {
+            $startInfo = [Diagnostics.ProcessStartInfo]::new()
+            $startInfo.FileName = $exe
+            $startInfo.WorkingDirectory = $workingDirectory
+            $startInfo.UseShellExecute = $false
+            $startInfo.CreateNoWindow = $true
+            $startInfo.RedirectStandardOutput = $true
+            $startInfo.RedirectStandardError = $true
+            $startInfo.ArgumentList.Add("--ci-screenshot=$shot")
+            $startInfo.ArgumentList.Add("--ci-open-settings")
+
+            $process = [Diagnostics.Process]::new()
+            $process.StartInfo = $startInfo
+            if (-not $process.Start()) { throw "Process.Start returned false." }
+            "Process started with PID $($process.Id)." | Add-Content $diagnosticLog
+
+            $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+            $stderrTask = $process.StandardError.ReadToEndAsync()
+
+            if (-not $process.WaitForExit(45000)) {
+              $process.Kill($true)
+              $process.WaitForExit()
+              $failure = "Settings smoke test timed out."
+            } elseif ($process.ExitCode -ne 0) {
+              $failure = "Application exited with code $($process.ExitCode) while opening Settings."
+            } elseif (-not (Test-Path $shot)) {
+              $failure = "Application did not create the Settings screenshot."
+            }
+
+            $stdout = $stdoutTask.GetAwaiter().GetResult()
+            $stderr = $stderrTask.GetAwaiter().GetResult()
+            if ($stdout) { "---- STDOUT ----`n$stdout" | Add-Content $diagnosticLog }
+            if ($stderr) { "---- STDERR ----`n$stderr" | Add-Content $diagnosticLog }
+            "Exit code: $($process.ExitCode)" | Add-Content $diagnosticLog
+          }
+          catch {
+            $failure = "Smoke-test launcher failed: $($_.Exception.Message)"
+            $_.Exception.ToString() | Add-Content $diagnosticLog
+          }
+          finally {
+            if ($process) { $process.Dispose() }
+            $appLogFolder = Join-Path $env:APPDATA "TiHiY/StreamControlCenter/Logs"
+            if (Test-Path $appLogFolder) {
+              Get-ChildItem $appLogFolder -File -ErrorAction SilentlyContinue | Copy-Item -Destination preview -Force
+            }
+          }
+
+          if ($failure) {
+            Write-Host "==== SETTINGS STARTUP DIAGNOSTICS ===="
+            Get-ChildItem preview -File -ErrorAction SilentlyContinue | ForEach-Object {
+              Write-Host "---- $($_.Name) ----"
+              if ($_.Extension -eq ".txt" -or $_.Extension -eq ".log") {
+                Get-Content $_.FullName -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_ }
+              }
+            }
+            Write-Host "==== END SETTINGS STARTUP DIAGNOSTICS ===="
+            throw $failure
+          }
+          Write-Host "Settings window with Ukraine theme opened successfully."
+
+      - name: Upload Settings screenshot and startup logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TiHiY-StreamControl-Center-Settings-Screenshot
+          path: preview/**
+          if-no-files-found: warn

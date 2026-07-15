@@ -18,12 +18,13 @@ public partial class App : Application
         var screenshotArg = e.Args.FirstOrDefault(x => x.StartsWith("--ci-screenshot=", StringComparison.OrdinalIgnoreCase));
         var screenshotPath = screenshotArg is null ? null : screenshotArg[(screenshotArg.IndexOf('=') + 1)..].Trim('"');
         var ciMode = !string.IsNullOrWhiteSpace(screenshotPath);
+        var openSettingsInCi = e.Args.Any(x => string.Equals(x, "--ci-open-settings", StringComparison.OrdinalIgnoreCase));
 
         _singleInstanceMutex = new Mutex(true, "Local\\TiHiY.StreamControlCenter.SingleInstance", out _ownsMutex);
         if (!_ownsMutex)
         {
             if (!ciMode)
-                MessageBox.Show("TiHiY StreamControl Center вже запущено. Закрийте або відкрийте існуюче вікно програми.", "TiHiY StreamControl Center", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("TiHiY Stream Control Center вже запущено. Закрийте або відкрийте існуюче вікно програми.", "TiHiY Stream Control Center", MessageBoxButton.OK, MessageBoxImage.Information);
             Shutdown(0);
             return;
         }
@@ -54,9 +55,30 @@ public partial class App : Application
                 main.Left = 0;
                 main.Top = 0;
                 main.ApplyCiDemoState();
+
+                Window captureWindow = main;
+                if (openSettingsInCi)
+                {
+                    // Reproduce the real user path that previously crashed when the Ukraine preview PNG was absent.
+                    Services.Settings.Value.UiTheme = "Україна";
+                    var settings = new TiHiY.StreamControlCenter.Windows.SettingsWindow
+                    {
+                        Owner = main,
+                        Width = 1140,
+                        Height = 730,
+                        WindowState = WindowState.Normal,
+                        Left = 0,
+                        Top = 0
+                    };
+                    settings.Show();
+                    captureWindow = settings;
+                    WriteStartupStage("06 SettingsWindow shown in CI");
+                }
+
                 await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
                 await Task.Delay(900);
-                SaveWindowScreenshot(main, screenshotPath!);
+                SaveWindowScreenshot(captureWindow, screenshotPath!);
+                if (!ReferenceEquals(captureWindow, main)) captureWindow.Close();
                 Shutdown(0);
             }
         }
@@ -67,7 +89,7 @@ public partial class App : Application
             if (!ciMode)
                 MessageBox.Show(
                     BuildStartupErrorMessage(ex, crashFile),
-                    "TiHiY StreamControl Center",
+                    "TiHiY Stream Control Center",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             else if (!string.IsNullOrWhiteSpace(screenshotPath))
@@ -81,8 +103,6 @@ public partial class App : Application
             Shutdown(1);
         }
     }
-
-
 
     private static string BuildStartupErrorMessage(Exception ex, string crashFile)
     {
@@ -173,7 +193,7 @@ public partial class App : Application
         Services?.Logger.Error("Необроблена помилка інтерфейсу", e.Exception);
         e.Handled = true;
         if (!Environment.GetCommandLineArgs().Any(x => x.StartsWith("--ci-screenshot=", StringComparison.OrdinalIgnoreCase)))
-            MessageBox.Show($"Модуль повідомив про помилку, але програма продовжує роботу.\n\n{e.Exception.Message}\n\nПодробиці записані в журнал.", "TiHiY StreamControl Center", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"Модуль повідомив про помилку, але програма продовжує роботу.\n\n{e.Exception.Message}\n\nПодробиці записані в журнал.", "TiHiY Stream Control Center", MessageBoxButton.OK, MessageBoxImage.Error);
     }
 
     private void OnDomainUnhandledException(object? sender, UnhandledExceptionEventArgs e) =>

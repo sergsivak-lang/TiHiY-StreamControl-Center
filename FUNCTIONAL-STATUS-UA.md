@@ -1,4 +1,4 @@
-# TiHiY StreamControl Center v1.0.3 — Functional status
+# TiHiY StreamControl Center v1.0.5.2 — Functional status
 
 ## Real data paths
 
@@ -19,15 +19,23 @@
 - усі XAML event handlers знайдені у відповідних code-behind файлах;
 - усі ресурси та pack URI іконок перевірені на наявність;
 - структура адаптивних Grid/GridSplitter узгоджена з налаштуваннями збереження макета;
-- звичайний режим запуску не додає демонстраційні повідомлення, аудіоканали або донати.
+- звичайний режим запуску не додає демонстраційні повідомлення, аудіоканали або донати;
+- версія застосунку у `.csproj` відповідає `VERSION.txt`;
+- скрипти запуску та складання читають актуальну назву релізу з `VERSION.txt`;
+- повні папки `Models`, `Services` і `Windows` відновлені в репозиторії;
+- застарілий конфліктний WinForms-каталог `src` видалений;
+- відсутні необов’язкові файли брендингу більше не блокують WPF-збірку;
+- GitHub Actions використовує .NET 9, зберігає діагностику та формує Windows x64 artifact.
 
 Фактичний Windows WPF build виконується `START-HERE.cmd`. Повний тест зовнішніх сервісів потребує власних облікових даних і запущених OBS/AIDA64.
 
-## v1.0.3 hardware/layout additions
+## v1.0.5.2 hardware/layout additions
 
 - AIDA64 rootless XML fragment parsing;
 - CPU/RAM frequencies, CPU/GPU load and temperatures, RAM/VRAM usage;
 - Windows fallback without fake sensor values;
 - draggable dashboard and footer splitters;
 - persisted block proportions and footer height;
-- automatic scaling of the entire design surface, including fonts and buttons.
+- automatic scaling of the entire design surface, including fonts and buttons;
+- Ukraine reference theme and corrected XAML color resources;
+- synchronized release identification in launcher and build logs.
