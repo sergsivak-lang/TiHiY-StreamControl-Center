@@ -19,14 +19,18 @@ jobs:
         shell: pwsh
         run: |
           if (-not (Test-Path "Services/AppServices.cs")) {
-            Write-Host "Restoring complete WPF v1.0.5.2 source from repository history..."
-            git show 23801ef86f15bc0e4463133742fab0b985c4d85d:.github/bootstrap/wpfcore.part01.b64 | Out-File -FilePath wpfcore.b64 -Encoding ascii
+            Write-Host "Restoring complete WPF v1.0.5.2 source snapshot..."
+            $url = "https://raw.githubusercontent.com/sergsivak-lang/TiHiY-StreamControl-Center/23801ef86f15bc0e4463133742fab0b985c4d85d/.github/bootstrap/wpfcore.part01.b64"
+            Invoke-WebRequest -Uri $url -OutFile wpfcore.b64
             $base64 = (Get-Content wpfcore.b64 -Raw).Trim()
+            Write-Host "Downloaded base64 characters: $($base64.Length)"
             [IO.File]::WriteAllBytes("wpfcore.zip", [Convert]::FromBase64String($base64))
+            Write-Host "Decoded ZIP bytes: $((Get-Item wpfcore.zip).Length)"
             Expand-Archive -Path wpfcore.zip -DestinationPath . -Force
           }
           if (-not (Test-Path "Services/AppServices.cs")) { throw "WPF source restoration failed: Services/AppServices.cs is missing." }
           if (-not (Test-Path "Windows/SettingsWindow.xaml")) { throw "WPF source restoration failed: Windows/SettingsWindow.xaml is missing." }
+          Write-Host "WPF source snapshot restored successfully."
 
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
