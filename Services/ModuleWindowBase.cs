@@ -123,6 +123,7 @@ public class ModuleWindowBase : Window
         NormalizeWindowToWorkArea();
         ApplyThemeResources();
         UiTextLocalizer.Apply(this, App.Services.Language.CurrentLanguage);
+        ButtonIconService.Apply(this);
         Dispatcher.BeginInvoke(new Action(ApplyScale), DispatcherPriority.Loaded);
     }
 
