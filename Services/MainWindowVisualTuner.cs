@@ -1,3 +1,4 @@
+using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace TiHiY.StreamControlCenter.Services;
