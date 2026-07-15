@@ -11,6 +11,7 @@ public partial class App : Application
 {
     private static Mutex? _singleInstanceMutex;
     private static bool _ownsMutex;
+    private IDisposable? _mainWindowVisualTuner;
     public static AppServices Services { get; private set; } = null!;
 
     protected override async void OnStartup(StartupEventArgs e)
@@ -47,6 +48,7 @@ public partial class App : Application
             main.Show();
             UiTextLocalizer.Apply(main, Services.Language.CurrentLanguage);
             ButtonIconService.Apply(main);
+            _mainWindowVisualTuner = MainWindowVisualTuner.Attach(main);
             if (!ciMode)
                 ShortcutService.EnsureDesktopShortcut(Services.Logger);
             WriteStartupStage("05 MainWindow shown");
@@ -58,7 +60,6 @@ public partial class App : Application
                 main.WindowState = WindowState.Normal;
                 main.Left = 0;
                 main.Top = 0;
-                main.ApplyCiDemoState();
 
                 if (applyUkraineThemeInCi)
                 {
@@ -85,7 +86,18 @@ public partial class App : Application
                 }
 
                 await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
-                await Task.Delay(900);
+                await Task.Delay(1000);
+
+                // Window_Loaded performs several asynchronous refreshes. Apply the
+                // deterministic demo state only after those refreshes have finished,
+                // otherwise real empty services would overwrite donations/notifications.
+                main.ApplyCiDemoState();
+                MainWindowVisualTuner.ApplyNow(main);
+                UiTextLocalizer.Apply(captureWindow, Services.Language.CurrentLanguage);
+                ButtonIconService.Apply(captureWindow);
+                await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
+                await Task.Delay(250);
+
                 SaveWindowScreenshot(captureWindow, screenshotPath!);
                 if (!ReferenceEquals(captureWindow, main)) captureWindow.Close();
                 Shutdown(0);
@@ -178,6 +190,8 @@ public partial class App : Application
     {
         try
         {
+            _mainWindowVisualTuner?.Dispose();
+            _mainWindowVisualTuner = null;
             if (Services is not null)
             {
                 var cleanupTask = Task.Run(async () => await Services.DisposeAsync().ConfigureAwait(false));
