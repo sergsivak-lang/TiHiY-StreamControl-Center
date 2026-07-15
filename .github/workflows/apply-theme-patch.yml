@@ -40,7 +40,7 @@ jobs:
           if len(code_b64) != 17724:
               raise RuntimeError(f'Unexpected code Base64 length: {len(code_b64)}')
           code = gzip.decompress(base64.b64decode(code_b64, validate=True))
-          if len(code) != 60937:
+          if len(code) != 61147:
               raise RuntimeError(f'Unexpected MainWindow.xaml.cs size: {len(code)}')
           pathlib.Path('MainWindow.xaml.cs').write_bytes(code)
           print(f'MainWindow.xaml.cs restored: {len(code)} bytes')
