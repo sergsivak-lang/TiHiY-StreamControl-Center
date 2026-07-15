@@ -4,11 +4,19 @@ namespace TiHiY.StreamControlCenter.Services;
 
 public static class ShortcutService
 {
-    private const string ShortcutFileName = "TiHiY StreamControl Center.lnk";
+    public const string ShortcutFileName = "TiHiY StreamControl Center.lnk";
 
     public static bool EnsureDesktopShortcut(AppLogger? logger = null)
     {
         if (!OperatingSystem.IsWindows()) return false;
+        var desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        if (string.IsNullOrWhiteSpace(desktop)) return false;
+        return EnsureShortcut(Path.Combine(desktop, ShortcutFileName), logger);
+    }
+
+    public static bool EnsureShortcut(string shortcutPath, AppLogger? logger = null)
+    {
+        if (!OperatingSystem.IsWindows() || string.IsNullOrWhiteSpace(shortcutPath)) return false;
 
         object? shell = null;
         object? shortcut = null;
@@ -18,11 +26,11 @@ public static class ShortcutService
             if (string.IsNullOrWhiteSpace(executablePath) || !File.Exists(executablePath))
                 return false;
 
-            var desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-            if (string.IsNullOrWhiteSpace(desktop)) return false;
-            Directory.CreateDirectory(desktop);
+            shortcutPath = Path.GetFullPath(shortcutPath);
+            var shortcutFolder = Path.GetDirectoryName(shortcutPath);
+            if (string.IsNullOrWhiteSpace(shortcutFolder)) return false;
+            Directory.CreateDirectory(shortcutFolder);
 
-            var shortcutPath = Path.Combine(desktop, ShortcutFileName);
             var shellType = Type.GetTypeFromProgID("WScript.Shell");
             if (shellType is null) return false;
 
@@ -45,8 +53,12 @@ public static class ShortcutService
             shortcutType.InvokeMember("WindowStyle", System.Reflection.BindingFlags.SetProperty, null, shortcut, [1]);
             shortcutType.InvokeMember("Save", System.Reflection.BindingFlags.InvokeMethod, null, shortcut, null);
 
-            logger?.Info($"Ярлик програми готовий: {shortcutPath}");
-            return true;
+            var created = File.Exists(shortcutPath) && new FileInfo(shortcutPath).Length > 0;
+            if (created)
+                logger?.Info($"Ярлик програми готовий: {shortcutPath}");
+            else
+                logger?.Info($"Ярлик програми не підтверджено після збереження: {shortcutPath}");
+            return created;
         }
         catch (Exception ex)
         {
