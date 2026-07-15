@@ -1,4 +1,3 @@
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace TiHiY.StreamControlCenter.Services;
@@ -16,7 +15,7 @@ public static class MainWindowVisualTuner
             _window = window;
             _guardTimer = new DispatcherTimer(DispatcherPriority.Background, window.Dispatcher)
             {
-                Interval = TimeSpan.FromMilliseconds(750)
+                Interval = TimeSpan.FromMilliseconds(500)
             };
             _guardTimer.Tick += GuardTimer_Tick;
             _window.Loaded += Window_Loaded;
@@ -30,15 +29,40 @@ public static class MainWindowVisualTuner
 
         private void Window_Loaded(object sender, RoutedEventArgs e) => ApplyNow();
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e) => ApplyNow();
-        private void GuardTimer_Tick(object? sender, EventArgs e) => EnforceAidaHeader();
+        private void GuardTimer_Tick(object? sender, EventArgs e)
+        {
+            EnforceAidaHeader();
+            UpdateEmptyStates();
+        }
         private void Window_Closed(object? sender, EventArgs e) => Dispose();
 
         public void ApplyNow()
         {
             if (_disposed) return;
+            TuneFooterLayout();
             TunePatrioticCard();
             TuneAidaCard();
             EnforceAidaHeader();
+            UpdateEmptyStates();
+        }
+
+        private void TuneFooterLayout()
+        {
+            var footerGrid = FindNamed<Grid>("FooterBlocksGrid");
+            if (footerGrid is not null && footerGrid.ColumnDefinitions.Count >= 5)
+            {
+                footerGrid.ColumnDefinitions[0].Width = new GridLength(0.32, GridUnitType.Star);
+                footerGrid.ColumnDefinitions[2].Width = new GridLength(0.25, GridUnitType.Star);
+                footerGrid.ColumnDefinitions[4].Width = new GridLength(0.43, GridUnitType.Star);
+            }
+
+            var designSurface = FindNamed<Grid>("DesignSurface");
+            if (designSurface is not null && designSurface.RowDefinitions.Count >= 5)
+            {
+                designSurface.RowDefinitions[4].Height = new GridLength(165, GridUnitType.Pixel);
+                designSurface.RowDefinitions[4].MinHeight = 150;
+                designSurface.RowDefinitions[4].MaxHeight = 230;
+            }
         }
 
         private void TunePatrioticCard()
@@ -51,12 +75,12 @@ public static class MainWindowVisualTuner
 
             textStack.VerticalAlignment = VerticalAlignment.Bottom;
             textStack.HorizontalAlignment = HorizontalAlignment.Center;
-            textStack.Margin = new Thickness(8, 0, 8, 6);
+            textStack.Margin = new Thickness(6, 0, 6, 5);
 
             foreach (var text in textStack.Children.OfType<TextBlock>())
             {
-                text.FontSize = 14;
-                text.LineHeight = 16;
+                text.FontSize = 11.5;
+                text.LineHeight = 13;
                 text.Margin = new Thickness(0);
                 text.TextAlignment = TextAlignment.Center;
             }
@@ -64,20 +88,20 @@ public static class MainWindowVisualTuner
             var emblem = cardGrid.Children.OfType<Image>().FirstOrDefault();
             if (emblem is not null)
             {
-                emblem.Width = 92;
-                emblem.Height = 92;
+                emblem.Width = 66;
+                emblem.Height = 66;
                 emblem.VerticalAlignment = VerticalAlignment.Top;
                 emblem.HorizontalAlignment = HorizontalAlignment.Center;
-                emblem.Margin = new Thickness(0, -5, 0, 0);
+                emblem.Margin = new Thickness(0, 0, 0, 0);
             }
 
             if (FindAncestor<ContentControl>(cardGrid) is { } card)
-                card.Padding = new Thickness(6);
+                card.Padding = new Thickness(5);
         }
 
         private void TuneAidaCard()
         {
-            if (_window.FindName("SystemMonitorPanel") is ContentControl panel)
+            if (FindNamed<ContentControl>("SystemMonitorPanel") is { } panel)
                 panel.Padding = new Thickness(10, 7, 10, 7);
 
             foreach (var name in new[]
@@ -88,16 +112,16 @@ public static class MainWindowVisualTuner
                          "ObsFpsText"
                      })
             {
-                if (_window.FindName(name) is not TextBlock valueText) continue;
+                if (FindNamed<TextBlock>(name) is not { } valueText) continue;
                 if (FindAncestor<Border>(valueText) is not { } circle) continue;
-                circle.Width = 72;
-                circle.Height = 72;
-                circle.CornerRadius = new CornerRadius(36);
+                circle.Width = 70;
+                circle.Height = 70;
+                circle.CornerRadius = new CornerRadius(35);
                 circle.Margin = new Thickness(3, 0, 3, 1);
-                valueText.FontSize = name == "ObsFpsText" ? 10 : 15;
+                valueText.FontSize = name == "ObsFpsText" ? 9.5 : 14.5;
             }
 
-            if (_window.FindName("AidaStatusText") is TextBlock header)
+            if (FindNamed<TextBlock>("AidaStatusText") is { } header)
             {
                 header.FontSize = 15;
                 header.FontWeight = FontWeights.Bold;
@@ -107,11 +131,30 @@ public static class MainWindowVisualTuner
         private void EnforceAidaHeader()
         {
             if (_disposed || !_window.IsVisible) return;
-            if (_window.FindName("AidaStatusText") is not TextBlock header) return;
+            var header = FindNamed<TextBlock>("AidaStatusText") ??
+                         FindDescendants<TextBlock>(_window).FirstOrDefault(x =>
+                             string.Equals(x.Text, "WINDOWS", StringComparison.OrdinalIgnoreCase) ||
+                             string.Equals(x.Text, "AIDA64 LIVE", StringComparison.OrdinalIgnoreCase));
+            if (header is null) return;
             header.Text = "AIDA64 LIVE";
             if (_window.TryFindResource("Amber") is Brush amber)
                 header.Foreground = amber;
         }
+
+        private void UpdateEmptyStates()
+        {
+            if (FindNamed<TextBlock>("ChatEmptyStateText") is { } chatEmpty)
+                chatEmpty.Visibility = _window.MainChatMessages.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            if (FindNamed<TextBlock>("AudioEmptyStateText") is { } audioEmpty)
+                audioEmpty.Visibility = _window.QuickAudioPage.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            if (FindNamed<TextBlock>("RecentDonationsEmptyText") is { } donationsEmpty)
+                donationsEmpty.Visibility = _window.RecentDonations.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            if (FindNamed<TextBlock>("DonationEmptyStateText") is { } notificationsEmpty)
+                notificationsEmpty.Visibility = _window.DonationPage.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private T? FindNamed<T>(string name) where T : FrameworkElement =>
+            FindDescendants<T>(_window).FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.Ordinal));
 
         public void Dispose()
         {
