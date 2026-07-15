@@ -2,12 +2,12 @@ name: Windows Build
 
 on:
   push:
-    branches: [ main, "agent/**" ]
+    branches: [ main, "agent/**", "feature/**" ]
   pull_request:
     branches: [ main ]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -15,32 +15,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Restore complete WPF source
+      - name: Verify WPF source tree
         shell: pwsh
         run: |
-          $payloadFiles = Get-ChildItem "BuildSupport/WpfCore-v1.0.5.2.tar.bz2.b64.*" -ErrorAction SilentlyContinue | Sort-Object Name
-          if ($payloadFiles.Count -gt 0) {
-            Write-Host "Reconstructing exact WPF core v1.0.5.2 from $($payloadFiles.Count) verified payload parts..."
-            $base64 = ($payloadFiles | ForEach-Object { (Get-Content $_.FullName -Raw).Trim() }) -join ''
-            [IO.File]::WriteAllBytes("wpfcore-v1.0.5.2.tar.bz2", [Convert]::FromBase64String($base64))
-
-            $expectedHash = "a9732860ecdc32a316303e07ef72d116e28329e289368b8359b5679cbe5489fc"
-            $actualHash = (Get-FileHash "wpfcore-v1.0.5.2.tar.bz2" -Algorithm SHA256).Hash.ToLowerInvariant()
-            if ($actualHash -ne $expectedHash) {
-              throw "WPF recovery payload hash mismatch. Expected $expectedHash, got $actualHash."
-            }
-
-            tar -xjf "wpfcore-v1.0.5.2.tar.bz2"
-            if ($LASTEXITCODE -ne 0) { throw "Failed to extract WPF recovery payload." }
-            Remove-Item "wpfcore-v1.0.5.2.tar.bz2" -Force
-          }
-
           if (Test-Path "src") {
-            Write-Host "Removing obsolete WinForms source tree that conflicts with the root WPF project..."
-            Remove-Item "src" -Recurse -Force
+            throw "Obsolete WinForms source tree 'src' must not coexist with the root WPF project."
           }
 
           $requiredFiles = @(
@@ -56,7 +36,7 @@ jobs:
           foreach ($requiredFile in $requiredFiles) {
             if (-not (Test-Path $requiredFile)) { throw "Required WPF source file is missing: $requiredFile" }
           }
-          Write-Host "Complete WPF source is ready."
+          Write-Host "Complete WPF source tree verified."
 
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
@@ -72,7 +52,7 @@ jobs:
           dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore *> build.log
           $exitCode = $LASTEXITCODE
           if ($exitCode -ne 0) {
-            $errors = Get-Content build.log | Where-Object { $_ -match ': error ' -or $_ -match 'error (CS|MC|XDG|MSB|NETSDK)[0-9]+' }
+            $errors = Get-Content build.log | Where-Object { $_ -match ': error ' -or $_ -match 'error (CS|MC|XDG|MSB|NETSDK|BG)[0-9]+' }
             if (-not $errors) { $errors = Get-Content build.log | Select-Object -Last 160 }
             $errors | Set-Content -Path build-errors.txt -Encoding utf8
             Write-Host "==== BUILD ERRORS ===="
@@ -96,25 +76,35 @@ jobs:
       - name: Publish portable Windows build
         run: dotnet publish TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish
 
+      - name: Smoke test application startup
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path preview | Out-Null
+          $exe = Resolve-Path "publish/TiHiY.StreamControlCenter.exe"
+          $shot = Join-Path $PWD "preview/TiHiY-StreamControl-Center.png"
+          $process = Start-Process -FilePath $exe -ArgumentList "--ci-screenshot=`"$shot`"" -PassThru
+          if (-not $process.WaitForExit(45000)) {
+            Stop-Process -Id $process.Id -Force
+            throw "Application startup smoke test timed out."
+          }
+          if ($process.ExitCode -ne 0) {
+            throw "Application exited with code $($process.ExitCode) during startup smoke test."
+          }
+          if (-not (Test-Path $shot)) {
+            throw "Application did not create the CI screenshot."
+          }
+          Write-Host "Application startup smoke test completed successfully."
+
+      - name: Upload application screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TiHiY-StreamControl-Center-Screenshot
+          path: preview/**
+          if-no-files-found: warn
+
       - name: Upload program
         uses: actions/upload-artifact@v4
         with:
           name: TiHiY-StreamControl-Center-win-x64
           path: publish/**
-
-      - name: Persist restored WPF source
-        if: github.event_name == 'push' && success()
-        shell: pwsh
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add GlobalUsings.cs Models Services Windows
-          git rm -r --ignore-unmatch src BuildSupport
-          git diff --cached --quiet
-          if ($LASTEXITCODE -ne 0) {
-            git commit -m "Restore complete WPF source v1.0.5.2"
-            git push origin "HEAD:${{ github.ref_name }}"
-          } else {
-            Write-Host "No source recovery changes need to be persisted."
-          }
