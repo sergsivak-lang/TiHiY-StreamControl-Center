@@ -17,23 +17,63 @@ jobs:
           ref: feature/ukraine-reference-theme-v2
           fetch-depth: 0
 
-      - name: Apply staged patch
+      - name: Diagnose and apply staged patch
+        id: patch
+        continue-on-error: true
         shell: bash
         run: |
-          set -euo pipefail
           python3 - <<'PY'
           import base64
+          import hashlib
           import pathlib
+          import traceback
           import zipfile
 
-          encoded = pathlib.Path('ThemePatch.b64').read_text(encoding='utf-8')
-          archive = pathlib.Path('ThemePatch.zip')
-          archive.write_bytes(base64.b64decode(encoded, validate=False))
-          with zipfile.ZipFile(archive) as package:
-              package.testzip()
-              package.extractall('.')
+          report = []
+          try:
+              source = pathlib.Path('ThemePatch.b64')
+              encoded = source.read_text(encoding='utf-8')
+              report.append(f'encoded_characters={len(encoded)}')
+              report.append(f'encoded_sha256={hashlib.sha256(encoded.encode()).hexdigest()}')
+              decoded = base64.b64decode(encoded, validate=False)
+              report.append(f'decoded_bytes={len(decoded)}')
+              report.append(f'decoded_sha256={hashlib.sha256(decoded).hexdigest()}')
+              archive = pathlib.Path('ThemePatch.zip')
+              archive.write_bytes(decoded)
+              with zipfile.ZipFile(archive) as package:
+                  report.append('members=' + str(len(package.infolist())))
+                  bad = package.testzip()
+                  report.append('bad_member=' + str(bad))
+                  if bad:
+                      raise RuntimeError(f'Corrupt ZIP member: {bad}')
+                  package.extractall('.')
+              pathlib.Path('patch-ok.txt').write_text('ok', encoding='utf-8')
+              report.append('result=success')
+          except Exception:
+              report.append('result=failure')
+              report.append(traceback.format_exc())
+          pathlib.Path('patch-diagnostic.txt').write_text('\n'.join(report), encoding='utf-8')
+          if not pathlib.Path('patch-ok.txt').exists():
+              raise SystemExit(1)
           PY
-          rm -f ThemePatch.b64 ThemePatch.zip
+
+      - name: Upload patch diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ukraine-Exact-Patch-Diagnostic
+          path: patch-diagnostic.txt
+          if-no-files-found: error
+
+      - name: Stop when patch is invalid
+        if: steps.patch.outcome != 'success'
+        shell: bash
+        run: exit 1
+
+      - name: Clean temporary files
+        shell: bash
+        run: |
+          rm -f ThemePatch.b64 ThemePatch.zip patch-ok.txt patch-diagnostic.txt
           rm -f .github/workflows/export-source.yml
           rm -f .github/workflows/apply-theme-patch.yml
 
