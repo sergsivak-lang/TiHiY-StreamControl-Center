@@ -5,7 +5,14 @@ namespace TiHiY.StreamControlCenter.Windows;
 
 public partial class SettingsWindow : ModuleWindowBase
 {
+    private sealed record ThemePreviewItem(ThemeService.ThemeInfo Theme, ImageSource Preview)
+    {
+        public string Name => Theme.Name;
+        public string Description => Theme.Description;
+    }
+
     private readonly AppServices _services = App.Services;
+    private readonly ObservableCollection<ThemePreviewItem> _themeItems = new();
     private ComboBox? _languageCombo;
     public ObservableCollection<string> VisibleLogs { get; } = new();
 
@@ -19,9 +26,16 @@ public partial class SettingsWindow : ModuleWindowBase
         AutoConnectCheck.IsChecked = _services.Settings.Value.AutoConnectObs;
         AutoScaleCheck.IsChecked = _services.UiScale.Auto;
         ScaleText.Text = $"{_services.UiScale.Percent}%";
-        foreach (var theme in _services.Theme.Themes) ThemeCombo.Items.Add(theme.Name);
-        ThemeCombo.SelectedItem = _services.Theme.CurrentTheme;
+
+        ThemeCombo.ItemsSource = _themeItems;
+        ThemeCombo.DisplayMemberPath = nameof(ThemePreviewItem.Name);
+        ThemeCombo.SelectedValuePath = nameof(ThemePreviewItem.Name);
+        foreach (var theme in _services.Theme.Themes)
+            _themeItems.Add(new ThemePreviewItem(theme, ThemePreviewRenderer.Render(theme)));
+        ThemeCombo.SelectedValue = _services.Theme.CurrentTheme;
+        ThemeCombo.DropDownOpened += ThemeCombo_DropDownOpened;
         UpdateThemePreview();
+
         if (_services.Settings.Value.RememberObsPassword) ObsPasswordBox.Password = _services.Credentials.LoadPassword();
         _services.Logger.Entries.CollectionChanged += LoggerEntries_CollectionChanged;
         _services.Obs.ConnectionChanged += Obs_ConnectionChanged;
@@ -43,6 +57,7 @@ public partial class SettingsWindow : ModuleWindowBase
         _services.Logger.Entries.CollectionChanged -= LoggerEntries_CollectionChanged;
         _services.Obs.ConnectionChanged -= Obs_ConnectionChanged;
         _services.Language.LanguageChanged -= Language_LanguageChanged;
+        ThemeCombo.DropDownOpened -= ThemeCombo_DropDownOpened;
         Loaded -= SettingsWindow_Loaded;
         Closed -= SettingsWindow_Closed;
     }
@@ -99,6 +114,73 @@ public partial class SettingsWindow : ModuleWindowBase
             foreach (var descendant in FindVisualDescendants<T>(child)) yield return descendant;
         }
     }
+
+    private void ThemeCombo_DropDownOpened(object? sender, EventArgs e) =>
+        Dispatcher.BeginInvoke(new Action(AttachThemeToolTips), DispatcherPriority.Loaded);
+
+    private void AttachThemeToolTips()
+    {
+        for (var index = 0; index < ThemeCombo.Items.Count; index++)
+        {
+            if (ThemeCombo.ItemContainerGenerator.ContainerFromIndex(index) is not ComboBoxItem container ||
+                ThemeCombo.Items[index] is not ThemePreviewItem item)
+                continue;
+            container.ToolTip = BuildThemeToolTip(item);
+            ToolTipService.SetInitialShowDelay(container, 180);
+            ToolTipService.SetBetweenShowDelay(container, 40);
+            ToolTipService.SetShowDuration(container, 12000);
+        }
+    }
+
+    private ToolTip BuildThemeToolTip(ThemePreviewItem item)
+    {
+        var image = new Image
+        {
+            Source = item.Preview,
+            Width = 520,
+            Height = 292,
+            Stretch = Stretch.UniformToFill
+        };
+        var name = new TextBlock
+        {
+            Text = item.Name,
+            FontSize = 17,
+            FontWeight = FontWeights.Bold,
+            Foreground = new SolidColorBrush(item.Theme.Palette.Amber),
+            Margin = new Thickness(0, 8, 0, 2)
+        };
+        var description = new TextBlock
+        {
+            Text = item.Description,
+            TextWrapping = TextWrapping.Wrap,
+            Foreground = new SolidColorBrush(item.Theme.Palette.Muted),
+            MaxWidth = 520
+        };
+        var stack = new StackPanel();
+        stack.Children.Add(image);
+        stack.Children.Add(name);
+        stack.Children.Add(description);
+
+        return new ToolTip
+        {
+            Placement = System.Windows.Controls.Primitives.PlacementMode.Right,
+            StaysOpen = false,
+            Content = new Border
+            {
+                Background = new SolidColorBrush(item.Theme.Palette.Panel),
+                BorderBrush = new SolidColorBrush(item.Theme.Palette.Amber),
+                BorderThickness = new Thickness(1.2),
+                CornerRadius = new CornerRadius(7),
+                Padding = new Thickness(8),
+                Child = stack
+            }
+        };
+    }
+
+    private ThemePreviewItem SelectedThemePreview() =>
+        ThemeCombo.SelectedItem as ThemePreviewItem ??
+        _themeItems.FirstOrDefault(x => string.Equals(x.Name, _services.Theme.CurrentTheme, StringComparison.OrdinalIgnoreCase)) ??
+        _themeItems[0];
 
     private void LoggerEntries_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) => Dispatcher.BeginInvoke(new Action(RefreshLogs));
     private void Obs_ConnectionChanged(object? sender, bool connected) => Dispatcher.BeginInvoke(new Action(() => UpdateObsStatus(connected)));
@@ -186,21 +268,22 @@ public partial class SettingsWindow : ModuleWindowBase
     private void ThemeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         UpdateThemePreview();
-        if (!IsLoaded || ThemeCombo.SelectedItem is not string themeName) return;
-        StatusText.Text = $"Вибрано попередній перегляд «{themeName}». Натисніть «ЗАСТОСУВАТИ ТЕМУ».";
+        if (!IsLoaded) return;
+        var item = SelectedThemePreview();
+        StatusText.Text = $"Вибрано попередній перегляд «{item.Name}». Натисніть «ЗАСТОСУВАТИ ТЕМУ».";
     }
 
     private void ApplyTheme_Click(object sender, RoutedEventArgs e)
     {
-        var themeName = ThemeCombo.SelectedItem?.ToString() ?? "TiHiY Default / Cyber Amber";
-        _services.Theme.Apply(themeName, save: true);
-        StatusText.Text = $"Тему «{themeName}» застосовано до головного вікна, відкритих модулів і overlay.";
+        var item = SelectedThemePreview();
+        _services.Theme.Apply(item.Name, save: true);
+        StatusText.Text = $"Тему «{item.Name}» застосовано до головного вікна, відкритих модулів і overlay.";
     }
 
     private void RestoreDefaultTheme_Click(object sender, RoutedEventArgs e)
     {
         const string defaultTheme = "TiHiY Default / Cyber Amber";
-        ThemeCombo.SelectedItem = defaultTheme;
+        ThemeCombo.SelectedValue = defaultTheme;
         _services.Theme.Apply(defaultTheme, save: true);
         UpdateThemePreview();
         StatusText.Text = "Відновлено стандартну тему TiHiY Default / Cyber Amber.";
@@ -208,8 +291,9 @@ public partial class SettingsWindow : ModuleWindowBase
 
     private void UpdateThemePreview()
     {
-        var selected = ThemeCombo.SelectedItem?.ToString() ?? _services.Theme.CurrentTheme;
-        var theme = _services.Theme.Themes.FirstOrDefault(x => x.Name == selected) ?? _services.Theme.Themes[0];
+        if (_themeItems.Count == 0) return;
+        var item = SelectedThemePreview();
+        var theme = item.Theme;
         ThemePreviewName.Text = theme.Name;
         ThemePreviewDescription.Text = theme.Description;
         ThemePreviewPrimary.Fill = new SolidColorBrush(theme.Palette.Cyan);
@@ -217,31 +301,9 @@ public partial class SettingsWindow : ModuleWindowBase
         ThemePreviewSuccess.Fill = new SolidColorBrush(theme.Palette.Green);
         ThemePreviewBorder.Background = new SolidColorBrush(theme.Palette.Panel);
         ThemePreviewBorder.BorderBrush = new SolidColorBrush(theme.Palette.Line);
-        ThemePreviewName.Foreground = new SolidColorBrush(theme.Palette.Cyan);
+        ThemePreviewName.Foreground = new SolidColorBrush(theme.Palette.Amber);
         ThemePreviewDescription.Foreground = new SolidColorBrush(theme.Palette.Muted);
-
-        var previewUri = _services.Theme.GetPreviewUri(theme.Name);
-        if (previewUri is null)
-        {
-            ThemePreviewImage.Source = null;
-            return;
-        }
-
-        try
-        {
-            var preview = new BitmapImage();
-            preview.BeginInit();
-            preview.UriSource = previewUri;
-            preview.CacheOption = BitmapCacheOption.OnLoad;
-            preview.EndInit();
-            preview.Freeze();
-            ThemePreviewImage.Source = preview;
-        }
-        catch (Exception ex)
-        {
-            ThemePreviewImage.Source = null;
-            _services.Logger.Info($"Попередній перегляд теми «{theme.Name}» недоступний: {ex.GetBaseException().Message}");
-        }
+        ThemePreviewImage.Source = item.Preview;
     }
 
     private void ResetDashboardLayout_Click(object sender, RoutedEventArgs e)
