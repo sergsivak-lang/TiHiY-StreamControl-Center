@@ -13,9 +13,10 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - name: Checkout
+      - name: Checkout branch head
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 0
 
       - name: Restore and verify WPF source tree
@@ -27,34 +28,15 @@ jobs:
 
           $themeParts = Get-ChildItem "ThemeSupport/CyberAmber.xaml.b64.*" -ErrorAction SilentlyContinue | Sort-Object Name
           if ($themeParts.Count -gt 0) {
-            @'
-          import base64
-          import glob
-          import hashlib
-          from pathlib import Path
-          import xml.etree.ElementTree as ET
-
-          parts = sorted(glob.glob("ThemeSupport/CyberAmber.xaml.b64.*"))
-          if len(parts) != 6:
-              raise SystemExit(f"Expected 6 theme payload parts, found {len(parts)}")
-
-          encoded = "".join(Path(part).read_text(encoding="utf-8").strip() for part in parts)
-          data = base64.b64decode(encoded, validate=True)
-          expected_hash = "b7134d89010f7f21bd830f23d1fa8050b940a271400fc7b78aa2f3b1f1db8ca0"
-          actual_hash = hashlib.sha256(data).hexdigest()
-          if actual_hash != expected_hash:
-              raise SystemExit(f"CyberAmber.xaml hash mismatch: expected {expected_hash}, got {actual_hash}")
-
-          ET.fromstring(data)
-          destination = Path("Themes/CyberAmber.xaml")
-          destination.parent.mkdir(parents=True, exist_ok=True)
-          destination.write_bytes(data)
-          print(f"CyberAmber.xaml restored: {len(data)} bytes, SHA256={actual_hash}")
-          '@ | Set-Content -Path restore-theme.py -Encoding utf8
-
-            python restore-theme.py
-            if ($LASTEXITCODE -ne 0) { throw "Python theme restoration failed with exit code $LASTEXITCODE." }
-            Remove-Item restore-theme.py -Force
+            Write-Host "Reconstructing CyberAmber.xaml from $($themeParts.Count) payload parts..."
+            $base64 = ($themeParts | ForEach-Object { (Get-Content $_.FullName -Raw).Trim() }) -join ''
+            $data = [Convert]::FromBase64String($base64)
+            $xmlText = [Text.Encoding]::UTF8.GetString($data)
+            [xml]$xmlText | Out-Null
+            New-Item -ItemType Directory -Force -Path Themes | Out-Null
+            [IO.File]::WriteAllBytes("Themes/CyberAmber.xaml", $data)
+            $hash = (Get-FileHash "Themes/CyberAmber.xaml" -Algorithm SHA256).Hash.ToLowerInvariant()
+            Write-Host "CyberAmber.xaml restored: $($data.Length) bytes, SHA256=$hash"
           }
 
           $requiredFiles = @(
@@ -69,7 +51,9 @@ jobs:
             "Windows/JournalWindow.xaml.cs"
           )
           foreach ($requiredFile in $requiredFiles) {
-            if (-not (Test-Path $requiredFile)) { throw "Required WPF source file is missing: $requiredFile" }
+            if (-not (Test-Path $requiredFile)) {
+              throw "Required WPF source file is missing: $requiredFile"
+            }
           }
           Write-Host "Complete WPF source tree verified."
 
@@ -131,10 +115,7 @@ jobs:
           $process = $null
 
           try {
-            "Executable: $exe" | Add-Content $diagnosticLog
-            "Screenshot: $shot" | Add-Content $diagnosticLog
-
-            $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+            $startInfo = [Diagnostics.ProcessStartInfo]::new()
             $startInfo.FileName = $exe
             $startInfo.WorkingDirectory = $workingDirectory
             $startInfo.UseShellExecute = $false
@@ -143,7 +124,7 @@ jobs:
             $startInfo.RedirectStandardError = $true
             $startInfo.ArgumentList.Add("--ci-screenshot=$shot")
 
-            $process = [System.Diagnostics.Process]::new()
+            $process = [Diagnostics.Process]::new()
             $process.StartInfo = $startInfo
             if (-not $process.Start()) { throw "Process.Start returned false." }
             "Process started with PID $($process.Id)." | Add-Content $diagnosticLog
@@ -163,14 +144,8 @@ jobs:
 
             $stdout = $stdoutTask.GetAwaiter().GetResult()
             $stderr = $stderrTask.GetAwaiter().GetResult()
-            if ($stdout) {
-              "---- STDOUT ----" | Add-Content $diagnosticLog
-              $stdout | Add-Content $diagnosticLog
-            }
-            if ($stderr) {
-              "---- STDERR ----" | Add-Content $diagnosticLog
-              $stderr | Add-Content $diagnosticLog
-            }
+            if ($stdout) { "---- STDOUT ----`n$stdout" | Add-Content $diagnosticLog }
+            if ($stderr) { "---- STDERR ----`n$stderr" | Add-Content $diagnosticLog }
             "Exit code: $($process.ExitCode)" | Add-Content $diagnosticLog
           }
           catch {
@@ -196,7 +171,6 @@ jobs:
             Write-Host "==== END STARTUP DIAGNOSTICS ===="
             throw $failure
           }
-
           Write-Host "Application startup smoke test completed successfully."
 
       - name: Upload application screenshot and startup logs
@@ -207,18 +181,20 @@ jobs:
           path: preview/**
           if-no-files-found: warn
 
-      - name: Persist verified CyberAmber theme
-        if: github.event_name == 'push' && success()
+      - name: Persist restored CyberAmber theme
+        if: success()
         shell: pwsh
         run: |
+          $themeParts = Get-ChildItem "ThemeSupport/CyberAmber.xaml.b64.*" -ErrorAction SilentlyContinue
+          if ($themeParts.Count -eq 0) {
+            Write-Host "Theme payload already removed; no persistence commit required."
+            exit 0
+          }
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add Themes/CyberAmber.xaml
-          git rm -r --ignore-unmatch ThemeSupport
-          git diff --cached --quiet
-          if ($LASTEXITCODE -ne 0) {
-            git commit -m "Restore CyberAmber theme v1.0.5.2"
-            git push origin "HEAD:${{ github.ref_name }}"
-          } else {
-            Write-Host "No theme recovery changes need to be persisted."
-          }
+          git rm -r ThemeSupport
+          git commit -m "Restore CyberAmber theme v1.0.5.2"
+          $targetBranch = "${{ github.head_ref || github.ref_name }}"
+          git push origin "HEAD:$targetBranch"
