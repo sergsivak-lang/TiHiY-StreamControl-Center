@@ -58,6 +58,7 @@ public sealed class LanguageService
         if (save)
             _settingsService.Save(_settings.Value);
 
+        UiTextLocalizer.ApplyToOpenWindows(code);
         LanguageChanged?.Invoke(this, EventArgs.Empty);
     }
 
