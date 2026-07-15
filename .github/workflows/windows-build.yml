@@ -76,35 +76,54 @@ jobs:
       - name: Publish portable Windows build
         run: dotnet publish TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish
 
+      - name: Upload program
+        uses: actions/upload-artifact@v4
+        with:
+          name: TiHiY-StreamControl-Center-win-x64
+          path: publish/**
+
       - name: Smoke test application startup
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path preview | Out-Null
-          $exe = Resolve-Path "publish/TiHiY.StreamControlCenter.exe"
+          $exe = (Resolve-Path "publish/TiHiY.StreamControlCenter.exe").Path
+          $workingDirectory = Split-Path $exe
           $shot = Join-Path $PWD "preview/TiHiY-StreamControl-Center.png"
-          $process = Start-Process -FilePath $exe -ArgumentList "--ci-screenshot=`"$shot`"" -PassThru
+          $failure = $null
+
+          $process = Start-Process -FilePath $exe -WorkingDirectory $workingDirectory -ArgumentList @("--ci-screenshot=$shot") -PassThru
           if (-not $process.WaitForExit(45000)) {
-            Stop-Process -Id $process.Id -Force
-            throw "Application startup smoke test timed out."
+            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+            $failure = "Application startup smoke test timed out."
+          } elseif ($process.ExitCode -ne 0) {
+            $failure = "Application exited with code $($process.ExitCode) during startup smoke test."
+          } elseif (-not (Test-Path $shot)) {
+            $failure = "Application did not create the CI screenshot."
           }
-          if ($process.ExitCode -ne 0) {
-            throw "Application exited with code $($process.ExitCode) during startup smoke test."
+
+          $appLogFolder = Join-Path $env:APPDATA "TiHiY/StreamControlCenter/Logs"
+          if (Test-Path $appLogFolder) {
+            Get-ChildItem $appLogFolder -File -ErrorAction SilentlyContinue | Copy-Item -Destination preview -Force
           }
-          if (-not (Test-Path $shot)) {
-            throw "Application did not create the CI screenshot."
+
+          if ($failure) {
+            Write-Host "==== STARTUP DIAGNOSTICS ===="
+            Get-ChildItem preview -File -ErrorAction SilentlyContinue | ForEach-Object {
+              Write-Host "---- $($_.Name) ----"
+              if ($_.Extension -eq ".txt" -or $_.Extension -eq ".log") {
+                Get-Content $_.FullName -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_ }
+              }
+            }
+            Write-Host "==== END STARTUP DIAGNOSTICS ===="
+            throw $failure
           }
+
           Write-Host "Application startup smoke test completed successfully."
 
-      - name: Upload application screenshot
+      - name: Upload application screenshot and startup logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: TiHiY-StreamControl-Center-Screenshot
           path: preview/**
           if-no-files-found: warn
-
-      - name: Upload program
-        uses: actions/upload-artifact@v4
-        with:
-          name: TiHiY-StreamControl-Center-win-x64
-          path: publish/**
