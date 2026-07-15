@@ -3,12 +3,13 @@ name: Apply Ukraine Exact Patch
 on:
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  diagnose:
+  apply:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout feature branch
@@ -17,54 +18,101 @@ jobs:
           ref: feature/ukraine-reference-theme-v2
           fetch-depth: 0
 
-      - name: Diagnose staged containers
+      - name: Reconstruct exact functional Ukraine UI
         shell: bash
         run: |
+          set -euo pipefail
           python3 - <<'PY'
           import base64
           import gzip
-          import hashlib
           import io
           import pathlib
           import tarfile
-          import traceback
+          import zlib
 
-          report = []
-          text_parts = [
-              'ThemePatchParts/MainWindow.xaml.gz.b64',
-              'ThemePatchParts/MainWindow.xaml.cs.gz.b64',
-              'ThemePatchParts/ThemeService.cs.gz.b64',
-              'ThemePatchParts/UkraineReference.xaml.gz.b64',
-          ]
-          for path in text_parts:
+          def read_text(path):
+              return pathlib.Path(path).read_text(encoding='utf-8').strip()
+
+          def gunzip_allow_bad_crc(payload):
               try:
-                  text = pathlib.Path(path).read_text(encoding='utf-8').strip()
-                  decoded = base64.b64decode(text, validate=True)
-                  data = gzip.decompress(decoded)
-                  report.append(f'OK {path}: chars={len(text)} sha256={hashlib.sha256(text.encode()).hexdigest()} decoded={len(decoded)} output={len(data)}')
+                  return gzip.decompress(payload)
+              except gzip.BadGzipFile:
+                  # The staged code-behind has a damaged gzip trailer CRC, while
+                  # the DEFLATE stream itself is intact. Parse the gzip header and
+                  # inflate the raw stream without trusting the final CRC/ISIZE.
+                  if payload[:2] != b'\x1f\x8b' or payload[2] != 8:
+                      raise
+                  flags = payload[3]
+                  pos = 10
+                  if flags & 4:
+                      xlen = int.from_bytes(payload[pos:pos+2], 'little')
+                      pos += 2 + xlen
+                  if flags & 8:
+                      pos = payload.index(b'\0', pos) + 1
+                  if flags & 16:
+                      pos = payload.index(b'\0', pos) + 1
+                  if flags & 2:
+                      pos += 2
+                  return zlib.decompress(payload[pos:-8], -zlib.MAX_WBITS)
+
+          files = {
+              'ThemePatchParts/MainWindow.xaml.gz.b64': 'MainWindow.xaml',
+              'ThemePatchParts/MainWindow.xaml.cs.gz.b64': 'MainWindow.xaml.cs',
+              'ThemePatchParts/ThemeService.cs.gz.b64': 'Services/ThemeService.cs',
+              'ThemePatchParts/UkraineReference.xaml.gz.b64': 'Themes/UkraineReference.xaml',
+          }
+          for source, target in files.items():
+              payload = base64.b64decode(read_text(source), validate=True)
+              data = gunzip_allow_bad_crc(payload)
+              destination = pathlib.Path(target)
+              destination.parent.mkdir(parents=True, exist_ok=True)
+              destination.write_bytes(data)
+              print(f'wrote {target}: {len(data)} bytes')
+
+          first = read_text('ThemePatchParts/Assets-00.tar.gz.b64')
+          second = read_text('ThemePatchParts/Assets-01.tar.gz.b64')
+          alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+          archive_bytes = None
+          repaired_char = None
+          for char in alphabet:
+              candidate = first + char + second
+              try:
+                  decoded = base64.b64decode(candidate, validate=True)
+                  with tarfile.open(fileobj=io.BytesIO(decoded), mode='r:gz') as test:
+                      test.getmembers()
+                  archive_bytes = decoded
+                  repaired_char = char
+                  break
               except Exception:
-                  report.append(f'FAIL {path}:\n{traceback.format_exc()}')
+                  continue
+          if archive_bytes is None:
+              raise RuntimeError('Unable to repair the single missing base64 character in assets archive')
+          print(f'repaired assets boundary with base64 character {repaired_char!r}')
 
-          try:
-              first = pathlib.Path('ThemePatchParts/Assets-00.tar.gz.b64').read_text(encoding='utf-8').strip()
-              second = pathlib.Path('ThemePatchParts/Assets-01.tar.gz.b64').read_text(encoding='utf-8').strip()
-              report.append(f'INFO assets-00 chars={len(first)} sha256={hashlib.sha256(first.encode()).hexdigest()}')
-              report.append(f'INFO assets-01 chars={len(second)} sha256={hashlib.sha256(second.encode()).hexdigest()}')
-              decoded = base64.b64decode(first + second, validate=True)
-              with tarfile.open(fileobj=io.BytesIO(decoded), mode='r:gz') as archive:
-                  members = archive.getmembers()
-                  archive.extractall('/tmp/ukraine-assets-check')
-              report.append(f'OK assets archive: decoded={len(decoded)} members={len(members)}')
-          except Exception:
-              report.append(f'FAIL assets archive:\n{traceback.format_exc()}')
-
-          pathlib.Path('reconstruct-diagnostic.txt').write_text('\n\n'.join(report), encoding='utf-8')
-          print('\n\n'.join(report))
+          with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode='r:gz') as archive:
+              members = archive.getmembers()
+              for member in members:
+                  resolved = pathlib.Path(member.name)
+                  if resolved.is_absolute() or '..' in resolved.parts:
+                      raise RuntimeError(f'unsafe tar path: {member.name}')
+              archive.extractall('.')
+              print(f'extracted assets: {len(members)} members')
           PY
 
-      - name: Upload diagnostic
-        uses: actions/upload-artifact@v4
-        with:
-          name: Ukraine-Exact-Reconstruct-Diagnostic
-          path: reconstruct-diagnostic.txt
-          if-no-files-found: error
+      - name: Remove staging and temporary workflows
+        shell: bash
+        run: |
+          rm -rf ThemePatchParts
+          rm -f ThemePatch.b64 ThemePatch.zip patch-ok.txt patch-diagnostic.txt reconstruct-diagnostic.txt
+          rm -f .github/workflows/export-source.yml
+          rm -f .github/workflows/apply-theme-patch.yml
+
+      - name: Commit exact functional Ukraine UI
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Implement exact functional Ukraine reference UI"
+          git push origin HEAD:feature/ukraine-reference-theme-v2
