@@ -3,8 +3,8 @@ namespace TiHiY.StreamControlCenter.Services;
 /// <summary>
 /// Applies one geometric scale to the complete design surface of every application window.
 /// Fonts, icons, buttons, lists, sliders and all child controls therefore scale together.
-/// The scale is always based on the current client area, so manual zoom can no longer make
-/// a resized window clip its controls.
+/// The logical design surface also expands in the spare dimension, allowing responsive
+/// star-sized rows and columns to fill the complete client area without top/bottom bars.
 /// </summary>
 public sealed class UiScaleService
 {
@@ -68,8 +68,11 @@ public sealed class UiScaleService
         var factor = Auto ? fitFactor : Math.Min(fitFactor, requestedFactor);
         factor = Math.Clamp(factor, 0.32, 1.55);
 
-        designSurface.Width = baseWidth;
-        designSurface.Height = baseHeight;
+        // Preserve a uniform scale for text and icons, while giving the responsive
+        // Grid extra logical width/height in the dimension that otherwise produced
+        // letterboxing. Star-sized rows and columns consume that space naturally.
+        designSurface.Width = Math.Max(baseWidth, availableWidth / factor);
+        designSurface.Height = Math.Max(baseHeight, availableHeight / factor);
         designSurface.HorizontalAlignment = HorizontalAlignment.Center;
         designSurface.VerticalAlignment = VerticalAlignment.Center;
         designSurface.RenderTransform = Transform.Identity;
