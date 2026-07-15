@@ -71,6 +71,7 @@ public sealed class AppSettings
 
     public string OverlayTheme { get; set; } = "Star Citizen MFD";
     public string UiTheme { get; set; } = "TiHiY Default / Cyber Amber";
+    public string UiLanguage { get; set; } = "uk-UA";
     public Dictionary<string, string> DashboardBlockSlots { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public string HighlightWords { get; set; } = "TiHiY-DED,tihiy_ded,@TiHiY-DED,@tihiy_ded,Тихий Дід,дід";
     public string OwnerColor { get; set; } = "#FFD329";
