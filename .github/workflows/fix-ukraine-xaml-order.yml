@@ -1,0 +1,49 @@
+name: Fix Ukraine XAML Order
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/ukraine-reference-theme-v2
+          fetch-depth: 0
+      - name: Move Grid property elements before children
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('MainWindow.xaml')
+          text = path.read_text(encoding='utf-8')
+          block = '''                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+'''
+          marker = '                <Grid Grid.Row="0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown" ClipToBounds="False">\n'
+          if text.count(block) < 1 or marker not in text:
+              raise SystemExit('expected header grid block not found')
+          text = text.replace(block, '', 1)
+          text = text.replace(marker, marker + block, 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+          rm -f .github/workflows/fix-ukraine-xaml-order.yml
+      - name: Commit XAML property order fix
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Fix WPF header Grid property element order"
+          git push origin HEAD:feature/ukraine-reference-theme-v2
