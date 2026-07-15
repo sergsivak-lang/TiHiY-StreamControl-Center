@@ -78,7 +78,7 @@ public static class MainWindowVisualTuner
         private void TuneAidaCard()
         {
             if (_window.FindName("SystemMonitorPanel") is ContentControl panel)
-                panel.Padding = new Thickness(10, 7);
+                panel.Padding = new Thickness(10, 7, 10, 7);
 
             foreach (var name in new[]
                      {
@@ -111,8 +111,6 @@ public static class MainWindowVisualTuner
             header.Text = "AIDA64 LIVE";
             if (_window.TryFindResource("Amber") is Brush amber)
                 header.Foreground = amber;
-            if (_window.FindName("AidaStatusDot") is Ellipse dot && _window.TryFindResource("Green") is Brush green)
-                dot.Fill = green;
         }
 
         public void Dispose()
