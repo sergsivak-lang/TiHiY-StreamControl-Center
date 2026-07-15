@@ -17,7 +17,7 @@
     <FileVersion>1.0.5.2</FileVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Resource Include="Assets\AppIcon.png" />
+    <Resource Include="Assets\AppIcon.png" Condition="Exists('Assets\AppIcon.png')" />
     <Resource Include="Assets\Platforms\*.png" />
     <Resource Include="Assets\Themes\**\*.png" />
     <Content Include="Design\Cyber-Amber-Exact-Mockup.png" CopyToOutputDirectory="PreserveNewest" />
