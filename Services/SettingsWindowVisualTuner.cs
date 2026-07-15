@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using TiHiY.StreamControlCenter.Windows;
 
@@ -5,6 +6,22 @@ namespace TiHiY.StreamControlCenter.Services;
 
 public static class SettingsWindowVisualTuner
 {
+    private sealed class ThemeItemNameConverter : IValueConverter
+    {
+        public static ThemeItemNameConverter Instance { get; } = new();
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is null) return string.Empty;
+            var internalName = ReadString(value, "Name") ?? ReadNestedThemeString(value, "Name") ?? value.ToString() ?? string.Empty;
+            return string.Equals(App.Services.Language.CurrentLanguage, "en-US", StringComparison.OrdinalIgnoreCase)
+                ? EnglishThemeName(internalName)
+                : internalName;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
+    }
+
     private sealed class Controller : IDisposable
     {
         private readonly SettingsWindow _window;
@@ -77,46 +94,11 @@ public static class SettingsWindowVisualTuner
         private static DataTemplate CreateThemeItemTemplate()
         {
             var text = new FrameworkElementFactory(typeof(TextBlock));
-            text.SetBinding(TextBlock.TextProperty, new Binding("Name"));
+            text.SetBinding(TextBlock.TextProperty, new Binding { Converter = ThemeItemNameConverter.Instance });
             text.SetValue(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis);
             text.SetValue(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center);
             return new DataTemplate { VisualTree = text };
         }
-
-        private static string? ReadString(object source, string propertyName) =>
-            source.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(source) as string;
-
-        private static string? ReadNestedThemeString(object source, string propertyName)
-        {
-            var theme = source.GetType().GetProperty("Theme", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(source);
-            return theme is null ? null : ReadString(theme, propertyName);
-        }
-
-        private static string EnglishThemeName(string name) => name switch
-        {
-            "Україна" => "Ukraine",
-            "Космічна" => "Space",
-            "Драйв" => "Drive",
-            "Неон" => "Neon",
-            "Військова" => "Military",
-            "Синтвейв" => "Synthwave",
-            "Кіберпанк" => "Cyberpunk",
-            "Сталкер" => "Stalker",
-            _ => name
-        };
-
-        private static string EnglishThemeDescription(string name, string fallback) => name switch
-        {
-            "Україна" => "Premium dark-blue Ukraine theme with a trident, golden frames, ornaments and Ukrainian accents.",
-            "Космічна" => "Deep-space interface with cool blue highlights and a futuristic control-center atmosphere.",
-            "Драйв" => "High-energy driving theme with warm accents and dashboard-inspired surfaces.",
-            "Неон" => "Bright neon interface with saturated cyber colors and glowing outlines.",
-            "Військова" => "Tactical military interface with restrained colors and rugged visual details.",
-            "Синтвейв" => "Retro-futuristic synthwave palette with purple, pink and electric-blue accents.",
-            "Кіберпанк" => "Dark cyberpunk theme with high-contrast neon controls and industrial details.",
-            "Сталкер" => "Atmospheric Zone-inspired theme with worn tactical surfaces and warning accents.",
-            _ => string.IsNullOrWhiteSpace(fallback) ? "Application interface theme preview." : fallback
-        };
 
         private T? FindNamed<T>(string name) where T : FrameworkElement =>
             FindDescendants<T>(_window).FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.Ordinal));
@@ -142,6 +124,41 @@ public static class SettingsWindowVisualTuner
         Controllers.Add(window, controller);
         return controller;
     }
+
+    private static string? ReadString(object source, string propertyName) =>
+        source.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(source) as string;
+
+    private static string? ReadNestedThemeString(object source, string propertyName)
+    {
+        var theme = source.GetType().GetProperty("Theme", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(source);
+        return theme is null ? null : ReadString(theme, propertyName);
+    }
+
+    private static string EnglishThemeName(string name) => name switch
+    {
+        "Україна" => "Ukraine",
+        "Космічна" => "Space",
+        "Драйв" => "Drive",
+        "Неон" => "Neon",
+        "Військова" => "Military",
+        "Синтвейв" => "Synthwave",
+        "Кіберпанк" => "Cyberpunk",
+        "Сталкер" => "Stalker",
+        _ => name
+    };
+
+    private static string EnglishThemeDescription(string name, string fallback) => name switch
+    {
+        "Україна" => "Premium dark-blue Ukraine theme with a trident, golden frames, ornaments and Ukrainian accents.",
+        "Космічна" => "Deep-space interface with cool blue highlights and a futuristic control-center atmosphere.",
+        "Драйв" => "High-energy driving theme with warm accents and dashboard-inspired surfaces.",
+        "Неон" => "Bright neon interface with saturated cyber colors and glowing outlines.",
+        "Військова" => "Tactical military interface with restrained colors and rugged visual details.",
+        "Синтвейв" => "Retro-futuristic synthwave palette with purple, pink and electric-blue accents.",
+        "Кіберпанк" => "Dark cyberpunk theme with high-contrast neon controls and industrial details.",
+        "Сталкер" => "Atmospheric Zone-inspired theme with worn tactical surfaces and warning accents.",
+        _ => string.IsNullOrWhiteSpace(fallback) ? "Application interface theme preview." : fallback
+    };
 
     private static IEnumerable<T> FindDescendants<T>(DependencyObject root) where T : DependencyObject
     {
