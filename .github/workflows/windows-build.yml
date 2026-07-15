@@ -28,6 +28,7 @@ jobs:
             "GlobalUsings.cs",
             "Themes/CyberAmber.xaml",
             "Themes/Compatibility.xaml",
+            "Themes/UkraineReference.xaml",
             "Services/AppServices.cs",
             "Services/ObsWebSocketService.cs",
             "Services/YouTubeService.cs",
@@ -90,16 +91,16 @@ jobs:
           name: TiHiY-StreamControl-Center-win-x64
           path: publish/**
 
-      - name: Smoke test Settings window with Ukraine theme
+      - name: Smoke test main window with applied Ukraine reference theme
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path preview | Out-Null
           $diagnosticLog = Join-Path $PWD "preview/smoke-test.log"
-          "Settings smoke test started at $(Get-Date -Format o)" | Set-Content $diagnosticLog -Encoding utf8
+          "Ukraine reference theme smoke test started at $(Get-Date -Format o)" | Set-Content $diagnosticLog -Encoding utf8
 
           $exe = (Resolve-Path "publish/TiHiY.StreamControlCenter.exe").Path
           $workingDirectory = Split-Path $exe
-          $shot = Join-Path $PWD "preview/TiHiY-StreamControl-Center-Settings-Ukraine.png"
+          $shot = Join-Path $PWD "preview/TiHiY-StreamControl-Center-Ukraine-Reference.png"
           $failure = $null
           $process = $null
 
@@ -112,7 +113,7 @@ jobs:
             $startInfo.RedirectStandardOutput = $true
             $startInfo.RedirectStandardError = $true
             $startInfo.ArgumentList.Add("--ci-screenshot=$shot")
-            $startInfo.ArgumentList.Add("--ci-open-settings")
+            $startInfo.ArgumentList.Add("--ci-apply-ukraine-theme")
 
             $process = [Diagnostics.Process]::new()
             $process.StartInfo = $startInfo
@@ -125,11 +126,11 @@ jobs:
             if (-not $process.WaitForExit(45000)) {
               $process.Kill($true)
               $process.WaitForExit()
-              $failure = "Settings smoke test timed out."
+              $failure = "Ukraine reference theme smoke test timed out."
             } elseif ($process.ExitCode -ne 0) {
-              $failure = "Application exited with code $($process.ExitCode) while opening Settings."
+              $failure = "Application exited with code $($process.ExitCode) while applying the Ukraine reference theme."
             } elseif (-not (Test-Path $shot)) {
-              $failure = "Application did not create the Settings screenshot."
+              $failure = "Application did not create the Ukraine reference theme screenshot."
             }
 
             $stdout = $stdoutTask.GetAwaiter().GetResult()
@@ -151,22 +152,22 @@ jobs:
           }
 
           if ($failure) {
-            Write-Host "==== SETTINGS STARTUP DIAGNOSTICS ===="
+            Write-Host "==== UKRAINE THEME STARTUP DIAGNOSTICS ===="
             Get-ChildItem preview -File -ErrorAction SilentlyContinue | ForEach-Object {
               Write-Host "---- $($_.Name) ----"
               if ($_.Extension -eq ".txt" -or $_.Extension -eq ".log") {
                 Get-Content $_.FullName -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_ }
               }
             }
-            Write-Host "==== END SETTINGS STARTUP DIAGNOSTICS ===="
+            Write-Host "==== END UKRAINE THEME STARTUP DIAGNOSTICS ===="
             throw $failure
           }
-          Write-Host "Settings window with Ukraine theme opened successfully."
+          Write-Host "Main window with applied Ukraine reference theme opened successfully."
 
-      - name: Upload Settings screenshot and startup logs
+      - name: Upload Ukraine reference theme screenshot and startup logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: TiHiY-StreamControl-Center-Settings-Screenshot
+          name: TiHiY-Ukraine-Reference-Theme-Screenshot
           path: preview/**
           if-no-files-found: warn
