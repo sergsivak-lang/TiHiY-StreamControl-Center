@@ -12,6 +12,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore complete WPF source snapshot
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "Services/AppServices.cs")) {
+            Write-Host "Restoring complete WPF v1.0.5.2 source from repository history..."
+            git show 23801ef86f15bc0e4463133742fab0b985c4d85d:.github/bootstrap/wpfcore.part01.b64 | Out-File -FilePath wpfcore.b64 -Encoding ascii
+            $base64 = (Get-Content wpfcore.b64 -Raw).Trim()
+            [IO.File]::WriteAllBytes("wpfcore.zip", [Convert]::FromBase64String($base64))
+            Expand-Archive -Path wpfcore.zip -DestinationPath . -Force
+          }
+          if (-not (Test-Path "Services/AppServices.cs")) { throw "WPF source restoration failed: Services/AppServices.cs is missing." }
+          if (-not (Test-Path "Windows/SettingsWindow.xaml")) { throw "WPF source restoration failed: Windows/SettingsWindow.xaml is missing." }
 
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
@@ -40,6 +55,26 @@ jobs:
 
       - name: Publish portable Windows build
         run: dotnet publish TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish
+
+      - name: Capture real application screenshot
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path preview | Out-Null
+          $exe = Resolve-Path "publish/TiHiY.StreamControlCenter.exe"
+          $shot = Join-Path $PWD "preview/TiHiY-Ukraine-Theme.png"
+          $process = Start-Process -FilePath $exe -ArgumentList "--ci-screenshot=`"$shot`"" -PassThru
+          if (-not $process.WaitForExit(45000)) {
+            Stop-Process -Id $process.Id -Force
+            throw "Screenshot process timed out."
+          }
+          if ($process.ExitCode -ne 0) { throw "Application exited with code $($process.ExitCode) while creating screenshot." }
+          if (-not (Test-Path $shot)) { throw "Application did not create the screenshot." }
+
+      - name: Upload real screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: TiHiY-Ukraine-Theme-Screenshot
+          path: preview/TiHiY-Ukraine-Theme.png
 
       - name: Upload program
         uses: actions/upload-artifact@v4
