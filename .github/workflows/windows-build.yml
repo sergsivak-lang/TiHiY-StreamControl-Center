@@ -20,38 +20,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Restore complete WPF source snapshot
-        id: restore_wpf
+      - name: Restore complete WPF source
         shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          try {
-            if (-not (Test-Path "Services/AppServices.cs")) {
-              Write-Host "Restoring complete WPF v1.0.5.2 source snapshot..."
-              $url = "https://raw.githubusercontent.com/sergsivak-lang/TiHiY-StreamControl-Center/23801ef86f15bc0e4463133742fab0b985c4d85d/.github/bootstrap/wpfcore.part01.b64"
-              Invoke-WebRequest -Uri $url -OutFile wpfcore.b64
-              $raw = Get-Content wpfcore.b64 -Raw
-              $base64 = [regex]::Replace($raw, '[^A-Za-z0-9+/=]', '')
-              Write-Host "Downloaded raw characters: $($raw.Length)"
-              Write-Host "Sanitized base64 characters: $($base64.Length)"
-              if ([string]::IsNullOrWhiteSpace($base64)) { throw "WPF snapshot is empty after Base64 sanitization." }
-              $bytes = [Convert]::FromBase64String($base64)
-              [IO.File]::WriteAllBytes("wpfcore.zip", $bytes)
-              Write-Host "Decoded ZIP bytes: $($bytes.Length)"
-              if ($bytes.Length -lt 4 -or $bytes[0] -ne 0x50 -or $bytes[1] -ne 0x4B) { throw "Decoded WPF snapshot is not a valid ZIP archive." }
-              Expand-Archive -Path wpfcore.zip -DestinationPath . -Force
-            }
-            if (-not (Test-Path "Services/AppServices.cs")) { throw "WPF source restoration failed: Services/AppServices.cs is missing." }
-            if (-not (Test-Path "Windows/SettingsWindow.xaml")) { throw "WPF source restoration failed: Windows/SettingsWindow.xaml is missing." }
-            Write-Host "WPF source snapshot restored successfully."
+          if (-not (Test-Path "Services/AppServices.cs")) {
+            Write-Host "Restoring complete WPF folders from agent/cyber-amber-full-ui-v3..."
+            git checkout origin/agent/cyber-amber-full-ui-v3 -- Models Services Windows
           }
-          catch {
-            $message = $_.Exception.Message.Replace('"','\"')
-            Write-Host "::error::$message"
-            gh pr comment 1 --body "CI restore error: $message"
-            throw
-          }
+          if (-not (Test-Path "Services/AppServices.cs")) { throw "WPF source restoration failed: Services/AppServices.cs is missing." }
+          if (-not (Test-Path "Windows/SettingsWindow.xaml")) { throw "WPF source restoration failed: Windows/SettingsWindow.xaml is missing." }
+          Write-Host "WPF source folders restored successfully."
 
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
