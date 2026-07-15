@@ -19,6 +19,7 @@ public partial class App : Application
         var screenshotPath = screenshotArg is null ? null : screenshotArg[(screenshotArg.IndexOf('=') + 1)..].Trim('"');
         var ciMode = !string.IsNullOrWhiteSpace(screenshotPath);
         var openSettingsInCi = e.Args.Any(x => string.Equals(x, "--ci-open-settings", StringComparison.OrdinalIgnoreCase));
+        var applyUkraineThemeInCi = e.Args.Any(x => string.Equals(x, "--ci-apply-ukraine-theme", StringComparison.OrdinalIgnoreCase));
 
         _singleInstanceMutex = new Mutex(true, "Local\\TiHiY.StreamControlCenter.SingleInstance", out _ownsMutex);
         if (!_ownsMutex)
@@ -56,6 +57,12 @@ public partial class App : Application
                 main.Top = 0;
                 main.ApplyCiDemoState();
 
+                if (applyUkraineThemeInCi)
+                {
+                    Services.Theme.Apply("Україна", save: false);
+                    WriteStartupStage("06 Ukraine theme applied in CI");
+                }
+
                 Window captureWindow = main;
                 if (openSettingsInCi)
                 {
@@ -72,7 +79,7 @@ public partial class App : Application
                     };
                     settings.Show();
                     captureWindow = settings;
-                    WriteStartupStage("06 SettingsWindow shown in CI");
+                    WriteStartupStage("07 SettingsWindow shown in CI");
                 }
 
                 await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
