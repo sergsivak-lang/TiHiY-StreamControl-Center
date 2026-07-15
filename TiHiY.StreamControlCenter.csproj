@@ -11,7 +11,7 @@
     <AssemblyName>TiHiY.StreamControlCenter</AssemblyName>
     <RootNamespace>TiHiY.StreamControlCenter</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
+    <ApplicationIcon Condition="Exists('Assets\AppIcon.ico')">Assets\AppIcon.ico</ApplicationIcon>
     <Version>1.0.5.2</Version>
     <AssemblyVersion>1.0.5.2</AssemblyVersion>
     <FileVersion>1.0.5.2</FileVersion>
