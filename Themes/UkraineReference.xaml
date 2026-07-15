@@ -40,7 +40,7 @@
     <DropShadowEffect x:Key="UkrainePanelShadow" Color="#000000" BlurRadius="14" ShadowDepth="4" Opacity="0.6"/>
 
     <Style x:Key="UkraineHeaderText" TargetType="TextBlock">
-        <Setter Property="Foreground" Value="#24B5FF"/>
+        <Setter Property="Foreground" Value="#F5A900"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="FontSize" Value="18"/>
         <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
@@ -106,6 +106,13 @@
         <Setter Property="Effect" Value="{StaticResource UkraineBlueGlow}"/>
     </Style>
 
+    <Style x:Key="CompactStatusPill" TargetType="Border" BasedOn="{StaticResource StatusPill}">
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Margin" Value="2,2"/>
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="Effect" Value="{x:Null}"/>
+    </Style>
+
     <Style x:Key="PrimaryActionButton" TargetType="Button">
         <Setter Property="Foreground" Value="#F4F9FF"/>
         <Setter Property="Background" Value="{StaticResource UkraineButtonBrush}"/>
@@ -137,7 +144,21 @@
         </Setter>
     </Style>
 
+    <Style x:Key="CompactTopActionButton" TargetType="Button" BasedOn="{StaticResource PrimaryActionButton}">
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Padding" Value="8,3"/>
+        <Setter Property="Margin" Value="2"/>
+        <Setter Property="FontSize" Value="10"/>
+    </Style>
+
     <Style x:Key="UkraineRedActionButton" TargetType="Button" BasedOn="{StaticResource PrimaryActionButton}">
+        <Setter Property="Background" Value="{StaticResource UkraineRedButtonBrush}"/>
+        <Setter Property="BorderBrush" Value="#D53138"/>
+    </Style>
+
+    <Style x:Key="CompactTopRedActionButton" TargetType="Button" BasedOn="{StaticResource CompactTopActionButton}">
         <Setter Property="Background" Value="{StaticResource UkraineRedButtonBrush}"/>
         <Setter Property="BorderBrush" Value="#D53138"/>
     </Style>
