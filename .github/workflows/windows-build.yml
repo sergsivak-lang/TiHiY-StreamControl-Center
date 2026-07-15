@@ -7,39 +7,23 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
     runs-on: windows-latest
     steps:
-      - name: Checkout branch head
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
-          fetch-depth: 0
 
-      - name: Restore and verify WPF source tree
+      - name: Verify WPF source tree
         shell: pwsh
         run: |
-          if (Test-Path "src") {
-            throw "Obsolete WinForms source tree 'src' must not coexist with the root WPF project."
-          }
-
-          $themeParts = Get-ChildItem "ThemeSupport/CyberAmber.xaml.b64.*" -ErrorAction SilentlyContinue | Sort-Object Name
-          if ($themeParts.Count -gt 0) {
-            Write-Host "Reconstructing CyberAmber.xaml from $($themeParts.Count) payload parts..."
-            $base64 = ($themeParts | ForEach-Object { (Get-Content $_.FullName -Raw).Trim() }) -join ''
-            $data = [Convert]::FromBase64String($base64)
-            $xmlText = [Text.Encoding]::UTF8.GetString($data)
-            [xml]$xmlText | Out-Null
-            New-Item -ItemType Directory -Force -Path Themes | Out-Null
-            [IO.File]::WriteAllBytes("Themes/CyberAmber.xaml", $data)
-            $hash = (Get-FileHash "Themes/CyberAmber.xaml" -Algorithm SHA256).Hash.ToLowerInvariant()
-            Write-Host "CyberAmber.xaml restored: $($data.Length) bytes, SHA256=$hash"
-          }
-
           $requiredFiles = @(
+            "TiHiY.StreamControlCenter.sln",
+            "TiHiY.StreamControlCenter.csproj",
+            "App.xaml",
+            "MainWindow.xaml",
             "GlobalUsings.cs",
             "Themes/CyberAmber.xaml",
             "Services/AppServices.cs",
@@ -180,21 +164,3 @@ jobs:
           name: TiHiY-StreamControl-Center-Screenshot
           path: preview/**
           if-no-files-found: warn
-
-      - name: Persist restored CyberAmber theme
-        if: success()
-        shell: pwsh
-        run: |
-          $themeParts = Get-ChildItem "ThemeSupport/CyberAmber.xaml.b64.*" -ErrorAction SilentlyContinue
-          if ($themeParts.Count -eq 0) {
-            Write-Host "Theme payload already removed; no persistence commit required."
-            exit 0
-          }
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Themes/CyberAmber.xaml
-          git rm -r ThemeSupport
-          git commit -m "Restore CyberAmber theme v1.0.5.2"
-          $targetBranch = "${{ github.head_ref || github.ref_name }}"
-          git push origin "HEAD:$targetBranch"
