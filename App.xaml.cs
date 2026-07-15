@@ -46,6 +46,17 @@ public partial class App : Application
             Services = new AppServices();
             if (!string.IsNullOrWhiteSpace(requestedLanguage))
                 Services.Language.Apply(requestedLanguage, save: false);
+            if (ciMode)
+            {
+                // CI must capture deterministic real windows, not wait for external
+                // OBS/Twitch/YouTube/Donatello connections that are unavailable on a runner.
+                Services.Settings.Value.AutoConnectObs = false;
+                Services.Settings.Value.TwitchAutoConnect = false;
+                Services.Settings.Value.YouTubeAutoConnect = false;
+                Services.Settings.Value.NotificationBotAutoStart = false;
+                Services.Settings.Value.DonatelloAutoStart = false;
+                Services.Settings.Value.LocalChatOverlayAutoStart = false;
+            }
             WriteStartupStage("02 Services initialized in memory");
             await Services.InitializeAsync();
             WriteStartupStage("03 Background services initialized");
@@ -94,24 +105,29 @@ public partial class App : Application
                 }
 
                 await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
-                await Task.Delay(1000);
+                await Task.Delay(850);
 
                 if (settingsWindow is not null && showThemePreviewInCi && FindVisualDescendant<TabControl>(settingsWindow) is { } tabs)
                     tabs.SelectedIndex = 1;
 
-                // Window_Loaded performs several asynchronous refreshes. Apply the
-                // deterministic demo state only after those refreshes have finished,
-                // otherwise real empty services would overwrite donations/notifications.
-                main.ApplyCiDemoState();
-                MainWindowVisualTuner.ApplyNow(main);
                 UiTextLocalizer.Apply(captureWindow, Services.Language.CurrentLanguage);
                 ButtonIconService.Apply(captureWindow);
+                if (settingsWindow is not null)
+                    _ = SettingsWindowVisualTuner.Attach(settingsWindow);
 
                 if (!string.IsNullOrWhiteSpace(shortcutPath) && !ShortcutService.EnsureShortcut(shortcutPath, Services.Logger))
                     throw new InvalidOperationException($"CI shortcut was not created: {shortcutPath}");
 
                 await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
-                await Task.Delay(300);
+                await Task.Delay(180);
+
+                // Apply demo values and visual guards immediately before rendering so
+                // no periodic status refresh can replace them in the verification image.
+                main.ApplyCiDemoState();
+                MainWindowVisualTuner.ApplyNow(main);
+                if (settingsWindow is not null)
+                    _ = SettingsWindowVisualTuner.Attach(settingsWindow);
+                await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Render);
 
                 SaveWindowScreenshot(captureWindow, screenshotPath!);
                 if (!ReferenceEquals(captureWindow, main)) captureWindow.Close();
