@@ -2,10 +2,13 @@
 setlocal EnableExtensions EnableDelayedExpansion
 cd /d "%~dp0"
 
+set "APP_VERSION=v1.0.5.2"
+if exist "VERSION.txt" set /p APP_VERSION=<"VERSION.txt"
+
 if not exist "BuildLogs" mkdir "BuildLogs"
 set "LOG=%CD%\BuildLogs\build-and-run-latest.log"
 set "APPLOG=%APPDATA%\TiHiY\StreamControlCenter\Logs"
->"%LOG%" echo [%DATE% %TIME%] START v1.0.3.6 REARRANGED BLOCKS TEST BUILD
+>"%LOG%" echo [%DATE% %TIME%] START !APP_VERSION! CLEAN BUILD
 
 taskkill /F /T /IM TiHiY.StreamControlCenter.exe >nul 2>nul
 
@@ -44,7 +47,7 @@ tasklist /FI "IMAGENAME eq TiHiY.StreamControlCenter.exe" 2>nul | find /I "TiHiY
 if errorlevel 1 goto app_closed
 
 echo.
-echo SUCCESS: The program is running.
+echo SUCCESS: !APP_VERSION! is running.
 echo EXE: !EXE!
 echo Keep the complete Release folder together.
 exit /b 0
@@ -78,7 +81,7 @@ exit /b 30
 
 :build_failed
 echo.
-echo ERROR: Build failed.
+echo ERROR: Build failed for !APP_VERSION!.
 echo Log: !LOG!
 type "!LOG!"
 exit /b 20
