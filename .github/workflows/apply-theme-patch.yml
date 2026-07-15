@@ -1,0 +1,40 @@
+name: Apply Ukraine Exact Patch
+
+on:
+  push:
+    branches:
+      - feature/ukraine-reference-theme-v2
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.event.head_commit.message == 'Add Ukraine Exact patch applicator'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/ukraine-reference-theme-v2
+          fetch-depth: 0
+
+      - name: Apply staged patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 --decode ThemePatch.b64 > ThemePatch.zip
+          unzip -o ThemePatch.zip
+          rm -f ThemePatch.b64 ThemePatch.zip
+          rm -f .github/workflows/export-source.yml
+          rm -f .github/workflows/apply-theme-patch.yml
+
+      - name: Commit functional Ukraine Exact UI
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Implement functional Ukraine Exact main window"
+          git push origin HEAD:feature/ukraine-reference-theme-v2
