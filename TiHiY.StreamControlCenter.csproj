@@ -20,6 +20,6 @@
     <Resource Include="Assets\AppIcon.png" Condition="Exists('Assets\AppIcon.png')" />
     <Resource Include="Assets\Platforms\*.png" />
     <Resource Include="Assets\Themes\**\*.png" />
-    <Content Include="Design\Cyber-Amber-Exact-Mockup.png" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Design\Cyber-Amber-Exact-Mockup.png" Condition="Exists('Design\Cyber-Amber-Exact-Mockup.png')" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
