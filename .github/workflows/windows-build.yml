@@ -40,13 +40,20 @@ jobs:
 
       - name: Build
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore *> build.log
           $exitCode = $LASTEXITCODE
-          Write-Host "==== COMPLETE BUILD LOG ===="
-          Get-Content build.log | ForEach-Object { Write-Host $_ }
-          Write-Host "==== END COMPLETE BUILD LOG ===="
-          if ($exitCode -ne 0) { exit $exitCode }
+          if ($exitCode -ne 0) {
+            $errors = Get-Content build.log | Where-Object { $_ -match ': error ' -or $_ -match 'error (CS|MC|XDG|MSB)[0-9]+' }
+            if (-not $errors) { $errors = Get-Content build.log | Select-Object -Last 80 }
+            $body = "### Windows Build failed`n```text`n" + (($errors | Select-Object -First 80) -join "`n") + "`n```"
+            Write-Host $body
+            gh pr comment 1 --body $body
+            exit $exitCode
+          }
+          Write-Host "Build completed successfully."
 
       - name: Upload build diagnostics
         if: always()
