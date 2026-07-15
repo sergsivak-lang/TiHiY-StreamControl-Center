@@ -13,19 +13,42 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET 8
+      - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
 
       - name: Restore
         run: dotnet restore TiHiY.StreamControlCenter.sln
 
       - name: Build
-        run: dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore
+        shell: pwsh
+        run: |
+          dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore *> build.log
+          $exitCode = $LASTEXITCODE
+          if ($exitCode -ne 0) {
+            $errors = Get-Content build.log | Where-Object { $_ -match ': error ' -or $_ -match 'error (CS|MC|XDG|MSB|NETSDK)[0-9]+' }
+            if (-not $errors) { $errors = Get-Content build.log | Select-Object -Last 120 }
+            $errors | Set-Content -Path build-errors.txt -Encoding utf8
+            Write-Host "==== BUILD ERRORS ===="
+            Get-Content build-errors.txt | ForEach-Object { Write-Host $_ }
+            Write-Host "==== END BUILD ERRORS ===="
+            exit $exitCode
+          }
+          "Build completed successfully." | Set-Content -Path build-errors.txt -Encoding utf8
+
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-diagnostics
+          path: |
+            build.log
+            build-errors.txt
+          if-no-files-found: warn
 
       - name: Publish portable Windows build
-        run: dotnet publish src/TiHiY.StreamControlCenter/TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish
+        run: dotnet publish TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --no-restore --output publish
 
       - name: Upload program
         uses: actions/upload-artifact@v4
