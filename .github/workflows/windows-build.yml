@@ -24,12 +24,11 @@ jobs:
         shell: pwsh
         run: |
           if (-not (Test-Path "Services/AppServices.cs")) {
-            Write-Host "Restoring complete WPF folders from agent/cyber-amber-full-ui-v3..."
             git checkout origin/agent/cyber-amber-full-ui-v3 -- Models Services Windows
           }
-          if (-not (Test-Path "Services/AppServices.cs")) { throw "WPF source restoration failed: Services/AppServices.cs is missing." }
-          if (-not (Test-Path "Windows/SettingsWindow.xaml")) { throw "WPF source restoration failed: Windows/SettingsWindow.xaml is missing." }
-          Write-Host "WPF source folders restored successfully."
+          if (-not (Test-Path "Services/AppServices.cs")) { throw "Services/AppServices.cs is missing after restore." }
+          if (-not (Test-Path "Windows/SettingsWindow.xaml")) { throw "Windows/SettingsWindow.xaml is missing after restore." }
+          Write-Host "WPF source restored successfully."
 
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
@@ -44,9 +43,9 @@ jobs:
         run: |
           dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore *> build.log
           $exitCode = $LASTEXITCODE
-          Write-Host "==== BUILD ERRORS / WARNINGS ===="
-          Get-Content build.log | Select-String -Pattern ': error |: warning |MSB[0-9]+|XDG[0-9]+|MC[0-9]+' | ForEach-Object { Write-Host $_.Line }
-          Write-Host "==== END BUILD DIAGNOSTICS ===="
+          Write-Host "==== COMPLETE BUILD LOG ===="
+          Get-Content build.log | ForEach-Object { Write-Host $_ }
+          Write-Host "==== END COMPLETE BUILD LOG ===="
           if ($exitCode -ne 0) { exit $exitCode }
 
       - name: Upload build diagnostics
