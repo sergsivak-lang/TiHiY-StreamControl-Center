@@ -149,7 +149,7 @@ jobs:
 
               $process = [Diagnostics.Process]::new()
               $process.StartInfo = $startInfo
-              if (-not $process.Start()) { throw "$Name: Process.Start returned false." }
+              if (-not $process.Start()) { throw "${Name}: Process.Start returned false." }
               "$Name started with PID $($process.Id)." | Add-Content $diagnosticLog
 
               $stdoutTask = $process.StandardOutput.ReadToEndAsync()
