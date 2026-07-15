@@ -27,7 +27,9 @@ jobs:
             git checkout origin/agent/cyber-amber-full-ui-v3 -- Models Services Windows
           }
 
-          git checkout HEAD -- Models/SystemMonitorSnapshot.cs Services/SystemMonitorService.cs Services/AppServices.SystemMonitor.cs
+          # Restore files that belong to the current Ukraine-theme branch after
+          # the legacy WPF snapshot has supplied the remaining source tree.
+          git checkout HEAD -- Models/AppSettings.cs Models/SystemMonitorSnapshot.cs Services/SystemMonitorService.cs Services/AppServices.SystemMonitor.cs
 
           $appServicesPath = "Services/AppServices.cs"
           $appServices = Get-Content $appServicesPath -Raw
@@ -37,6 +39,7 @@ jobs:
           }
 
           if (-not (Test-Path "Services/AppServices.cs")) { throw "Services/AppServices.cs is missing after restore." }
+          if (-not (Test-Path "Models/AppSettings.cs")) { throw "Models/AppSettings.cs is missing after restore." }
           if (-not (Test-Path "Services/SystemMonitorService.cs")) { throw "Services/SystemMonitorService.cs is missing after restore." }
           if (-not (Test-Path "Windows/SettingsWindow.xaml")) { throw "Windows/SettingsWindow.xaml is missing after restore." }
           Write-Host "WPF source restored successfully."
