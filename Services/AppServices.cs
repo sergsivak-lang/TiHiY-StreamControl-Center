@@ -16,6 +16,7 @@ public sealed class AppServices : IAsyncDisposable
     public DonatelloService Donatello { get; }
     public UiScaleService UiScale { get; }
     public ThemeService Theme { get; }
+    public LanguageService Language { get; }
     public WindowPlacementService Placement { get; }
     public WindowManager Windows { get; }
     public ChatService Chat { get; }
@@ -34,6 +35,8 @@ public sealed class AppServices : IAsyncDisposable
         Settings.Value = SettingsService.Load();
         Donations = new DonationService(SettingsService.Folder, Logger);
         SystemMonitor = new Aida64SensorService(Logger);
+        Language = new LanguageService(Settings, SettingsService);
+        Language.ApplySavedLanguage();
         Theme = new ThemeService(Settings, SettingsService);
         Theme.ApplySavedTheme();
         UiScale = new UiScaleService(Settings);
@@ -100,7 +103,6 @@ public sealed class AppServices : IAsyncDisposable
             _ = SafeConnectAsync(StartAndImportDonatelloAsync, "Автозапуск і синхронізація Donatello");
     }
 
-
     private async Task StartAndImportDonatelloAsync()
     {
         await Donatello.StartAsync().ConfigureAwait(false);
@@ -161,7 +163,6 @@ public sealed class AppServices : IAsyncDisposable
     private void Channel_StatsChanged(object? sender, StreamLiveInfo info) =>
         Application.Current.Dispatcher.BeginInvoke(new Action(() => ChannelStatusChanged?.Invoke(this, EventArgs.Empty)));
 
-
     public async Task SendChatAsync(string text, string target)
     {
         var errors = new List<string>();
@@ -218,101 +219,86 @@ public sealed class AppServices : IAsyncDisposable
     public async Task DeleteChatMessageAsync(ChatMessage message)
     {
         if (string.IsNullOrWhiteSpace(message.ExternalId)) throw new InvalidOperationException("ID повідомлення відсутній.");
-        if (message.Platform.Equals("TWITCH", StringComparison.OrdinalIgnoreCase))
-            await Twitch.DeleteMessageAsync(message.ExternalId);
-        else if (message.Platform.Equals("YOUTUBE", StringComparison.OrdinalIgnoreCase))
-            await YouTube.DeleteMessageAsync(message.ExternalId);
-        else
-            throw new InvalidOperationException("Видалення доступне лише для Twitch і YouTube.");
+        if (message.Platform.Equals("TWITCH", StringComparison.OrdinalIgnoreCase)) await Twitch.DeleteMessageAsync(message.ExternalId);
+        else if (message.Platform.Equals("YOUTUBE", StringComparison.OrdinalIgnoreCase)) await YouTube.DeleteMessageAsync(message.ExternalId);
+        else throw new InvalidOperationException("Видалення доступне лише для Twitch і YouTube.");
     }
 
-    public void SetBridgeStatus(bool available, string status)
+    public async Task<bool> CheckBridgeAsync()
     {
-        BridgeAvailable = available;
-        BridgeStatus = status;
+        BridgeAvailable = await MultiStreamBridgeService.IsAvailableAsync(Settings.Value.MultiStreamVendorName);
+        BridgeStatus = BridgeAvailable ? "ДОСТУПНИЙ" : "НЕ ЗНАЙДЕНО";
+        Logger.Info($"Multistream bridge: {BridgeStatus}");
         BridgeStatusChanged?.Invoke(this, EventArgs.Empty);
+        return BridgeAvailable;
     }
 
-    public void Save()
+    public async Task NotifyStreamStartedAsync(string platform, string title, string url) =>
+        await Discord.NotifyStreamStartedAsync(platform, title, url);
+
+    public void Save() => SettingsService.Save(Settings.Value);
+
+    private object BuildNowPlayingPayload()
     {
-        Settings.Value.DonationGoalAmount = Donations.GoalAmount;
-        Settings.Value.DonationGoalCurrency = Donations.GoalCurrency;
-        Settings.Value.ScheduledNotices = Chat.Notices.ToList();
-        Settings.Value.BotCommands = Chat.Commands.ToList();
-        Settings.Value.MusicPlaylistPaths = Music.Playlist.Select(x => x.FilePath).ToList();
-        SettingsService.Save(Settings.Value);
+        var t = Music.CurrentTrack;
+        return new
+        {
+            playing = Music.IsPlaying,
+            title = t?.Title ?? "",
+            artist = t?.Artist ?? "",
+            album = t?.Album ?? "",
+            display = t?.Display ?? "",
+            artwork = t?.ArtworkDataUrl ?? "",
+            volume = Music.Volume,
+            positionSeconds = Music.Position.TotalSeconds,
+            durationSeconds = Music.Duration.TotalSeconds
+        };
     }
 
     private object BuildDonationSummaryPayload()
     {
-        var all = Donations.History.ToList();
-        var last = all.LastOrDefault(x => !x.IsHistorical);
-        var recent = all.Where(x => !x.IsHistorical).TakeLast(5).Reverse().Select(x => new
-        {
-            id = x.StableId,
-            source = x.Source,
-            kind = x.Kind,
-            user = x.User,
-            amount = x.Amount,
-            currency = x.Currency,
-            message = x.Message,
-            time = x.Time.ToString("O"),
-            isTest = x.IsTest,
-            isReplay = x.IsReplay
-        }).ToList();
-
+        var summary = Donations.Summary;
         return new
         {
-            goalTitle = Settings.Value.DonationGoalTitle,
-            goalAmount = Donations.GoalAmount,
-            goalCurrency = Donations.GoalCurrency,
-            currentAmount = Donations.TotalAmount,
-            progressPercent = Donations.GoalProgress * 100d,
-            donatelloStatus = Donatello.Status,
-            lastDonation = last is null ? null : new
+            recent = Donations.History.TakeLast(12).Reverse().Select(x => new
             {
-                id = last.StableId,
-                source = last.Source,
-                kind = last.Kind,
-                user = last.User,
-                amount = last.Amount,
-                currency = last.Currency,
-                message = last.Message,
-                time = last.Time.ToString("O"),
-                isTest = last.IsTest,
-                isReplay = last.IsReplay
-            },
-            recent
-        };
-    }
-
-    private object BuildNowPlayingPayload()
-    {
-        var track = Music.CurrentTrack;
-        return new
-        {
-            active = track is not null && (Music.IsPlaying || Music.Position > TimeSpan.Zero),
-            title = track?.Title ?? string.Empty,
-            artist = track?.Artist ?? string.Empty,
-            positionSeconds = Music.Position.TotalSeconds,
-            durationSeconds = Music.Duration.TotalSeconds
+                id = x.StableId,
+                source = x.Source,
+                kind = x.Kind,
+                user = x.User,
+                amount = x.Amount,
+                currency = x.Currency,
+                message = x.Message,
+                time = x.DisplayTime,
+                accent = x.Accent,
+                icon = x.EventIcon,
+                historical = x.IsHistorical,
+                replay = x.IsReplay,
+                test = x.IsTest
+            }),
+            summary.TotalReceived,
+            summary.RealEvents,
+            summary.TestEvents,
+            summary.ActiveSubscribers,
+            summary.GoalAmount,
+            summary.GoalCurrency,
+            summary.GoalProgressPercent,
+            title = Settings.Value.DonationGoalTitle
         };
     }
 
     public async ValueTask DisposeAsync()
     {
         if (Interlocked.Exchange(ref _disposeState, 1) != 0) return;
-
-        try { Chat.Stop(); } catch { }
-        try { Save(); } catch { }
-        try { Music.Dispose(); } catch { }
-
-        try { await Notifications.DisposeAsync().ConfigureAwait(false); } catch { }
+        Windows.CloseAll();
+        try { await Notifications.StopAsync().ConfigureAwait(false); } catch { }
+        try { await Discord.DisposeAsync().ConfigureAwait(false); } catch { }
         try { await Donatello.DisposeAsync().ConfigureAwait(false); } catch { }
-        try { await Twitch.DisposeAsync().ConfigureAwait(false); } catch { }
         try { await YouTube.DisposeAsync().ConfigureAwait(false); } catch { }
-        try { Discord.Dispose(); } catch { }
-        try { await Overlay.StopAsync().ConfigureAwait(false); } catch { }
-        try { await Obs.DisconnectAsync().ConfigureAwait(false); } catch { }
+        try { await Twitch.DisposeAsync().ConfigureAwait(false); } catch { }
+        try { await Chat.DisposeAsync().ConfigureAwait(false); } catch { }
+        try { await Music.DisposeAsync().ConfigureAwait(false); } catch { }
+        try { await Overlay.DisposeAsync().ConfigureAwait(false); } catch { }
+        try { await Obs.DisposeAsync().ConfigureAwait(false); } catch { }
     }
 }
