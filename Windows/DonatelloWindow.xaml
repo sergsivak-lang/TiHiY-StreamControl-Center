@@ -1,0 +1,168 @@
+<services:ModuleWindowBase x:Class="TiHiY.StreamControlCenter.Windows.DonatelloWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:services="clr-namespace:TiHiY.StreamControlCenter.Services"
+        xmlns:models="clr-namespace:TiHiY.StreamControlCenter.Models"
+        Title="Donatello API" Width="1120" Height="760" MinWidth="580" MinHeight="390"
+        WindowStyle="None" ResizeMode="CanResize" WindowStartupLocation="CenterOwner">
+    <Border BorderBrush="{DynamicResource Line}" BorderThickness="1" Background="{DynamicResource WindowGradient}">
+        <Grid x:Name="DesignSurface" Margin="10">
+            <Grid.RowDefinitions><RowDefinition Height="54"/><RowDefinition/><RowDefinition Height="48"/></Grid.RowDefinitions>
+
+            <Border Background="{DynamicResource Panel2}" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid Margin="14,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Image Source="/TiHiY.StreamControlCenter;component/Assets/Platforms/donatello.png" Style="{StaticResource PlatformIconImage}" Width="27" Height="27"/><TextBlock Text="  DONATELLO API" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource Yellow}"/>
+                        <TextBlock Text="  •  ОФІЦІЙНИЙ X-TOKEN • ДОНАТИ • ПЛАТНІ ПІДПИСКИ" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <Button Style="{StaticResource WindowButton}" Content="—" Width="40" Padding="0" Click="Minimize_Click"/>
+                        <Button Style="{StaticResource WindowButton}" Content="□" Width="40" Padding="0" Click="Maximize_Click"/>
+                        <Button Style="{StaticResource WindowButton}" Content="×" Width="40" Padding="0" Background="#3B0D13" BorderBrush="{DynamicResource Red}" Click="Close_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="1" Margin="0,10,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.05*" MinWidth="310"/>
+                    <ColumnDefinition Width="7"/>
+                    <ColumnDefinition Width="1.25*" MinWidth="340"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource PanelBorder}" Margin="0,0,7,0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+                        <StackPanel Margin="0,0,5,0">
+                            <TextBlock Text="ПІДКЛЮЧЕННЯ ДО DONATELLO" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Cyan}"/>
+
+                            <TextBlock Text="Сторінка Donatello" Foreground="{DynamicResource Muted}" Margin="0,10,0,0"/>
+                            <TextBox x:Name="PageUrlBox" Margin="0,4,0,0"/>
+
+                            <TextBlock Text="Назва цілі збору" Foreground="{DynamicResource Muted}" Margin="0,10,0,0"/>
+                            <TextBox x:Name="GoalTitleBox" Margin="0,4,0,0"/>
+
+                            <TextBlock Text="API Token (X-Token) — залиште порожнім, щоб не змінювати" Foreground="{DynamicResource Muted}" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                            <PasswordBox x:Name="ApiTokenBox" Margin="0,4,0,0"/>
+                            <TextBlock x:Name="TokenStateText" Text="TOKEN НЕ ЗБЕРЕЖЕНО" Foreground="{DynamicResource Yellow}" FontWeight="Bold" Margin="0,4,0,0"/>
+
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,4,0"><TextBlock Text="Перевірка, сек" Foreground="{DynamicResource Muted}"/><TextBox x:Name="PollSecondsBox" Margin="0,4,0,0"/></StackPanel>
+                                <StackPanel Grid.Column="1" Margin="4,0"><TextBlock Text="Ціль збору, UAH" Foreground="{DynamicResource Muted}"/><TextBox x:Name="GoalAmountBox" Margin="0,4,0,0"/></StackPanel>
+                                <StackPanel Grid.Column="2" Margin="4,0,0,0"><TextBlock Text="Мін. для overlay" Foreground="{DynamicResource Muted}"/><TextBox x:Name="MinimumOverlayBox" Margin="0,4,0,0"/></StackPanel>
+                            </Grid>
+
+                            <WrapPanel Margin="0,10,0,0">
+                                <CheckBox x:Name="EnabledCheck" Content="Увімкнути Donatello API"/>
+                                <CheckBox x:Name="AutoStartCheck" Content="Автозапуск" Margin="14,3,3,3"/>
+                            </WrapPanel>
+                            <WrapPanel Margin="0,3,0,0">
+                                <CheckBox x:Name="ShowInChatCheck" Content="Показувати в мультичаті"/>
+                                <CheckBox x:Name="SendToPlatformChatsCheck" Content="Надсилати в Twitch/YouTube чат" Margin="14,3,3,3"/>
+                                <CheckBox x:Name="ShowOverlayCheck" Content="Показувати OBS alert" Margin="14,3,3,3"/>
+                                <CheckBox x:Name="NotifyDiscordCheck" Content="Надсилати в Discord" Margin="14,3,3,3"/>
+                            </WrapPanel>
+
+                            <Border Background="#10231E" BorderBrush="#3E7D5D" BorderThickness="1" CornerRadius="5" Padding="9" Margin="0,10,0,0">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="СТАН: " Foreground="{DynamicResource Muted}"/><TextBlock x:Name="StatusText" Text="НЕ ПІДКЛЮЧЕНО" Foreground="{DynamicResource Yellow}" FontWeight="Bold" TextWrapping="Wrap"/></StackPanel>
+                                    <TextBlock x:Name="LastSyncText" Text="Остання синхронізація: —" Foreground="{DynamicResource Muted}" Margin="0,4,0,0"/>
+                                    <TextBlock x:Name="LastErrorText" Text="" Foreground="{DynamicResource Red}" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,10,0,0">
+                                <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}">
+                                    <Run Text="Офіційні API: "/><Run Text="/me" Foreground="{DynamicResource Text}" FontWeight="Bold"/>
+                                    <Run Text=", "/><Run Text="/donates" Foreground="{DynamicResource Text}" FontWeight="Bold"/>
+                                    <Run Text=" і "/><Run Text="/subscribers" Foreground="{DynamicResource Text}" FontWeight="Bold"/>
+                                    <Run Text=". Токен передається тільки в X-Token і зберігається у Windows Credential Manager."/>
+                                </TextBlock>
+                            </Border>
+
+                            <WrapPanel HorizontalAlignment="Right" Margin="0,10,0,4">
+                                <Button Content="ЗБЕРЕГТИ" Click="Save_Click" Tag="/TiHiY.StreamControlCenter;component/Assets/Platforms/donatello.png" ContentTemplate="{StaticResource BrandButtonContentTemplate}" Background="#1453A5"/>
+                                <Button Content="ПІДКЛЮЧИТИ" Click="Start_Click" Tag="/TiHiY.StreamControlCenter;component/Assets/Platforms/donatello.png" ContentTemplate="{StaticResource BrandButtonContentTemplate}" Background="#17613E"/>
+                                <Button Content="ЗУПИНИТИ" Click="Stop_Click" Tag="/TiHiY.StreamControlCenter;component/Assets/Platforms/donatello.png" ContentTemplate="{StaticResource BrandButtonContentTemplate}" Background="#7C2027"/>
+                                <Button Content="ЗАБУТИ TOKEN" Click="ForgetToken_Click" Tag="/TiHiY.StreamControlCenter;component/Assets/Platforms/donatello.png" ContentTemplate="{StaticResource BrandButtonContentTemplate}" Background="#6E1B24"/>
+                            </WrapPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <GridSplitter Grid.Column="1" Width="7" Background="#163847" ShowsPreview="True"/>
+
+                <Border Grid.Column="2" Style="{StaticResource PanelBorder}" Margin="7,0,0,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="ПРОФІЛЬ, ІСТОРІЯ ТА ПОВТОР ALERT" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Cyan}"/>
+
+                        <Border Grid.Row="1" Background="{DynamicResource Panel2}" BorderBrush="{DynamicResource LineSoft}" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,8,0,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="135"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                                <TextBlock Text="Нікнейм" Foreground="{DynamicResource Muted}"/><TextBlock Grid.Column="1" x:Name="ProfileNameText" Text="—" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="1" Text="Pub ID" Foreground="{DynamicResource Muted}"/><TextBlock Grid.Row="1" Grid.Column="1" x:Name="ProfilePubIdText" Text="—"/>
+                                <TextBlock Grid.Row="2" Text="Сторінка" Foreground="{DynamicResource Muted}"/><TextBlock Grid.Row="2" Grid.Column="1" x:Name="ProfilePageText" Text="—" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Grid.Row="3" Text="Загальна сума" Foreground="{DynamicResource Muted}"/><TextBlock Grid.Row="3" Grid.Column="1" x:Name="ProfileTotalText" Text="—"/>
+                                <TextBlock Grid.Row="4" Text="Кількість донатів" Foreground="{DynamicResource Muted}"/><TextBlock Grid.Row="4" Grid.Column="1" x:Name="ProfileCountText" Text="—"/>
+                                <TextBlock Grid.Row="5" Text="Активні підписники" Foreground="{DynamicResource Muted}"/><TextBlock Grid.Row="5" Grid.Column="1" x:Name="SubscriberCountText" Text="—" Foreground="{DynamicResource Green}" FontWeight="Bold"/>
+                            </Grid>
+                        </Border>
+
+                        <Grid Grid.Row="2">
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <TextBlock Text="ІСТОРІЯ ДОНАТІВ — виберіть подію для повтору в overlay" Foreground="{DynamicResource Muted}" Margin="0,0,0,5"/>
+                            <ListBox x:Name="DonationHistoryList" Grid.Row="1" ItemsSource="{Binding DonationHistory}"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type models:DonationEvent}">
+                                        <Grid Margin="6,5">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="58"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding DisplayTime}" Foreground="{DynamicResource Muted}"/>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="{Binding User}" FontWeight="Bold" Foreground="{Binding Accent}"/>
+                                                <TextBlock Text="{Binding Message}" Foreground="{DynamicResource Muted}" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Margin="8,0,0,0">
+                                                <TextBlock Text="{Binding DisplayAmount}" FontWeight="Bold" Foreground="{Binding Accent}" HorizontalAlignment="Right"/>
+                                                <TextBlock Text="{Binding Source}" FontSize="10" Foreground="{DynamicResource Muted}" HorizontalAlignment="Right"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+
+                        <StackPanel Grid.Row="3" Margin="0,8,0,0">
+                            <WrapPanel>
+                                <Button Content="ПОВТОРИТИ ВИБРАНЕ В OVERLAY" Click="ReplaySelected_Click" Tag="/TiHiY.StreamControlCenter;component/Assets/Platforms/donatello.png" ContentTemplate="{StaticResource BrandButtonContentTemplate}" Background="#7A5A10"/>
+                                <Button Content="ПЕРЕВІРИТИ API TOKEN" Click="TestConnection_Click" Tag="/TiHiY.StreamControlCenter;component/Assets/Platforms/donatello.png" ContentTemplate="{StaticResource BrandButtonContentTemplate}"/>
+                                <Button Content="СИНХРОНІЗУВАТИ ЗАРАЗ" Click="SyncNow_Click" Tag="/TiHiY.StreamControlCenter;component/Assets/Platforms/donatello.png" ContentTemplate="{StaticResource BrandButtonContentTemplate}" Background="#17613E"/>
+                            </WrapPanel>
+                            <WrapPanel>
+                                <Button Content="ІМПОРТУВАТИ ОСТАННІ 20" Click="ImportRecent_Click" Tag="/TiHiY.StreamControlCenter;component/Assets/Platforms/donatello.png" ContentTemplate="{StaticResource BrandButtonContentTemplate}" Background="#4A3A12"/>
+                                <Button Content="ВІДКРИТИ DONATELLO" Click="OpenDonatello_Click" Tag="/TiHiY.StreamControlCenter;component/Assets/Platforms/donatello.png" ContentTemplate="{StaticResource BrandButtonContentTemplate}"/>
+                                <Button Content="ЗАКРИТИ" Click="Close_Click"/>
+                            </WrapPanel>
+                            <Border Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="5" Padding="8" Margin="0,5,0,0">
+                                <TextBlock x:Name="ResultText" Text="Оберіть донат у списку, щоб повторно показати його в OBS alert overlay." Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <Border Grid.Row="2" Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="5" Padding="8">
+                <TextBlock Text="Donatello API → панель донатів → мультичат → OBS alert overlay → окремий Discord-канал" Foreground="{DynamicResource Green}" VerticalAlignment="Center"/>
+            </Border>
+        </Grid>
+    </Border>
+</services:ModuleWindowBase>
