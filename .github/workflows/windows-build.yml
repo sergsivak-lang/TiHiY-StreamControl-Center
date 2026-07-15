@@ -27,17 +27,34 @@ jobs:
 
           $themeParts = Get-ChildItem "ThemeSupport/CyberAmber.xaml.b64.*" -ErrorAction SilentlyContinue | Sort-Object Name
           if ($themeParts.Count -gt 0) {
-            Write-Host "Reconstructing CyberAmber.xaml from $($themeParts.Count) verified parts..."
-            $base64 = ($themeParts | ForEach-Object { (Get-Content $_.FullName -Raw).Trim() }) -join ''
-            New-Item -ItemType Directory -Force -Path Themes | Out-Null
-            [IO.File]::WriteAllBytes("Themes/CyberAmber.xaml", [Convert]::FromBase64String($base64))
+            @'
+          import base64
+          import glob
+          import hashlib
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
 
-            $expectedHash = "b7134d89010f7f21bd830f23d1fa8050b940a271400fc7b78aa2f3b1f1db8ca0"
-            $actualHash = (Get-FileHash "Themes/CyberAmber.xaml" -Algorithm SHA256).Hash.ToLowerInvariant()
-            if ($actualHash -ne $expectedHash) {
-              throw "CyberAmber.xaml hash mismatch. Expected $expectedHash, got $actualHash."
-            }
-            Write-Host "CyberAmber.xaml restored with verified SHA-256."
+          parts = sorted(glob.glob("ThemeSupport/CyberAmber.xaml.b64.*"))
+          if len(parts) != 6:
+              raise SystemExit(f"Expected 6 theme payload parts, found {len(parts)}")
+
+          encoded = "".join(Path(part).read_text(encoding="utf-8").strip() for part in parts)
+          data = base64.b64decode(encoded, validate=True)
+          expected_hash = "b7134d89010f7f21bd830f23d1fa8050b940a271400fc7b78aa2f3b1f1db8ca0"
+          actual_hash = hashlib.sha256(data).hexdigest()
+          if actual_hash != expected_hash:
+              raise SystemExit(f"CyberAmber.xaml hash mismatch: expected {expected_hash}, got {actual_hash}")
+
+          ET.fromstring(data)
+          destination = Path("Themes/CyberAmber.xaml")
+          destination.parent.mkdir(parents=True, exist_ok=True)
+          destination.write_bytes(data)
+          print(f"CyberAmber.xaml restored: {len(data)} bytes, SHA256={actual_hash}")
+          '@ | Set-Content -Path restore-theme.py -Encoding utf8
+
+            python restore-theme.py
+            if ($LASTEXITCODE -ne 0) { throw "Python theme restoration failed with exit code $LASTEXITCODE." }
+            Remove-Item restore-theme.py -Force
           }
 
           $requiredFiles = @(
