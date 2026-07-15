@@ -1,4 +1,4 @@
-name: Materialize Ukraine Exact Assets
+name: Finalize Ukraine Exact XAML
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 jobs:
-  materialize-assets:
+  finalize-xaml:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout feature branch
@@ -17,62 +17,60 @@ jobs:
           ref: feature/ukraine-reference-theme-v2
           fetch-depth: 0
 
-      - name: Restore PNG resources
+      - name: Correct header property-element order
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import base64, io, pathlib, tarfile
-          root = pathlib.Path('ThemePatchParts')
-          names = [
-              'Assets-00.tar.gz.b64.a',
-              'Assets-00.tar.gz.b64.b',
-              'Assets-01.tar.gz.b64',
-          ]
-          chunks = []
-          for name in names:
-              path = root / name
-              if not path.is_file():
-                  raise RuntimeError(f'Missing staging part: {path}')
-              text = path.read_text(encoding='utf-8').strip()
-              print(f'{name}: {len(text)} chars')
-              chunks.append(text)
-          encoded = ''.join(chunks)
-          if len(encoded) != 23396:
-              raise RuntimeError(f'Unexpected combined assets length: {len(encoded)}')
-          payload = base64.b64decode(encoded, validate=True)
-          with tarfile.open(fileobj=io.BytesIO(payload), mode='r:gz') as archive:
-              for member in archive.getmembers():
-                  p = pathlib.Path(member.name)
-                  if p.is_absolute() or '..' in p.parts:
-                      raise RuntimeError(f'Unsafe path: {member.name}')
-              archive.extractall('.')
-          required = [
-              'footer-wheat.png','header-emblem.png','header-map.png',
-              'header-wheat.png','module-ornament.png','panel-corner.png','small-wheat.png'
-          ]
-          folder = pathlib.Path('Assets/Themes/UkraineExact')
-          for name in required:
-              p = folder / name
-              if not p.is_file() or p.stat().st_size < 100:
-                  raise RuntimeError(f'Invalid asset: {p}')
-              print(f'{p}: {p.stat().st_size} bytes')
+          from pathlib import Path
+
+          path = Path('MainWindow.xaml')
+          text = path.read_text(encoding='utf-8')
+          definitions = '''                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+'''
+          if definitions not in text:
+              raise RuntimeError('Header Grid.ColumnDefinitions block was not found')
+          text = text.replace(definitions, '', 1)
+          marker = '''                    </StackPanel>
+                </Grid>
+
+                <!-- STATUS + MAIN ACTIONS -->'''
+          replacement = '''                    </StackPanel>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                </Grid>
+
+                <!-- STATUS + MAIN ACTIONS -->'''
+          if marker not in text:
+              raise RuntimeError('Header closing marker was not found')
+          text = text.replace(marker, replacement, 1)
+          path.write_text(text, encoding='utf-8', newline='\n')
           PY
 
-      - name: Remove staging files and temporary workflow
+      - name: Remove staging and temporary files
         shell: bash
         run: |
           rm -rf ThemePatchParts
           rm -f ThemePatch.b64 ThemePatch.zip patch-ok.txt patch-diagnostic.txt reconstruct-diagnostic.txt
+          rm -f UKRAINE-EXACT-BUILD-TRIGGER.md
           rm -f .github/workflows/export-source.yml
+          rm -f .github/workflows/fix-header-xaml-order.yml
           rm -f .github/workflows/materialize-ukraine-assets.yml
 
-      - name: Commit exact PNG resources
+      - name: Commit final XAML and cleanup
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Add Ukraine Exact visual resources"
+          git commit -m "Fix Ukraine Exact XAML and remove staging files"
           git push origin HEAD:feature/ukraine-reference-theme-v2
