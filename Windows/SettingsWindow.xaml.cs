@@ -98,7 +98,6 @@ public partial class SettingsWindow : ModuleWindowBase
     private void ScaleDown_Click(object sender, RoutedEventArgs e) { _services.UiScale.Decrease(); AutoScaleCheck.IsChecked = false; ScaleText.Text = $"{_services.UiScale.Percent}%"; _services.Save(); }
     private void ScaleUp_Click(object sender, RoutedEventArgs e) { _services.UiScale.Increase(); AutoScaleCheck.IsChecked = false; ScaleText.Text = $"{_services.UiScale.Percent}%"; _services.Save(); }
 
-
     private void ThemeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         UpdateThemePreview();
@@ -135,8 +134,29 @@ public partial class SettingsWindow : ModuleWindowBase
         ThemePreviewBorder.BorderBrush = new SolidColorBrush(theme.Palette.Line);
         ThemePreviewName.Foreground = new SolidColorBrush(theme.Palette.Cyan);
         ThemePreviewDescription.Foreground = new SolidColorBrush(theme.Palette.Muted);
+
         var previewUri = _services.Theme.GetPreviewUri(theme.Name);
-        ThemePreviewImage.Source = previewUri is null ? null : new BitmapImage(previewUri);
+        if (previewUri is null)
+        {
+            ThemePreviewImage.Source = null;
+            return;
+        }
+
+        try
+        {
+            var preview = new BitmapImage();
+            preview.BeginInit();
+            preview.UriSource = previewUri;
+            preview.CacheOption = BitmapCacheOption.OnLoad;
+            preview.EndInit();
+            preview.Freeze();
+            ThemePreviewImage.Source = preview;
+        }
+        catch (Exception ex)
+        {
+            ThemePreviewImage.Source = null;
+            _services.Logger.Info($"Попередній перегляд теми «{theme.Name}» недоступний: {ex.GetBaseException().Message}");
+        }
     }
 
     private void ResetDashboardLayout_Click(object sender, RoutedEventArgs e)
