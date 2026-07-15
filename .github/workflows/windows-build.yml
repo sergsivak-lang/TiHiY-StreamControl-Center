@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -15,86 +15,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: feature/ukraine-reference-theme-v2
-          fetch-depth: 0
-
-      - name: Finalize Ukraine Exact source tree
-        if: github.event_name == 'push'
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = "Stop"
-          $path = "MainWindow.xaml"
-          $text = (Get-Content $path -Raw) -replace "`r`n", "`n"
-
-          $definitions = @'
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-'@
-          $marker = @'
-                    </StackPanel>
-                </Grid>
-
-                <!-- STATUS + MAIN ACTIONS -->
-'@
-          $replacement = @'
-                    </StackPanel>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                </Grid>
-
-                <!-- STATUS + MAIN ACTIONS -->
-'@
-
-          if ($text.Contains($definitions)) {
-            if (-not $text.Contains($marker)) {
-              throw "Header closing marker was not found."
-            }
-            $text = $text.Replace($definitions, "")
-            $text = $text.Replace($marker, $replacement)
-            [IO.File]::WriteAllText((Join-Path $PWD $path), $text, [Text.UTF8Encoding]::new($false))
-            Write-Host "Header Grid.ColumnDefinitions moved after the Grid content."
-          } else {
-            Write-Host "Header XAML property order is already finalized."
-          }
-
-          $temporaryPaths = @(
-            "ThemePatchParts",
-            "ThemePatch.b64",
-            "ThemePatch.zip",
-            "patch-ok.txt",
-            "patch-diagnostic.txt",
-            "reconstruct-diagnostic.txt",
-            "UKRAINE-EXACT-BUILD-TRIGGER.md",
-            ".github/workflows/export-source.yml",
-            ".github/workflows/fix-header-xaml-order.yml",
-            ".github/workflows/materialize-ukraine-assets.yml"
-          )
-          foreach ($temporaryPath in $temporaryPaths) {
-            if (Test-Path $temporaryPath) {
-              Remove-Item $temporaryPath -Recurse -Force
-              Write-Host "Removed temporary path: $temporaryPath"
-            }
-          }
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git diff --cached --quiet
-          if ($LASTEXITCODE -ne 0) {
-            git commit -m "Finalize functional Ukraine Exact source tree"
-            git push origin HEAD:feature/ukraine-reference-theme-v2
-            Write-Host "Finalized source tree committed and pushed."
-          } else {
-            Write-Host "No finalization changes were required."
-          }
 
       - name: Verify WPF source tree
         shell: pwsh
@@ -118,21 +38,14 @@ jobs:
             "Windows/JournalWindow.xaml",
             "Windows/JournalWindow.xaml.cs",
             "Windows/SettingsWindow.xaml",
-            "Windows/SettingsWindow.xaml.cs",
-            "Assets/Themes/UkraineExact/footer-wheat.png",
-            "Assets/Themes/UkraineExact/header-emblem.png",
-            "Assets/Themes/UkraineExact/header-map.png",
-            "Assets/Themes/UkraineExact/header-wheat.png",
-            "Assets/Themes/UkraineExact/module-ornament.png",
-            "Assets/Themes/UkraineExact/panel-corner.png",
-            "Assets/Themes/UkraineExact/small-wheat.png"
+            "Windows/SettingsWindow.xaml.cs"
           )
           foreach ($requiredFile in $requiredFiles) {
             if (-not (Test-Path $requiredFile)) {
               throw "Required WPF source file is missing: $requiredFile"
             }
           }
-          Write-Host "Complete WPF source tree and Ukraine Exact resources verified."
+          Write-Host "Complete WPF source tree verified."
 
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
