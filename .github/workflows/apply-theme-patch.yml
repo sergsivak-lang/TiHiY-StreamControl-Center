@@ -1,16 +1,14 @@
 name: Apply Ukraine Exact Patch
 
 on:
-  push:
-    branches:
-      - feature/ukraine-reference-theme-v2
+  pull_request:
+    branches: [ main ]
 
 permissions:
   contents: write
 
 jobs:
   apply:
-    if: github.event.head_commit.message == 'Add Ukraine Exact patch applicator'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout feature branch
