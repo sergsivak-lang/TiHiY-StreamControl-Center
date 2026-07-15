@@ -21,8 +21,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          base64 --decode ThemePatch.b64 > ThemePatch.zip
-          unzip -o ThemePatch.zip
+          python3 - <<'PY'
+          import base64
+          import pathlib
+          import zipfile
+
+          encoded = pathlib.Path('ThemePatch.b64').read_text(encoding='utf-8')
+          archive = pathlib.Path('ThemePatch.zip')
+          archive.write_bytes(base64.b64decode(encoded, validate=False))
+          with zipfile.ZipFile(archive) as package:
+              package.testzip()
+              package.extractall('.')
+          PY
           rm -f ThemePatch.b64 ThemePatch.zip
           rm -f .github/workflows/export-source.yml
           rm -f .github/workflows/apply-theme-patch.yml
