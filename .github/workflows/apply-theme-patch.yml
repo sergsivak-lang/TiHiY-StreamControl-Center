@@ -1,4 +1,4 @@
-name: Restore Ukraine Exact MainWindow Code
+name: Materialize Ukraine Exact Interface
 
 on:
   pull_request:
@@ -8,16 +8,16 @@ permissions:
   contents: write
 
 jobs:
-  restore-code:
+  materialize:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout feature branch
+      - name: Checkout exact feature head
         uses: actions/checkout@v4
         with:
           ref: feature/ukraine-reference-theme-v2
           fetch-depth: 0
 
-      - name: Restore MainWindow code
+      - name: Materialize real WPF code and PNG resources
         shell: bash
         run: |
           set -euo pipefail
@@ -25,34 +25,69 @@ jobs:
           import base64
           import gzip
           import hashlib
+          import io
           import pathlib
+          import tarfile
 
-          parts = pathlib.Path('ThemePatchParts')
-          a = (parts / 'MainWindow.xaml.cs.gz.b64.a').read_text(encoding='utf-8').strip()
-          b = (parts / 'MainWindow.xaml.cs.gz.b64.b').read_text(encoding='utf-8').strip()
-          print(f'part-a={len(a)} part-b={len(b)} total={len(a+b)}')
-          payload = base64.b64decode(a + b, validate=True)
-          code = gzip.decompress(payload)
-          print(f'compressed={len(payload)} output={len(code)} sha256={hashlib.sha256(code).hexdigest()}')
-          if len(code) < 50000:
-              raise RuntimeError('Restored MainWindow code is unexpectedly short')
+          root = pathlib.Path('ThemePatchParts')
+
+          def text(name):
+              value = (root / name).read_text(encoding='utf-8').strip()
+              print(f'{name}: chars={len(value)} sha256={hashlib.sha256(value.encode()).hexdigest()}')
+              return value
+
+          code_b64 = text('MainWindow.xaml.cs.gz.b64.a') + text('MainWindow.xaml.cs.gz.b64.b')
+          if len(code_b64) != 17724:
+              raise RuntimeError(f'Unexpected code Base64 length: {len(code_b64)}')
+          code = gzip.decompress(base64.b64decode(code_b64, validate=True))
+          if len(code) != 60937:
+              raise RuntimeError(f'Unexpected MainWindow.xaml.cs size: {len(code)}')
           pathlib.Path('MainWindow.xaml.cs').write_bytes(code)
+          print(f'MainWindow.xaml.cs restored: {len(code)} bytes')
+
+          assets_b64 = text('Assets-00.tar.gz.b64.a') + text('Assets-00.tar.gz.b64.b') + text('Assets-01.tar.gz.b64')
+          if len(assets_b64) != 23396:
+              raise RuntimeError(f'Unexpected assets Base64 length: {len(assets_b64)}')
+          assets = base64.b64decode(assets_b64, validate=True)
+          with tarfile.open(fileobj=io.BytesIO(assets), mode='r:gz') as archive:
+              members = archive.getmembers()
+              for member in members:
+                  item = pathlib.Path(member.name)
+                  if item.is_absolute() or '..' in item.parts:
+                      raise RuntimeError(f'Unsafe archive member: {member.name}')
+              archive.extractall('.')
+          print(f'UkraineExact archive restored: {len(members)} members')
+
+          required = {
+              'Assets/Themes/UkraineExact/footer-wheat.png': 100,
+              'Assets/Themes/UkraineExact/header-emblem.png': 100,
+              'Assets/Themes/UkraineExact/header-map.png': 100,
+              'Assets/Themes/UkraineExact/header-wheat.png': 100,
+              'Assets/Themes/UkraineExact/module-ornament.png': 100,
+              'Assets/Themes/UkraineExact/panel-corner.png': 100,
+              'Assets/Themes/UkraineExact/small-wheat.png': 100,
+          }
+          for name, minimum in required.items():
+              file = pathlib.Path(name)
+              if not file.is_file() or file.stat().st_size < minimum:
+                  raise RuntimeError(f'Missing or invalid resource: {name}')
+              print(f'{name}: {file.stat().st_size} bytes')
           PY
 
-      - name: Remove code staging files
+      - name: Remove all temporary staging files
         shell: bash
         run: |
-          rm -f ThemePatchParts/MainWindow.xaml.cs.gz.b64
-          rm -f ThemePatchParts/MainWindow.xaml.cs.gz.b64.a
-          rm -f ThemePatchParts/MainWindow.xaml.cs.gz.b64.b
+          rm -rf ThemePatchParts
+          rm -f ThemePatch.b64 ThemePatch.zip patch-ok.txt patch-diagnostic.txt reconstruct-diagnostic.txt
+          rm -f .github/workflows/export-source.yml
           rm -f .github/workflows/apply-theme-patch.yml
 
-      - name: Commit restored functional code
+      - name: Commit functional Ukraine Exact application
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Restore functional Ukraine Exact MainWindow code"
+          git commit -m "Materialize functional Ukraine Exact interface"
           git push origin HEAD:feature/ukraine-reference-theme-v2
