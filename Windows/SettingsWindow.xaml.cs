@@ -6,6 +6,7 @@ namespace TiHiY.StreamControlCenter.Windows;
 public partial class SettingsWindow : ModuleWindowBase
 {
     private readonly AppServices _services = App.Services;
+    private ComboBox? _languageCombo;
     public ObservableCollection<string> VisibleLogs { get; } = new();
 
     public SettingsWindow()
@@ -24,13 +25,79 @@ public partial class SettingsWindow : ModuleWindowBase
         if (_services.Settings.Value.RememberObsPassword) ObsPasswordBox.Password = _services.Credentials.LoadPassword();
         _services.Logger.Entries.CollectionChanged += LoggerEntries_CollectionChanged;
         _services.Obs.ConnectionChanged += Obs_ConnectionChanged;
-        Closed += (_, _) =>
-        {
-            _services.Logger.Entries.CollectionChanged -= LoggerEntries_CollectionChanged;
-            _services.Obs.ConnectionChanged -= Obs_ConnectionChanged;
-        };
+        _services.Language.LanguageChanged += Language_LanguageChanged;
+        Loaded += SettingsWindow_Loaded;
+        Closed += SettingsWindow_Closed;
         RefreshLogs();
         UpdateObsStatus(_services.Obs.IsConnected);
+    }
+
+    private void SettingsWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        InstallLanguageSelector();
+        ApplyLocalizedWindowText();
+    }
+
+    private void SettingsWindow_Closed(object? sender, EventArgs e)
+    {
+        _services.Logger.Entries.CollectionChanged -= LoggerEntries_CollectionChanged;
+        _services.Obs.ConnectionChanged -= Obs_ConnectionChanged;
+        _services.Language.LanguageChanged -= Language_LanguageChanged;
+        Loaded -= SettingsWindow_Loaded;
+        Closed -= SettingsWindow_Closed;
+    }
+
+    private void InstallLanguageSelector()
+    {
+        if (_languageCombo is not null) return;
+
+        var languageTitle = FindVisualDescendants<TextBlock>(DesignSurface)
+            .FirstOrDefault(x => x.Text.Contains("Мова програми", StringComparison.OrdinalIgnoreCase) ||
+                                 x.Text.Contains("Application language", StringComparison.OrdinalIgnoreCase));
+        if (languageTitle?.Parent is not StackPanel host) return;
+
+        _languageCombo = new ComboBox
+        {
+            MinWidth = 250,
+            MinHeight = 36,
+            Margin = new Thickness(0, 10, 0, 0),
+            ItemsSource = _services.Language.Languages,
+            DisplayMemberPath = nameof(LanguageService.LanguageInfo.DisplayName),
+            SelectedValuePath = nameof(LanguageService.LanguageInfo.Code),
+            SelectedValue = _services.Language.CurrentLanguage,
+            ToolTip = "Українська / English"
+        };
+        _languageCombo.SelectionChanged += LanguageCombo_SelectionChanged;
+        host.Children.Add(_languageCombo);
+    }
+
+    private void LanguageCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!IsLoaded || _languageCombo?.SelectedValue is not string languageCode) return;
+        _services.Language.Apply(languageCode, save: true);
+    }
+
+    private void Language_LanguageChanged(object? sender, EventArgs e) =>
+        Dispatcher.BeginInvoke(new Action(ApplyLocalizedWindowText), DispatcherPriority.Render);
+
+    private void ApplyLocalizedWindowText()
+    {
+        var english = string.Equals(_services.Language.CurrentLanguage, "en-US", StringComparison.OrdinalIgnoreCase);
+        Title = english ? "TiHiY StreamControl Center — Settings" : "TiHiY StreamControl Center — Налаштування";
+        StatusText.Text = english ? "Language applied to the application resources." : "Мову застосовано до ресурсів програми.";
+
+        if (_languageCombo is not null && !Equals(_languageCombo.SelectedValue, _services.Language.CurrentLanguage))
+            _languageCombo.SelectedValue = _services.Language.CurrentLanguage;
+    }
+
+    private static IEnumerable<T> FindVisualDescendants<T>(DependencyObject root) where T : DependencyObject
+    {
+        for (var index = 0; index < VisualTreeHelper.GetChildrenCount(root); index++)
+        {
+            var child = VisualTreeHelper.GetChild(root, index);
+            if (child is T match) yield return match;
+            foreach (var descendant in FindVisualDescendants<T>(child)) yield return descendant;
+        }
     }
 
     private void LoggerEntries_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) => Dispatcher.BeginInvoke(new Action(RefreshLogs));
