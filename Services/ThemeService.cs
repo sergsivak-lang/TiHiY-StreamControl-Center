@@ -235,65 +235,87 @@ public sealed class ThemeService
         FindDictionary(resources, "ThemePremiumAccentOpacity")["ThemePremiumAccentOpacity"] = themeName == "Україна" ? 0.72d : 0d;
     }
 
+    private static ImageSource CreateTransparentImage()
+    {
+        var image = new DrawingImage(
+            new GeometryDrawing(
+                Brushes.Transparent,
+                null,
+                new RectangleGeometry(new Rect(0, 0, 1, 1))));
+        image.Freeze();
+        return image;
+    }
+
+    private static BitmapImage LoadThemeImage(string fileName)
+    {
+        var image = new BitmapImage();
+        image.BeginInit();
+        image.UriSource = new Uri($"pack://application:,,,/TiHiY.StreamControlCenter;component/Assets/Themes/{fileName}", UriKind.Absolute);
+        image.CacheOption = BitmapCacheOption.OnLoad;
+        image.EndInit();
+        image.Freeze();
+        return image;
+    }
+
     private static void SetImageResource(ResourceDictionary resources, string key, string? fileName)
     {
         var dictionary = FindDictionary(resources, key);
         if (string.IsNullOrWhiteSpace(fileName))
         {
-            var transparent = new BitmapImage();
-            transparent.BeginInit();
-            transparent.UriSource = new Uri("pack://application:,,,/TiHiY.StreamControlCenter;component/Assets/Themes/transparent.png", UriKind.Absolute);
-            transparent.CacheOption = BitmapCacheOption.OnLoad;
-            transparent.EndInit();
-            transparent.Freeze();
-            dictionary[key] = transparent;
+            dictionary[key] = CreateTransparentImage();
             return;
         }
 
-        var image = new BitmapImage();
-        image.BeginInit();
-        image.UriSource = new Uri($"pack://application:,,,/TiHiY.StreamControlCenter;component/Assets/Themes/{fileName}", UriKind.Absolute);
-        image.CacheOption = BitmapCacheOption.OnLoad;
-        image.EndInit();
-        image.Freeze();
-        dictionary[key] = image;
+        try
+        {
+            dictionary[key] = LoadThemeImage(fileName);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Optional theme image '{fileName}' was not loaded: {ex.Message}");
+            dictionary[key] = CreateTransparentImage();
+        }
     }
 
     private static void SetTextureBrush(ResourceDictionary resources, string key, string fileName, double opacity, bool tile, Color fallback)
     {
         var dictionary = FindDictionary(resources, key);
-        var image = new BitmapImage();
-        image.BeginInit();
-        image.UriSource = new Uri($"pack://application:,,,/TiHiY.StreamControlCenter;component/Assets/Themes/{fileName}", UriKind.Absolute);
-        image.CacheOption = BitmapCacheOption.OnLoad;
-        image.EndInit();
-        image.Freeze();
-
-        var textureBrush = new ImageBrush
+        try
         {
-            ImageSource = image,
-            Stretch = tile ? Stretch.Fill : Stretch.UniformToFill,
-            TileMode = tile ? TileMode.Tile : TileMode.None,
-            ViewportUnits = tile ? BrushMappingMode.Absolute : BrushMappingMode.RelativeToBoundingBox,
-            Viewport = tile ? new Rect(0, 0, 512, 512) : new Rect(0, 0, 1, 1),
-            Opacity = opacity,
-            AlignmentX = AlignmentX.Center,
-            AlignmentY = AlignmentY.Center
-        };
-
-        var group = new DrawingBrush
-        {
-            Stretch = Stretch.Fill,
-            Drawing = new DrawingGroup
+            var image = LoadThemeImage(fileName);
+            var textureBrush = new ImageBrush
             {
-                Children =
+                ImageSource = image,
+                Stretch = tile ? Stretch.Fill : Stretch.UniformToFill,
+                TileMode = tile ? TileMode.Tile : TileMode.None,
+                ViewportUnits = tile ? BrushMappingMode.Absolute : BrushMappingMode.RelativeToBoundingBox,
+                Viewport = tile ? new Rect(0, 0, 512, 512) : new Rect(0, 0, 1, 1),
+                Opacity = opacity,
+                AlignmentX = AlignmentX.Center,
+                AlignmentY = AlignmentY.Center
+            };
+
+            var group = new DrawingBrush
+            {
+                Stretch = Stretch.Fill,
+                Drawing = new DrawingGroup
                 {
-                    new GeometryDrawing(new SolidColorBrush(fallback), null, new RectangleGeometry(new Rect(0, 0, 1, 1))),
-                    new GeometryDrawing(textureBrush, null, new RectangleGeometry(new Rect(0, 0, 1, 1)))
+                    Children =
+                    {
+                        new GeometryDrawing(new SolidColorBrush(fallback), null, new RectangleGeometry(new Rect(0, 0, 1, 1))),
+                        new GeometryDrawing(textureBrush, null, new RectangleGeometry(new Rect(0, 0, 1, 1)))
+                    }
                 }
-            }
-        };
-        dictionary[key] = group;
+            };
+            dictionary[key] = group;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Optional theme texture '{fileName}' was not loaded: {ex.Message}");
+            var fallbackBrush = new SolidColorBrush(fallback);
+            fallbackBrush.Freeze();
+            dictionary[key] = fallbackBrush;
+        }
     }
 
     private static void SetGradient(ResourceDictionary resources, string key, params Color[] colors)
