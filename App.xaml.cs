@@ -46,6 +46,8 @@ public partial class App : Application
             MainWindow = main;
             main.Show();
             UiTextLocalizer.Apply(main, Services.Language.CurrentLanguage);
+            if (!ciMode)
+                ShortcutService.EnsureDesktopShortcut(Services.Logger);
             WriteStartupStage("05 MainWindow shown");
 
             if (ciMode)
