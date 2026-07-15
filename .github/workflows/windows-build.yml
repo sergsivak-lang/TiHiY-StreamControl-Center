@@ -27,8 +27,6 @@ jobs:
             git checkout origin/agent/cyber-amber-full-ui-v3 -- Models Services Windows
           }
 
-          # Restore the monitoring files from the current Ukraine-theme branch after
-          # the legacy source snapshot has supplied the rest of Models/Services/Windows.
           git checkout HEAD -- Models/SystemMonitorSnapshot.cs Services/SystemMonitorService.cs Services/AppServices.SystemMonitor.cs
 
           $appServicesPath = "Services/AppServices.cs"
@@ -53,19 +51,19 @@ jobs:
 
       - name: Build
         shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore *> build.log
           $exitCode = $LASTEXITCODE
           if ($exitCode -ne 0) {
             $errors = Get-Content build.log | Where-Object { $_ -match ': error ' -or $_ -match 'error (CS|MC|XDG|MSB)[0-9]+' }
-            if (-not $errors) { $errors = Get-Content build.log | Select-Object -Last 80 }
-            $body = "### Windows Build failed`n```text`n" + (($errors | Select-Object -First 80) -join "`n") + "`n```"
-            Write-Host $body
-            gh pr comment 1 --body $body
+            if (-not $errors) { $errors = Get-Content build.log | Select-Object -Last 120 }
+            $errors | Set-Content -Path build-errors.txt -Encoding utf8
+            Write-Host "==== BUILD ERRORS ===="
+            Get-Content build-errors.txt | ForEach-Object { Write-Host $_ }
+            Write-Host "==== END BUILD ERRORS ===="
             exit $exitCode
           }
+          "Build completed successfully." | Set-Content -Path build-errors.txt -Encoding utf8
           Write-Host "Build completed successfully."
 
       - name: Upload build diagnostics
@@ -73,7 +71,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-diagnostics
-          path: build.log
+          path: |
+            build.log
+            build-errors.txt
+          if-no-files-found: warn
 
       - name: Publish portable Windows build
         run: dotnet publish TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish
