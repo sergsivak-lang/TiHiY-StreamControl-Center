@@ -8,11 +8,16 @@ public class ModuleWindowBase : Window
 
     public ModuleWindowBase()
     {
-        // Service windows use the same cyber button family, but remain compact.
+        HorizontalContentAlignment = HorizontalAlignment.Stretch;
+        VerticalContentAlignment = VerticalAlignment.Stretch;
+        WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+        ApplyThemeResources();
         if (Application.Current?.TryFindResource("UtilityButton") is Style utilityButton)
             Resources[typeof(Button)] = utilityButton;
 
         PreviewMouseLeftButtonDown += ModuleWindow_PreviewMouseLeftButtonDown;
+        App.Services.Theme.ThemeChanged += Theme_ThemeChanged;
     }
 
     protected void ConfigureModule(FrameworkElement designSurface, double baseWidth, double baseHeight, string placementKey)
@@ -37,6 +42,31 @@ public class ModuleWindowBase : Window
         App.Services.UiScale.Apply(_designSurface, this, _baseWidth, _baseHeight);
     }
 
+    private void ApplyThemeResources()
+    {
+        SetResourceReference(BackgroundProperty, "WindowGradient");
+        SetResourceReference(ForegroundProperty, "Text");
+        InvalidateVisual();
+    }
+
+    private void NormalizeWindowToWorkArea()
+    {
+        var workArea = SystemParameters.WorkArea;
+        MaxWidth = workArea.Width;
+        MaxHeight = workArea.Height;
+        MinWidth = Math.Min(MinWidth, workArea.Width);
+        MinHeight = Math.Min(MinHeight, workArea.Height);
+
+        if (!double.IsNaN(Width) && Width > workArea.Width)
+            Width = workArea.Width;
+        if (!double.IsNaN(Height) && Height > workArea.Height)
+            Height = workArea.Height;
+
+        if (ActualWidth > workArea.Width)
+            Width = workArea.Width;
+        if (ActualHeight > workArea.Height)
+            Height = workArea.Height;
+    }
 
     private void ModuleWindow_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
@@ -88,19 +118,38 @@ public class ModuleWindowBase : Window
     protected void MaximizeWindow(object sender, RoutedEventArgs e) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
     protected void CloseWindow(object sender, RoutedEventArgs e) => Close();
 
-    private void ModuleWindow_Loaded(object sender, RoutedEventArgs e) =>
+    private void ModuleWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        NormalizeWindowToWorkArea();
+        ApplyThemeResources();
         Dispatcher.BeginInvoke(new Action(ApplyScale), DispatcherPriority.Loaded);
+    }
 
     private void ModuleWindow_SizeChanged(object sender, SizeChangedEventArgs e) => ApplyScale();
 
     private void ModuleWindow_Closed(object? sender, EventArgs e)
     {
         App.Services.UiScale.ScaleChanged -= UiScale_ScaleChanged;
+        App.Services.Theme.ThemeChanged -= Theme_ThemeChanged;
         Loaded -= ModuleWindow_Loaded;
         SizeChanged -= ModuleWindow_SizeChanged;
         Closed -= ModuleWindow_Closed;
         PreviewMouseLeftButtonDown -= ModuleWindow_PreviewMouseLeftButtonDown;
+
+        var owner = Owner;
+        if (owner is null) return;
+        owner.Dispatcher.BeginInvoke(new Action(() =>
+        {
+            if (!owner.IsVisible) return;
+            if (owner.WindowState == WindowState.Minimized)
+                owner.WindowState = WindowState.Normal;
+            owner.Activate();
+            owner.Focus();
+        }), DispatcherPriority.ApplicationIdle);
     }
+
+    private void Theme_ThemeChanged(object? sender, EventArgs e) =>
+        Dispatcher.BeginInvoke(new Action(ApplyThemeResources), DispatcherPriority.Render);
 
     private void UiScale_ScaleChanged(object? sender, EventArgs e) =>
         Dispatcher.BeginInvoke(new Action(ApplyScale), DispatcherPriority.Loaded);
