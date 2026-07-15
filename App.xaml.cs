@@ -18,8 +18,13 @@ public partial class App : Application
     {
         var screenshotArg = e.Args.FirstOrDefault(x => x.StartsWith("--ci-screenshot=", StringComparison.OrdinalIgnoreCase));
         var screenshotPath = screenshotArg is null ? null : screenshotArg[(screenshotArg.IndexOf('=') + 1)..].Trim('"');
+        var shortcutArg = e.Args.FirstOrDefault(x => x.StartsWith("--ci-shortcut=", StringComparison.OrdinalIgnoreCase));
+        var shortcutPath = shortcutArg is null ? null : shortcutArg[(shortcutArg.IndexOf('=') + 1)..].Trim('"');
+        var languageArg = e.Args.FirstOrDefault(x => x.StartsWith("--ci-language=", StringComparison.OrdinalIgnoreCase));
+        var requestedLanguage = languageArg is null ? null : languageArg[(languageArg.IndexOf('=') + 1)..].Trim('"');
         var ciMode = !string.IsNullOrWhiteSpace(screenshotPath);
         var openSettingsInCi = e.Args.Any(x => string.Equals(x, "--ci-open-settings", StringComparison.OrdinalIgnoreCase));
+        var showThemePreviewInCi = e.Args.Any(x => string.Equals(x, "--ci-settings-theme-preview", StringComparison.OrdinalIgnoreCase));
         var applyUkraineThemeInCi = e.Args.Any(x => string.Equals(x, "--ci-apply-ukraine-theme", StringComparison.OrdinalIgnoreCase));
 
         _singleInstanceMutex = new Mutex(true, "Local\\TiHiY.StreamControlCenter.SingleInstance", out _ownsMutex);
@@ -39,6 +44,8 @@ public partial class App : Application
         {
             WriteStartupStage("01 Services construction");
             Services = new AppServices();
+            if (!string.IsNullOrWhiteSpace(requestedLanguage))
+                Services.Language.Apply(requestedLanguage, save: false);
             WriteStartupStage("02 Services initialized in memory");
             await Services.InitializeAsync();
             WriteStartupStage("03 Background services initialized");
@@ -68,10 +75,11 @@ public partial class App : Application
                 }
 
                 Window captureWindow = main;
+                TiHiY.StreamControlCenter.Windows.SettingsWindow? settingsWindow = null;
                 if (openSettingsInCi)
                 {
                     Services.Settings.Value.UiTheme = "Україна";
-                    var settings = new TiHiY.StreamControlCenter.Windows.SettingsWindow
+                    settingsWindow = new TiHiY.StreamControlCenter.Windows.SettingsWindow
                     {
                         Owner = main,
                         Width = 1140,
@@ -80,13 +88,16 @@ public partial class App : Application
                         Left = 0,
                         Top = 0
                     };
-                    settings.Show();
-                    captureWindow = settings;
+                    settingsWindow.Show();
+                    captureWindow = settingsWindow;
                     WriteStartupStage("07 SettingsWindow shown in CI");
                 }
 
                 await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
                 await Task.Delay(1000);
+
+                if (settingsWindow is not null && showThemePreviewInCi && FindVisualDescendant<TabControl>(settingsWindow) is { } tabs)
+                    tabs.SelectedIndex = 1;
 
                 // Window_Loaded performs several asynchronous refreshes. Apply the
                 // deterministic demo state only after those refreshes have finished,
@@ -95,8 +106,12 @@ public partial class App : Application
                 MainWindowVisualTuner.ApplyNow(main);
                 UiTextLocalizer.Apply(captureWindow, Services.Language.CurrentLanguage);
                 ButtonIconService.Apply(captureWindow);
+
+                if (!string.IsNullOrWhiteSpace(shortcutPath) && !ShortcutService.EnsureShortcut(shortcutPath, Services.Logger))
+                    throw new InvalidOperationException($"CI shortcut was not created: {shortcutPath}");
+
                 await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
-                await Task.Delay(250);
+                await Task.Delay(300);
 
                 SaveWindowScreenshot(captureWindow, screenshotPath!);
                 if (!ReferenceEquals(captureWindow, main)) captureWindow.Close();
@@ -123,6 +138,17 @@ public partial class App : Application
                 catch { }
             Shutdown(1);
         }
+    }
+
+    private static T? FindVisualDescendant<T>(DependencyObject root) where T : DependencyObject
+    {
+        for (var index = 0; index < VisualTreeHelper.GetChildrenCount(root); index++)
+        {
+            var child = VisualTreeHelper.GetChild(root, index);
+            if (child is T match) return match;
+            if (FindVisualDescendant<T>(child) is { } descendant) return descendant;
+        }
+        return null;
     }
 
     private static string BuildStartupErrorMessage(Exception ex, string crashFile)
