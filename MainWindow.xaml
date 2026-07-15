@@ -109,15 +109,15 @@
 
                 <!-- HEADER -->
                 <Grid Grid.Row="0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown" ClipToBounds="False">
-                    <Image Source="/TiHiY.StreamControlCenter;component/Assets/Themes/UkraineExact/header-emblem.png" Width="142" Height="156" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-8,-8,0,0" Opacity="{DynamicResource ThemePremiumAccentOpacity}" IsHitTestVisible="False" Panel.ZIndex="3"/>
-                    <Image Source="/TiHiY.StreamControlCenter;component/Assets/Themes/UkraineExact/header-wheat.png" Width="190" Height="92" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="585,-2,0,0" Opacity="{DynamicResource ThemePremiumAccentOpacity}" IsHitTestVisible="False"/>
-                    <Image Source="/TiHiY.StreamControlCenter;component/Assets/Themes/UkraineExact/header-map.png" Width="190" Height="96" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="830,-2,0,0" Opacity="{DynamicResource ThemePremiumAccentOpacity}" IsHitTestVisible="False"/>
-
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
+
+                    <Image Source="/TiHiY.StreamControlCenter;component/Assets/Themes/UkraineExact/header-emblem.png" Width="142" Height="156" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-8,-8,0,0" Opacity="{DynamicResource ThemePremiumAccentOpacity}" IsHitTestVisible="False" Panel.ZIndex="3"/>
+                    <Image Source="/TiHiY.StreamControlCenter;component/Assets/Themes/UkraineExact/header-wheat.png" Width="190" Height="92" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="585,-2,0,0" Opacity="{DynamicResource ThemePremiumAccentOpacity}" IsHitTestVisible="False"/>
+                    <Image Source="/TiHiY.StreamControlCenter;component/Assets/Themes/UkraineExact/header-map.png" Width="190" Height="96" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="830,-2,0,0" Opacity="{DynamicResource ThemePremiumAccentOpacity}" IsHitTestVisible="False"/>
 
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="150,0,0,0">
                         <StackPanel VerticalAlignment="Center">
