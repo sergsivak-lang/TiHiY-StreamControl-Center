@@ -143,8 +143,8 @@ public static class UiTextLocalizer
                 if (headeredContent.Content is string headeredContentText)
                     headeredContent.Content = Translate(headeredContentText, english);
                 break;
-            case HeaderedItemsControl headeredItems when headeredItems.Header is string headerText:
-                headeredItems.Header = Translate(headerText, english);
+            case HeaderedItemsControl headeredItems when headeredItems.Header is string itemHeaderText:
+                headeredItems.Header = Translate(itemHeaderText, english);
                 break;
             case ContentControl contentControl when contentControl.Content is string contentText:
                 contentControl.Content = Translate(contentText, english);
