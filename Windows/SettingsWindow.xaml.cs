@@ -12,7 +12,7 @@ public partial class SettingsWindow : ModuleWindowBase
     {
         InitializeComponent();
         DataContext = this;
-        ConfigureModule(DesignSurface, 1140, 730, "Settings");
+        ConfigureModule(DesignSurface, 1260, 780, "Settings");
         ObsUrlBox.Text = _services.Settings.Value.ObsUrl;
         RememberPasswordCheck.IsChecked = _services.Settings.Value.RememberObsPassword;
         AutoConnectCheck.IsChecked = _services.Settings.Value.AutoConnectObs;
@@ -35,11 +35,13 @@ public partial class SettingsWindow : ModuleWindowBase
 
     private void LoggerEntries_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) => Dispatcher.BeginInvoke(new Action(RefreshLogs));
     private void Obs_ConnectionChanged(object? sender, bool connected) => Dispatcher.BeginInvoke(new Action(() => UpdateObsStatus(connected)));
+
     private void RefreshLogs()
     {
         VisibleLogs.Clear();
         foreach (var line in _services.Logger.Entries.TakeLast(14)) VisibleLogs.Add(line);
     }
+
     private void UpdateObsStatus(bool connected)
     {
         ObsStatusText.Text = connected ? "OBS ПІДКЛЮЧЕНО" : "OBS не підключено";
@@ -77,7 +79,9 @@ public partial class SettingsWindow : ModuleWindowBase
             MessageBox.Show(this, ex.Message, "OBS WebSocket", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
+
     private async void Disconnect_Click(object sender, RoutedEventArgs e) => await _services.Obs.DisconnectAsync();
+
     private void ForgetPassword_Click(object sender, RoutedEventArgs e)
     {
         _services.Credentials.DeletePassword();
@@ -95,8 +99,22 @@ public partial class SettingsWindow : ModuleWindowBase
         ScaleText.Text = _services.UiScale.Auto ? "АВТО" : $"{_services.UiScale.Percent}%";
         _services.Save();
     }
-    private void ScaleDown_Click(object sender, RoutedEventArgs e) { _services.UiScale.Decrease(); AutoScaleCheck.IsChecked = false; ScaleText.Text = $"{_services.UiScale.Percent}%"; _services.Save(); }
-    private void ScaleUp_Click(object sender, RoutedEventArgs e) { _services.UiScale.Increase(); AutoScaleCheck.IsChecked = false; ScaleText.Text = $"{_services.UiScale.Percent}%"; _services.Save(); }
+
+    private void ScaleDown_Click(object sender, RoutedEventArgs e)
+    {
+        _services.UiScale.Decrease();
+        AutoScaleCheck.IsChecked = false;
+        ScaleText.Text = $"{_services.UiScale.Percent}%";
+        _services.Save();
+    }
+
+    private void ScaleUp_Click(object sender, RoutedEventArgs e)
+    {
+        _services.UiScale.Increase();
+        AutoScaleCheck.IsChecked = false;
+        ScaleText.Text = $"{_services.UiScale.Percent}%";
+        _services.Save();
+    }
 
     private void ThemeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -167,14 +185,61 @@ public partial class SettingsWindow : ModuleWindowBase
         StatusText.Text = "Стандартний макет буде відновлено після повторного відкриття головного вікна.";
     }
 
-    private void ClearLog_Click(object sender, RoutedEventArgs e) { _services.Logger.Entries.Clear(); RefreshLogs(); }
+    private void OpenChannelsWindow_Click(object sender, RoutedEventArgs e) =>
+        _services.Windows.Show(() => new ChannelConnectionsWindow(), this);
+
+    private void OpenYouTubeSettingsWindow_Click(object sender, RoutedEventArgs e) =>
+        _services.Windows.Show(() => new YouTubeStreamSettingsWindow(), this);
+
+    private void OpenNotificationsWindow_Click(object sender, RoutedEventArgs e) =>
+        _services.Windows.Show(() => new StreamNotificationsWindow(), this);
+
+    private void OpenDonatelloWindow_Click(object sender, RoutedEventArgs e) =>
+        _services.Windows.Show(() => new DonatelloWindow(), this);
+
+    private void OpenMusicWindow_Click(object sender, RoutedEventArgs e) =>
+        _services.Windows.Show(() => new MusicWindow(), this);
+
+    private void OpenOverlayWindow_Click(object sender, RoutedEventArgs e) =>
+        _services.Windows.Show(() => new OverlaySettingsWindow(), this);
+
+    private void OpenBroadcastDashboard_Click(object sender, RoutedEventArgs e)
+    {
+        const string dashboardUrl = "https://studio.youtube.com/channel/UC4-t_7-LD_E15LXazQmsq_g/livestreaming/dashboard";
+        try
+        {
+            Process.Start(new ProcessStartInfo { FileName = dashboardUrl, UseShellExecute = true });
+            StatusText.Text = "Відкрито YouTube Studio Live Dashboard.";
+        }
+        catch (Exception ex)
+        {
+            _services.Logger.Error("Відкриття YouTube Studio Live Dashboard", ex);
+            StatusText.Text = "Не вдалося відкрити YouTube Studio.";
+        }
+    }
+
+    private void ClearLog_Click(object sender, RoutedEventArgs e)
+    {
+        _services.Logger.Entries.Clear();
+        RefreshLogs();
+    }
+
     private void OpenLogs_Click(object sender, RoutedEventArgs e) => OpenFolder(_services.Logger.Folder);
     private void OpenSettingsFolder_Click(object sender, RoutedEventArgs e) => OpenFolder(_services.SettingsService.Folder);
+
     private void OpenFolder(string path)
     {
-        try { Directory.CreateDirectory(path); Process.Start(new ProcessStartInfo(path) { UseShellExecute = true }); }
-        catch (Exception ex) { _services.Logger.Error("Відкриття папки", ex); }
+        try
+        {
+            Directory.CreateDirectory(path);
+            Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            _services.Logger.Error("Відкриття папки", ex);
+        }
     }
+
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => DragTitle(sender, e);
     private void Minimize_Click(object sender, RoutedEventArgs e) => MinimizeWindow(sender, e);
     private void Maximize_Click(object sender, RoutedEventArgs e) => MaximizeWindow(sender, e);
