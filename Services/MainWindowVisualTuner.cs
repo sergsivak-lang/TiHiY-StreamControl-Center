@@ -8,6 +8,7 @@ public static class MainWindowVisualTuner
     {
         private readonly MainWindow _window;
         private readonly DispatcherTimer _guardTimer;
+        private bool _footerLayoutInitialized;
         private bool _disposed;
 
         public Controller(MainWindow window)
@@ -28,7 +29,12 @@ public static class MainWindowVisualTuner
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) => ApplyNow();
-        private void Window_SizeChanged(object sender, SizeChangedEventArgs e) => ApplyNow();
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            TunePatrioticCard();
+            TuneAidaCard();
+            TuneSystemStatusCard();
+        }
         private void GuardTimer_Tick(object? sender, EventArgs e)
         {
             EnforceAidaHeader();
@@ -39,30 +45,58 @@ public static class MainWindowVisualTuner
         public void ApplyNow()
         {
             if (_disposed) return;
-            TuneFooterLayout();
+            InitializeFooterLayoutOnce();
             TunePatrioticCard();
             TuneAidaCard();
+            TuneSystemStatusCard();
             EnforceAidaHeader();
             UpdateEmptyStates();
         }
 
-        private void TuneFooterLayout()
+        private void InitializeFooterLayoutOnce()
         {
+            if (_footerLayoutInitialized) return;
+            _footerLayoutInitialized = true;
+
+            var settings = App.Services.Settings.Value;
+            if (settings.DashboardLayoutVersion >= 20) return;
+
+            settings.FooterHeight = 165;
+            settings.FooterSystemColumnWeight = 0.32;
+            settings.FooterEventsColumnWeight = 0.25;
+            settings.FooterMonitorColumnWeight = 0.43;
+            settings.DashboardLayoutVersion = 20;
+            App.Services.Save();
+
             var footerGrid = FindNamed<Grid>("FooterBlocksGrid");
             if (footerGrid is not null && footerGrid.ColumnDefinitions.Count >= 5)
             {
-                footerGrid.ColumnDefinitions[0].Width = new GridLength(0.32, GridUnitType.Star);
-                footerGrid.ColumnDefinitions[2].Width = new GridLength(0.25, GridUnitType.Star);
-                footerGrid.ColumnDefinitions[4].Width = new GridLength(0.43, GridUnitType.Star);
+                footerGrid.ColumnDefinitions[0].Width = new GridLength(settings.FooterSystemColumnWeight, GridUnitType.Star);
+                footerGrid.ColumnDefinitions[2].Width = new GridLength(settings.FooterEventsColumnWeight, GridUnitType.Star);
+                footerGrid.ColumnDefinitions[4].Width = new GridLength(settings.FooterMonitorColumnWeight, GridUnitType.Star);
             }
 
             var designSurface = FindNamed<Grid>("DesignSurface");
             if (designSurface is not null && designSurface.RowDefinitions.Count >= 5)
             {
-                designSurface.RowDefinitions[4].Height = new GridLength(165, GridUnitType.Pixel);
+                designSurface.RowDefinitions[4].Height = new GridLength(settings.FooterHeight, GridUnitType.Pixel);
                 designSurface.RowDefinitions[4].MinHeight = 150;
                 designSurface.RowDefinitions[4].MaxHeight = 230;
             }
+        }
+
+        private void TuneSystemStatusCard()
+        {
+            if (FindNamed<TextBlock>("CpuLoadMonitorText")?.Parent is not StackPanel metricsStack ||
+                metricsStack.Parent is not Grid systemGrid || systemGrid.ColumnDefinitions.Count < 3)
+                return;
+
+            systemGrid.ColumnDefinitions[0].Width = new GridLength(1.35, GridUnitType.Star);
+            systemGrid.ColumnDefinitions[1].Width = new GridLength(0.65, GridUnitType.Star);
+            systemGrid.ColumnDefinitions[2].Width = new GridLength(90, GridUnitType.Pixel);
+
+            foreach (var text in metricsStack.Children.OfType<TextBlock>())
+                text.FontSize = text.FontWeight == FontWeights.Bold ? 10 : 9;
         }
 
         private void TunePatrioticCard()
@@ -92,7 +126,7 @@ public static class MainWindowVisualTuner
                 emblem.Height = 66;
                 emblem.VerticalAlignment = VerticalAlignment.Top;
                 emblem.HorizontalAlignment = HorizontalAlignment.Center;
-                emblem.Margin = new Thickness(0, 0, 0, 0);
+                emblem.Margin = new Thickness(0);
             }
 
             if (FindAncestor<ContentControl>(cardGrid) is { } card)
