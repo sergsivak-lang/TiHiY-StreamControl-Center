@@ -122,6 +122,7 @@ public class ModuleWindowBase : Window
     {
         NormalizeWindowToWorkArea();
         ApplyThemeResources();
+        UiTextLocalizer.Apply(this, App.Services.Language.CurrentLanguage);
         Dispatcher.BeginInvoke(new Action(ApplyScale), DispatcherPriority.Loaded);
     }
 
