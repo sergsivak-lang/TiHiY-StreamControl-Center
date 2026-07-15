@@ -7,14 +7,17 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
     runs-on: windows-latest
     steps:
-      - name: Checkout
+      - name: Checkout branch head
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 0
 
       - name: Verify WPF source tree
         shell: pwsh
@@ -30,6 +33,7 @@ jobs:
             "Services/ObsWebSocketService.cs",
             "Services/YouTubeService.cs",
             "Services/ResponsiveBlockService.cs",
+            "Services/ThemeService.cs",
             "Models/DonationEvent.cs",
             "Windows/JournalWindow.xaml",
             "Windows/JournalWindow.xaml.cs"
@@ -40,6 +44,175 @@ jobs:
             }
           }
           Write-Host "Complete WPF source tree verified."
+
+      - name: Harden optional theme image loading
+        shell: python {0}
+        run: |
+          from pathlib import Path
+
+          path = Path("Services/ThemeService.cs")
+          text = path.read_text(encoding="utf-8")
+
+          old_image = '''    private static void SetImageResource(ResourceDictionary resources, string key, string? fileName)
+              {
+                  var dictionary = FindDictionary(resources, key);
+                  if (string.IsNullOrWhiteSpace(fileName))
+                  {
+                      var transparent = new BitmapImage();
+                      transparent.BeginInit();
+                      transparent.UriSource = new Uri("pack://application:,,,/TiHiY.StreamControlCenter;component/Assets/Themes/transparent.png", UriKind.Absolute);
+                      transparent.CacheOption = BitmapCacheOption.OnLoad;
+                      transparent.EndInit();
+                      transparent.Freeze();
+                      dictionary[key] = transparent;
+                      return;
+                  }
+
+                  var image = new BitmapImage();
+                  image.BeginInit();
+                  image.UriSource = new Uri($"pack://application:,,,/TiHiY.StreamControlCenter;component/Assets/Themes/{fileName}", UriKind.Absolute);
+                  image.CacheOption = BitmapCacheOption.OnLoad;
+                  image.EndInit();
+                  image.Freeze();
+                  dictionary[key] = image;
+              }
+          '''
+
+          new_image = '''    private static ImageSource CreateTransparentImage()
+              {
+                  var image = new DrawingImage(
+                      new GeometryDrawing(
+                          Brushes.Transparent,
+                          null,
+                          new RectangleGeometry(new Rect(0, 0, 1, 1))));
+                  image.Freeze();
+                  return image;
+              }
+
+              private static BitmapImage LoadThemeImage(string fileName)
+              {
+                  var image = new BitmapImage();
+                  image.BeginInit();
+                  image.UriSource = new Uri($"pack://application:,,,/TiHiY.StreamControlCenter;component/Assets/Themes/{fileName}", UriKind.Absolute);
+                  image.CacheOption = BitmapCacheOption.OnLoad;
+                  image.EndInit();
+                  image.Freeze();
+                  return image;
+              }
+
+              private static void SetImageResource(ResourceDictionary resources, string key, string? fileName)
+              {
+                  var dictionary = FindDictionary(resources, key);
+                  if (string.IsNullOrWhiteSpace(fileName))
+                  {
+                      dictionary[key] = CreateTransparentImage();
+                      return;
+                  }
+
+                  try
+                  {
+                      dictionary[key] = LoadThemeImage(fileName);
+                  }
+                  catch (Exception ex)
+                  {
+                      System.Diagnostics.Debug.WriteLine($"Optional theme image '{fileName}' was not loaded: {ex.Message}");
+                      dictionary[key] = CreateTransparentImage();
+                  }
+              }
+          '''
+
+          old_texture = '''    private static void SetTextureBrush(ResourceDictionary resources, string key, string fileName, double opacity, bool tile, Color fallback)
+              {
+                  var dictionary = FindDictionary(resources, key);
+                  var image = new BitmapImage();
+                  image.BeginInit();
+                  image.UriSource = new Uri($"pack://application:,,,/TiHiY.StreamControlCenter;component/Assets/Themes/{fileName}", UriKind.Absolute);
+                  image.CacheOption = BitmapCacheOption.OnLoad;
+                  image.EndInit();
+                  image.Freeze();
+
+                  var textureBrush = new ImageBrush
+                  {
+                      ImageSource = image,
+                      Stretch = tile ? Stretch.Fill : Stretch.UniformToFill,
+                      TileMode = tile ? TileMode.Tile : TileMode.None,
+                      ViewportUnits = tile ? BrushMappingMode.Absolute : BrushMappingMode.RelativeToBoundingBox,
+                      Viewport = tile ? new Rect(0, 0, 512, 512) : new Rect(0, 0, 1, 1),
+                      Opacity = opacity,
+                      AlignmentX = AlignmentX.Center,
+                      AlignmentY = AlignmentY.Center
+                  };
+
+                  var group = new DrawingBrush
+                  {
+                      Stretch = Stretch.Fill,
+                      Drawing = new DrawingGroup
+                      {
+                          Children =
+                          {
+                              new GeometryDrawing(new SolidColorBrush(fallback), null, new RectangleGeometry(new Rect(0, 0, 1, 1))),
+                              new GeometryDrawing(textureBrush, null, new RectangleGeometry(new Rect(0, 0, 1, 1)))
+                          }
+                      }
+                  };
+                  dictionary[key] = group;
+              }
+          '''
+
+          new_texture = '''    private static void SetTextureBrush(ResourceDictionary resources, string key, string fileName, double opacity, bool tile, Color fallback)
+              {
+                  var dictionary = FindDictionary(resources, key);
+                  try
+                  {
+                      var image = LoadThemeImage(fileName);
+                      var textureBrush = new ImageBrush
+                      {
+                          ImageSource = image,
+                          Stretch = tile ? Stretch.Fill : Stretch.UniformToFill,
+                          TileMode = tile ? TileMode.Tile : TileMode.None,
+                          ViewportUnits = tile ? BrushMappingMode.Absolute : BrushMappingMode.RelativeToBoundingBox,
+                          Viewport = tile ? new Rect(0, 0, 512, 512) : new Rect(0, 0, 1, 1),
+                          Opacity = opacity,
+                          AlignmentX = AlignmentX.Center,
+                          AlignmentY = AlignmentY.Center
+                      };
+
+                      var group = new DrawingBrush
+                      {
+                          Stretch = Stretch.Fill,
+                          Drawing = new DrawingGroup
+                          {
+                              Children =
+                              {
+                                  new GeometryDrawing(new SolidColorBrush(fallback), null, new RectangleGeometry(new Rect(0, 0, 1, 1))),
+                                  new GeometryDrawing(textureBrush, null, new RectangleGeometry(new Rect(0, 0, 1, 1)))
+                              }
+                          }
+                      };
+                      dictionary[key] = group;
+                  }
+                  catch (Exception ex)
+                  {
+                      System.Diagnostics.Debug.WriteLine($"Optional theme texture '{fileName}' was not loaded: {ex.Message}");
+                      var fallbackBrush = new SolidColorBrush(fallback);
+                      fallbackBrush.Freeze();
+                      dictionary[key] = fallbackBrush;
+                  }
+              }
+          '''
+
+          if "CreateTransparentImage()" not in text:
+              if old_image not in text:
+                  raise SystemExit("SetImageResource block was not found; refusing an unsafe source rewrite.")
+              text = text.replace(old_image, new_image, 1)
+
+          if "Optional theme texture" not in text:
+              if old_texture not in text:
+                  raise SystemExit("SetTextureBrush block was not found; refusing an unsafe source rewrite.")
+              text = text.replace(old_texture, new_texture, 1)
+
+          path.write_text(text, encoding="utf-8")
+          print("ThemeService optional asset fallbacks are present.")
 
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
@@ -164,3 +337,19 @@ jobs:
           name: TiHiY-StreamControl-Center-Screenshot
           path: preview/**
           if-no-files-found: warn
+
+      - name: Persist verified ThemeService fix
+        if: success()
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Services/ThemeService.cs
+          git diff --cached --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m "Handle missing optional theme images safely"
+            $targetBranch = "${{ github.head_ref || github.ref_name }}"
+            git push origin "HEAD:$targetBranch"
+          } else {
+            Write-Host "ThemeService fallback fix is already committed."
+          }
