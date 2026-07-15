@@ -124,6 +124,8 @@ public class ModuleWindowBase : Window
         ApplyThemeResources();
         UiTextLocalizer.Apply(this, App.Services.Language.CurrentLanguage);
         ButtonIconService.Apply(this);
+        if (this is TiHiY.StreamControlCenter.Windows.SettingsWindow settingsWindow)
+            _ = SettingsWindowVisualTuner.Attach(settingsWindow);
         Dispatcher.BeginInvoke(new Action(ApplyScale), DispatcherPriority.Loaded);
     }
 
