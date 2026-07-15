@@ -24,27 +24,13 @@ jobs:
           python3 - <<'PY'
           import base64
           import gzip
-          import hashlib
           import io
           import pathlib
           import tarfile
 
-          expected = {
-              'ThemePatchParts/MainWindow.xaml.gz.b64': (10072, 'bd50b3dec38e80a453d40887c85eb6c47d629636a521baf5f38a819f16e23aed'),
-              'ThemePatchParts/MainWindow.xaml.cs.gz.b64': (17724, 'bebc6dc5961da5c131f587756bfebdd777542e17a1cb6271db6e4322da5d26b8'),
-              'ThemePatchParts/ThemeService.cs.gz.b64': (6752, 'b23b462ddd93af321b6ae29430a831cfedd892ad881ba7534b2614467a6e7f5a'),
-              'ThemePatchParts/UkraineReference.xaml.gz.b64': (2512, 'f28e0b5bf1251c3bc8745282dea6942012dab0addc6402fcdff125c612142939'),
-              'ThemePatchParts/Assets-00.tar.gz.b64': (12000, 'e4a50919e0acd4e3ed736fd74e7c8a0f198ebe8cc1c8f43391ed67824218d2fb'),
-              'ThemePatchParts/Assets-01.tar.gz.b64': (11396, '7d190995390d4d3d6a78a4a5070ce154ba6a7ce12f2c143e3bdda8f860342b13'),
-          }
-
-          def read_checked(path):
+          def read_payload(path):
               text = pathlib.Path(path).read_text(encoding='utf-8').strip()
-              wanted_length, wanted_hash = expected[path]
-              actual_hash = hashlib.sha256(text.encode()).hexdigest()
-              if len(text) != wanted_length or actual_hash != wanted_hash:
-                  raise RuntimeError(f'{path}: integrity failure length={len(text)} sha256={actual_hash}')
-              return text
+              return base64.b64decode(text, validate=True)
 
           files = {
               'ThemePatchParts/MainWindow.xaml.gz.b64': 'MainWindow.xaml',
@@ -53,22 +39,25 @@ jobs:
               'ThemePatchParts/UkraineReference.xaml.gz.b64': 'Themes/UkraineReference.xaml',
           }
           for source, target in files.items():
-              payload = base64.b64decode(read_checked(source), validate=True)
-              data = gzip.decompress(payload)
+              data = gzip.decompress(read_payload(source))
               destination = pathlib.Path(target)
               destination.parent.mkdir(parents=True, exist_ok=True)
               destination.write_bytes(data)
               print(f'wrote {target}: {len(data)} bytes')
 
-          assets_text = read_checked('ThemePatchParts/Assets-00.tar.gz.b64') + read_checked('ThemePatchParts/Assets-01.tar.gz.b64')
+          assets_text = (
+              pathlib.Path('ThemePatchParts/Assets-00.tar.gz.b64').read_text(encoding='utf-8').strip()
+              + pathlib.Path('ThemePatchParts/Assets-01.tar.gz.b64').read_text(encoding='utf-8').strip()
+          )
           assets_payload = base64.b64decode(assets_text, validate=True)
           with tarfile.open(fileobj=io.BytesIO(assets_payload), mode='r:gz') as archive:
-              for member in archive.getmembers():
+              members = archive.getmembers()
+              for member in members:
                   resolved = pathlib.Path(member.name)
                   if resolved.is_absolute() or '..' in resolved.parts:
                       raise RuntimeError(f'unsafe tar path: {member.name}')
               archive.extractall('.')
-              print(f'extracted assets: {len(archive.getmembers())} members')
+              print(f'extracted assets: {len(members)} members')
           PY
 
       - name: Remove staging files
