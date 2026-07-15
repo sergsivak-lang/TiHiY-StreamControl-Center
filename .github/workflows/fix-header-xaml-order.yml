@@ -1,0 +1,70 @@
+name: Fix Header XAML Property Order
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/ukraine-reference-theme-v2
+          fetch-depth: 0
+
+      - name: Move header column definitions after content
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('MainWindow.xaml')
+          text = path.read_text(encoding='utf-8')
+          definitions = '''                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+'''
+          if definitions not in text:
+              raise RuntimeError('Header column definition block was not found')
+          text = text.replace(definitions, '', 1)
+          marker = '''                    </StackPanel>
+                </Grid>
+
+                <!-- STATUS + MAIN ACTIONS -->'''
+          replacement = '''                    </StackPanel>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                </Grid>
+
+                <!-- STATUS + MAIN ACTIONS -->'''
+          if marker not in text:
+              raise RuntimeError('Header closing marker was not found')
+          text = text.replace(marker, replacement, 1)
+          path.write_text(text, encoding='utf-8', newline='\n')
+          PY
+
+      - name: Remove temporary workflow
+        shell: bash
+        run: rm -f .github/workflows/fix-header-xaml-order.yml
+
+      - name: Commit XAML correction
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Fix header XAML property element order"
+          git push origin HEAD:feature/ukraine-reference-theme-v2
