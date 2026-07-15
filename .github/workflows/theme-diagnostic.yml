@@ -1,0 +1,48 @@
+name: Theme Diagnostic
+
+on:
+  push:
+    branches: [ "agent/**" ]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose-theme:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reconstruct and inspect CyberAmber theme
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path theme-diagnostic | Out-Null
+          $parts = Get-ChildItem "ThemeSupport/CyberAmber.xaml.b64.*" | Sort-Object Name
+          "Parts: $($parts.Count)" | Set-Content theme-diagnostic/report.txt -Encoding utf8
+          foreach ($part in $parts) {
+            "$($part.Name): length=$((Get-Content $part.FullName -Raw).Length), sha256=$((Get-FileHash $part.FullName -Algorithm SHA256).Hash.ToLowerInvariant())" | Add-Content theme-diagnostic/report.txt
+          }
+
+          $base64 = ($parts | ForEach-Object { (Get-Content $_.FullName -Raw).Trim() }) -join ''
+          "Combined base64 length: $($base64.Length)" | Add-Content theme-diagnostic/report.txt
+          [IO.File]::WriteAllBytes("theme-diagnostic/CyberAmber.xaml", [Convert]::FromBase64String($base64))
+
+          $actualHash = (Get-FileHash "theme-diagnostic/CyberAmber.xaml" -Algorithm SHA256).Hash.ToLowerInvariant()
+          "Decoded byte length: $((Get-Item theme-diagnostic/CyberAmber.xaml).Length)" | Add-Content theme-diagnostic/report.txt
+          "Decoded SHA256: $actualHash" | Add-Content theme-diagnostic/report.txt
+
+          try {
+            [xml](Get-Content "theme-diagnostic/CyberAmber.xaml" -Raw) | Out-Null
+            "XML parse: success" | Add-Content theme-diagnostic/report.txt
+          } catch {
+            "XML parse: failure - $($_.Exception.Message)" | Add-Content theme-diagnostic/report.txt
+          }
+
+          Get-Content theme-diagnostic/report.txt | ForEach-Object { Write-Host $_ }
+
+      - name: Upload theme diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: CyberAmber-theme-diagnostic
+          path: theme-diagnostic/**
