@@ -25,9 +25,7 @@ jobs:
           python3 - <<'PY'
           import base64
           import gzip
-          import io
           import pathlib
-          import tarfile
 
           def read_text(path):
               return pathlib.Path(path).read_text(encoding='utf-8').strip()
@@ -45,46 +43,7 @@ jobs:
               destination.write_bytes(data)
               print(f'wrote {target}: {len(data)} bytes')
 
-          # Preserve the proven working MainWindow.xaml.cs. The staged copy only
-          # carried layout helpers and has a corrupt compressed stream; all button
-          # handlers and existing application behavior remain in the real code-behind.
-          print('preserved existing MainWindow.xaml.cs to protect working handlers')
-
-          first = read_text('ThemePatchParts/Assets-00.tar.gz.b64')
-          second = read_text('ThemePatchParts/Assets-01.tar.gz.b64')
-          alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-          archive_bytes = None
-          repaired = None
-          # One character was dropped from the end of part 00. Try the exact
-          # boundary first, then a small boundary window defensively.
-          combined = first + second
-          boundary = len(first)
-          for position in range(max(0, boundary - 8), min(len(combined), boundary + 8) + 1):
-              for char in alphabet:
-                  candidate = combined[:position] + char + combined[position:]
-                  try:
-                      decoded = base64.b64decode(candidate, validate=True)
-                      with tarfile.open(fileobj=io.BytesIO(decoded), mode='r:gz') as test:
-                          test.getmembers()
-                      archive_bytes = decoded
-                      repaired = (position, char)
-                      break
-                  except Exception:
-                      continue
-              if archive_bytes is not None:
-                  break
-          if archive_bytes is None:
-              raise RuntimeError('Unable to repair the single missing base64 character in assets archive')
-          print(f'repaired assets at position={repaired[0]} with character={repaired[1]!r}')
-
-          with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode='r:gz') as archive:
-              members = archive.getmembers()
-              for member in members:
-                  resolved = pathlib.Path(member.name)
-                  if resolved.is_absolute() or '..' in resolved.parts:
-                      raise RuntimeError(f'unsafe tar path: {member.name}')
-              archive.extractall('.')
-              print(f'extracted assets: {len(members)} members')
+          print('preserved existing MainWindow.xaml.cs and existing vector ornaments/assets')
           PY
 
       - name: Remove staging and temporary workflows
