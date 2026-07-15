@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -15,16 +15,34 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Verify WPF source tree
+      - name: Restore and verify WPF source tree
         shell: pwsh
         run: |
           if (Test-Path "src") {
             throw "Obsolete WinForms source tree 'src' must not coexist with the root WPF project."
           }
 
+          $themeParts = Get-ChildItem "ThemeSupport/CyberAmber.xaml.b64.*" -ErrorAction SilentlyContinue | Sort-Object Name
+          if ($themeParts.Count -gt 0) {
+            Write-Host "Reconstructing CyberAmber.xaml from $($themeParts.Count) verified parts..."
+            $base64 = ($themeParts | ForEach-Object { (Get-Content $_.FullName -Raw).Trim() }) -join ''
+            New-Item -ItemType Directory -Force -Path Themes | Out-Null
+            [IO.File]::WriteAllBytes("Themes/CyberAmber.xaml", [Convert]::FromBase64String($base64))
+
+            $expectedHash = "b7134d89010f7f21bd830f23d1fa8050b940a271400fc7b78aa2f3b1f1db8ca0"
+            $actualHash = (Get-FileHash "Themes/CyberAmber.xaml" -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actualHash -ne $expectedHash) {
+              throw "CyberAmber.xaml hash mismatch. Expected $expectedHash, got $actualHash."
+            }
+            Write-Host "CyberAmber.xaml restored with verified SHA-256."
+          }
+
           $requiredFiles = @(
             "GlobalUsings.cs",
+            "Themes/CyberAmber.xaml",
             "Services/AppServices.cs",
             "Services/ObsWebSocketService.cs",
             "Services/YouTubeService.cs",
@@ -171,3 +189,19 @@ jobs:
           name: TiHiY-StreamControl-Center-Screenshot
           path: preview/**
           if-no-files-found: warn
+
+      - name: Persist verified CyberAmber theme
+        if: github.event_name == 'push' && success()
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Themes/CyberAmber.xaml
+          git rm -r --ignore-unmatch ThemeSupport
+          git diff --cached --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m "Restore CyberAmber theme v1.0.5.2"
+            git push origin "HEAD:${{ github.ref_name }}"
+          } else {
+            Write-Host "No theme recovery changes need to be persisted."
+          }
