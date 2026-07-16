@@ -1,8 +1,7 @@
 namespace TiHiY.StreamControlCenter.Services;
 
 /// <summary>
-/// Small platform logo rendered as WPF vectors. It remains readable inside
-/// 18–28 px chat badges and does not depend on bitmap decoding or DPI scaling.
+/// DPI-independent platform logo used in compact counters, chat rows and buttons.
 /// </summary>
 internal sealed class PlatformVectorIcon : FrameworkElement
 {
@@ -24,7 +23,7 @@ internal sealed class PlatformVectorIcon : FrameworkElement
         Point P(double x, double y) => new(left + x * size, top + y * size);
         var white = Brushes.White;
         var gold = new SolidColorBrush(Color.FromRgb(255, 210, 41));
-        var pen = new Pen(white, Math.Max(1.2, size * 0.085))
+        var pen = new Pen(white, Math.Max(1.2, size * 0.075))
         {
             StartLineCap = PenLineCap.Round,
             EndLineCap = PenLineCap.Round,
@@ -35,32 +34,43 @@ internal sealed class PlatformVectorIcon : FrameworkElement
         {
             case "YOUTUBE":
             {
+                var red = new SolidColorBrush(Color.FromRgb(255, 0, 51));
+                dc.DrawRoundedRectangle(red, null,
+                    new Rect(P(.08, .20), P(.92, .80)), size * .16, size * .16);
                 var play = new StreamGeometry();
-                using var ctx = play.Open();
-                ctx.BeginFigure(P(.37, .25), true, true);
-                ctx.LineTo(P(.78, .50), true, false);
-                ctx.LineTo(P(.37, .75), true, false);
+                using (var ctx = play.Open())
+                {
+                    ctx.BeginFigure(P(.41, .32), true, true);
+                    ctx.LineTo(P(.72, .50), true, false);
+                    ctx.LineTo(P(.41, .68), true, false);
+                }
                 play.Freeze();
                 dc.DrawGeometry(white, null, play);
                 break;
             }
             case "TWITCH":
             {
+                var purple = new SolidColorBrush(Color.FromRgb(145, 71, 255));
                 var bubble = new StreamGeometry();
                 using (var ctx = bubble.Open())
                 {
-                    ctx.BeginFigure(P(.18, .18), false, true);
-                    ctx.LineTo(P(.82, .18), true, false);
-                    ctx.LineTo(P(.82, .66), true, false);
-                    ctx.LineTo(P(.62, .84), true, false);
-                    ctx.LineTo(P(.48, .84), true, false);
-                    ctx.LineTo(P(.48, .72), true, false);
-                    ctx.LineTo(P(.18, .72), true, false);
+                    ctx.BeginFigure(P(.12, .12), true, true);
+                    ctx.LineTo(P(.88, .12), true, false);
+                    ctx.LineTo(P(.88, .66), true, false);
+                    ctx.LineTo(P(.65, .88), true, false);
+                    ctx.LineTo(P(.48, .88), true, false);
+                    ctx.LineTo(P(.48, .75), true, false);
+                    ctx.LineTo(P(.12, .75), true, false);
                 }
                 bubble.Freeze();
-                dc.DrawGeometry(null, pen, bubble);
-                dc.DrawLine(pen, P(.40, .34), P(.40, .55));
-                dc.DrawLine(pen, P(.62, .34), P(.62, .55));
+                dc.DrawGeometry(purple, null, bubble);
+                var innerPen = new Pen(white, Math.Max(1.25, size * .075))
+                {
+                    StartLineCap = PenLineCap.Square,
+                    EndLineCap = PenLineCap.Square
+                };
+                dc.DrawLine(innerPen, P(.40, .31), P(.40, .57));
+                dc.DrawLine(innerPen, P(.64, .31), P(.64, .57));
                 break;
             }
             case "DONATELLO":
@@ -78,7 +88,8 @@ internal sealed class PlatformVectorIcon : FrameworkElement
             }
             case "DISCORD":
             {
-                dc.DrawRoundedRectangle(null, pen, new Rect(P(.18, .28), P(.82, .72)), size * .12, size * .12);
+                var violet = new SolidColorBrush(Color.FromRgb(88, 101, 242));
+                dc.DrawRoundedRectangle(violet, null, new Rect(P(.10, .22), P(.90, .78)), size * .16, size * .16);
                 dc.DrawEllipse(white, null, P(.39, .49), size * .055, size * .055);
                 dc.DrawEllipse(white, null, P(.61, .49), size * .055, size * .055);
                 dc.DrawLine(pen, P(.37, .64), P(.50, .69));
