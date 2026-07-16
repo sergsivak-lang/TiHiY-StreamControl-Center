@@ -46,7 +46,7 @@ public partial class LocalChatOverlayWindow : Window
         SetClickThrough(settings.LocalChatOverlayClickThrough);
         FontSize = Math.Clamp(settings.LocalChatOverlayFontSize, 11, 42);
         Resources["LocalOverlayTextBrush"] = BrushFrom(settings.LocalChatOverlayTextColor, "#F2FAFF");
-        Resources["LocalOverlayUserBrush"] = BrushFrom(settings.LocalChatOverlayUserColor, "#FFD329");
+        Resources["LocalOverlayUserBrush"] = BrushFrom(settings.LocalChatOverlayUserColor, "#55C8FF");
 
         var statsFont = Math.Clamp(FontSize * 0.65, 9, 20);
         ViewerStatsBar.SetValue(System.Windows.Documents.TextElement.FontSizeProperty, statsFont);
