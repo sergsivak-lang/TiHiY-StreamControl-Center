@@ -10,9 +10,11 @@ public partial class ChatAppearanceSettingsWindow : ModuleWindowBase
 
     public ChatAppearanceSettingsWindow()
     {
+        _loading = true;
         InitializeComponent();
         ConfigureModule(DesignSurface, 1156, 766, "ChatAppearanceSettings");
         LoadSettings();
+        _loading = false;
         UpdateValues();
         UpdatePreview();
         UpdateUrl();
@@ -89,14 +91,19 @@ public partial class ChatAppearanceSettingsWindow : ModuleWindowBase
 
     private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        if (_loading || MainFontValue is null) return;
+        if (_loading || !IsInitialized || MainFontValue is null || InputFontValue is null ||
+            InputHeightValue is null || StreamFontValue is null || StreamMaxValue is null ||
+            StreamOpacityValue is null || GameFontValue is null || GameMaxValue is null ||
+            GameOpacityValue is null) return;
         UpdateValues();
         UpdatePreview();
     }
 
     private void UpdateValues()
     {
-        if (MainFontValue is null) return;
+        if (MainFontValue is null || InputFontValue is null || InputHeightValue is null ||
+            StreamFontValue is null || StreamMaxValue is null || StreamOpacityValue is null ||
+            GameFontValue is null || GameMaxValue is null || GameOpacityValue is null) return;
         MainFontValue.Text = $"{MainFontSlider.Value:0} px";
         InputFontValue.Text = $"{InputFontSlider.Value:0} px";
         InputHeightValue.Text = $"{InputHeightSlider.Value:0} px";
@@ -110,7 +117,7 @@ public partial class ChatAppearanceSettingsWindow : ModuleWindowBase
 
     private void UpdatePreview()
     {
-        if (MainPreviewMessage is null) return;
+        if (MainPreviewMessage is null || InputPreviewBox is null || MainPreviewBorder is null) return;
         MainPreviewMessage.FontSize = MainFontSlider.Value;
         MainPreviewMessage.Foreground = BrushFrom(MainTextColorBox.Text, "#DCE9F3");
         InputPreviewBox.FontSize = InputFontSlider.Value;
