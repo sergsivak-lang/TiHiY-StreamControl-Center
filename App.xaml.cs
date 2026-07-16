@@ -227,7 +227,7 @@ public partial class App : Application
         var target = window switch
         {
             TiHiY.StreamControlCenter.Windows.SettingsWindow => new Size(1648, 928),
-            MainWindow => new Size(1672, 941),
+            TiHiY.StreamControlCenter.MainWindow => new Size(1672, 941),
             _ => new Size(
                 Math.Max(1, Math.Ceiling(window.ActualWidth)),
                 Math.Max(1, Math.Ceiling(window.ActualHeight)))
@@ -260,7 +260,7 @@ public partial class App : Application
         visual.Arrange(new Rect(new Point(0, 0), target));
         visual.UpdateLayout();
 
-        if (window is MainWindow main)
+        if (window is TiHiY.StreamControlCenter.MainWindow main)
             MainWindowVisualTuner.ApplyNow(main);
 
         var width = Math.Max(1, (int)Math.Ceiling(target.Width));
