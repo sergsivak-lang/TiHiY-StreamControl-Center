@@ -80,7 +80,7 @@ public partial class ChatAppearanceSettingsWindow : ModuleWindowBase
     {
         SaveToSettings();
         if (Application.Current.MainWindow is MainWindow main)
-            main.ApplyChatAppearanceSettings();
+            ChatAppearanceRuntime.Apply(main);
         _services.Windows.Get<LocalChatOverlayWindow>()?.ApplySettings();
         UpdatePreview();
         UpdateUrl();
