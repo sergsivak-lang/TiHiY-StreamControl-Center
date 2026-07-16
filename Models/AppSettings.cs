@@ -55,7 +55,17 @@ public sealed class AppSettings
     public Dictionary<string, int> DonatelloSubscriberPayments { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public string DonationGoalTitle { get; set; } = "Новий ПК для стрімів";
     public decimal DonationGoalAmount { get; set; } = 10000m;
+    public decimal DonationGoalInitialAmount { get; set; }
     public string DonationGoalCurrency { get; set; } = "UAH";
+    public string DonationGoalBarColor { get; set; } = "#FFD329";
+    public string DonationGoalTextColor { get; set; } = "#F4F8FF";
+    public string DonationGoalBackgroundColor { get; set; } = "#06172A";
+    public int DonationTopDonorCount { get; set; } = 8;
+    public string DonationTopDonorPeriod { get; set; } = "All";
+    public double DonationTickerSpeed { get; set; } = 70;
+    public string DonationTickerTextColor { get; set; } = "#FFD329";
+    public string DonationTickerBackgroundColor { get; set; } = "#06172A";
+    public double DonationTickerBackgroundOpacity { get; set; } = 0.35;
 
     // Застарілі поля лишені тільки для безпечного читання старого settings.json.
     public string DonatelloDiscordChannelId { get; set; } = string.Empty;
@@ -97,11 +107,37 @@ public sealed class AppSettings
     public string HighlightTextColor { get; set; } = "#07131E";
     public string HighlightBackgroundColor { get; set; } = "#FFD329";
 
+    public double MainChatFontSize { get; set; } = 15;
+    public string MainChatTextColor { get; set; } = "#DCE9F3";
+    public double MainChatInputFontSize { get; set; } = 15;
+    public string MainChatInputTextColor { get; set; } = "#EAF6FF";
+    public string MainChatInputBackgroundColor { get; set; } = "#071525";
+    public double MainChatInputHeight { get; set; } = 42;
+
+    public double StreamChatOverlayFontSize { get; set; } = 20;
+    public string StreamChatOverlayTextColor { get; set; } = "#F2FAFF";
+    public string StreamChatOverlayUserColor { get; set; } = "#FFD329";
+    public string StreamChatOverlayBackgroundColor { get; set; } = "#000000";
+    public double StreamChatOverlayBackgroundOpacity { get; set; }
+    public int StreamChatOverlayMaxMessages { get; set; } = 12;
+
     public bool LocalChatOverlayAutoStart { get; set; }
     public bool LocalChatOverlayClickThrough { get; set; } = true;
     public double LocalChatOverlayBackgroundOpacity { get; set; } = 0.12;
-    public double LocalChatOverlayFontSize { get; set; } = 18;
+    public double LocalChatOverlayFontSize { get; set; } = 20;
     public int LocalChatOverlayMaxMessages { get; set; } = 12;
+    public string LocalChatOverlayTextColor { get; set; } = "#F2FAFF";
+    public string LocalChatOverlayUserColor { get; set; } = "#FFD329";
+
+    public bool ChatBotEnabled { get; set; } = true;
+    public bool ChatBotAutoStart { get; set; } = true;
+    public string ChatBotDefaultTarget { get; set; } = "Twitch + YouTube";
+    public bool ChatBotSpamProtectionEnabled { get; set; } = true;
+    public bool ChatBotBlockLinks { get; set; }
+    public bool ChatBotBlockCaps { get; set; }
+    public bool ChatBotBlockRepeats { get; set; } = true;
+    public string ChatBotBlockedWords { get; set; } = string.Empty;
+    public int ChatBotResponseDelayMilliseconds { get; set; }
 
     public bool AutoNoticesEnabled { get; set; } = true;
     public bool UiScaleAuto { get; set; } = true;
