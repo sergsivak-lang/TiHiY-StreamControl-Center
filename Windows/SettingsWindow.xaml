@@ -3,79 +3,310 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:services="clr-namespace:TiHiY.StreamControlCenter.Services"
         Title="TiHiY StreamControl Center — Налаштування"
-        Width="1280" Height="800" MinWidth="920" MinHeight="620"
+        Width="1648" Height="928" MinWidth="1180" MinHeight="720"
         WindowStyle="None" ResizeMode="CanResize">
     <services:ModuleWindowBase.Resources>
-        <Style x:Key="SettingsTabItem" TargetType="TabItem">
+        <Style x:Key="SettingsNavItem" TargetType="TabItem">
             <Setter Property="Foreground" Value="{DynamicResource Text}"/>
-            <Setter Property="Background" Value="{DynamicResource Panel2}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+            <Setter Property="Background" Value="#081A2E"/>
+            <Setter Property="BorderBrush" Value="#8C5A0B"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Margin" Value="0,0,0,5"/>
-            <Setter Property="Padding" Value="14,10"/>
-            <Setter Property="MinWidth" Value="215"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="0,0,0,3"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="MinWidth" Value="246"/>
+            <Setter Property="MaxWidth" Value="246"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
-                        <Border x:Name="Root" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter ContentSource="Header" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                        <Border x:Name="Root" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True"><Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Amber}"/><Setter TargetName="Root" Property="Background" Value="#14355A"/><Setter Property="Foreground" Value="{DynamicResource Amber}"/></Trigger>
-                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Cyan}"/></Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#12345A"/>
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Amber}"/>
+                                <Setter TargetName="Root" Property="BorderThickness" Value="2,1,1,1"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Amber}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Cyan}"/>
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="SettingsSectionTitle" TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource Amber}"/><Setter Property="FontSize" Value="18"/><Setter Property="FontWeight" Value="Bold"/><Setter Property="Margin" Value="0,0,0,10"/></Style>
-        <Style x:Key="SettingsCard" TargetType="Border"><Setter Property="Background" Value="{DynamicResource PanelGradient}"/><Setter Property="BorderBrush" Value="{DynamicResource Line}"/><Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="7"/><Setter Property="Padding" Value="14"/><Setter Property="Margin" Value="0,0,0,10"/></Style>
+
+        <Style x:Key="SettingsSectionTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Amber}"/>
+            <Setter Property="FontSize" Value="19"/>
+            <Setter Property="FontWeight" Value="Black"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <Style x:Key="SettingsCard" TargetType="Border">
+            <Setter Property="Background" Value="#071B31"/>
+            <Setter Property="BorderBrush" Value="#9C650C"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <Style x:Key="SubCard" TargetType="Border">
+            <Setter Property="Background" Value="#06162A"/>
+            <Setter Property="BorderBrush" Value="#154D72"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="4"/>
+        </Style>
+
+        <Style x:Key="SwitchCheckBox" TargetType="CheckBox">
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid Width="46" Height="24">
+                            <Border x:Name="Track" Background="#3E4A55" BorderBrush="#80909C" BorderThickness="1" CornerRadius="12"/>
+                            <Ellipse x:Name="Knob" Width="18" Height="18" Margin="3" HorizontalAlignment="Left" Fill="#EAF7FD"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Track" Property="Background" Value="#168ED1"/>
+                                <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource Cyan}"/>
+                                <Setter TargetName="Knob" Property="HorizontalAlignment" Value="Right"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ThemeCardItem" TargetType="ListBoxItem">
+            <Setter Property="Width" Value="160"/>
+            <Setter Property="Height" Value="178"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Background" Value="#07182B"/>
+            <Setter Property="BorderBrush" Value="#53606A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Card" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="8">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource Amber}"/>
+                                <Setter TargetName="Card" Property="BorderThickness" Value="2"/>
+                                <Setter TargetName="Card" Property="Background" Value="#0B2747"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource Cyan}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </services:ModuleWindowBase.Resources>
 
     <Border BorderBrush="{DynamicResource Line}" BorderThickness="1" Background="{DynamicResource WindowGradient}">
         <Grid x:Name="DesignSurface" Margin="10">
-            <Grid.RowDefinitions><RowDefinition Height="82"/><RowDefinition Height="*"/><RowDefinition Height="54"/></Grid.RowDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="104"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="62"/>
+            </Grid.RowDefinitions>
+
             <Grid Grid.Row="0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <Image Source="/TiHiY.StreamControlCenter;component/Assets/Themes/UkraineExact/header-emblem.png" Width="100" Height="110" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-4,-8,0,0"/>
-                <StackPanel Margin="104,9,0,0"><StackPanel Orientation="Horizontal"><TextBlock Text="TiHiY" FontSize="30" FontWeight="Black"/><TextBlock Text="  StreamControl Center" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource Amber}"/></StackPanel><TextBlock Text="НАЛАШТУВАННЯ  •  SETTINGS" Foreground="{DynamicResource Cyan}" FontWeight="SemiBold" Margin="2,3,0,0"/></StackPanel>
-                <Image Source="/TiHiY.StreamControlCenter;component/Assets/Themes/UkraineExact/header-wheat.png" Width="150" Height="72" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,7,0,0"><Button Style="{StaticResource WindowButton}" Content="—" Click="Minimize_Click"/><Button Style="{StaticResource WindowButton}" Content="□" Click="Maximize_Click"/><Button Style="{StaticResource DangerButton}" Content="×" Click="Close_Click"/></StackPanel>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="240"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Image Source="/TiHiY.StreamControlCenter;component/Assets/Themes/UkraineExact/header-emblem.png" Width="120" Height="126" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-8,-14,0,0"/>
+                <StackPanel Margin="118,14,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="TiHiY" FontSize="34" FontWeight="Black"/>
+                        <TextBlock Text="  StreamControl Center" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource Amber}"/>
+                    </StackPanel>
+                    <TextBlock Text="SETTINGS  •  НАЛАШТУВАННЯ" Foreground="{DynamicResource Cyan}" FontSize="16" FontWeight="SemiBold" Margin="2,5,0,0"/>
+                </StackPanel>
+                <Image Grid.Column="1" Source="/TiHiY.StreamControlCenter;component/Assets/Themes/UkraineExact/header-map.png" Width="190" Height="86" Stretch="Uniform" Opacity="0.82" VerticalAlignment="Center"/>
+                <Image Source="/TiHiY.StreamControlCenter;component/Assets/Themes/UkraineExact/header-wheat.png" Width="160" Height="88" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,2,0,0"/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,10,0,0">
+                    <Button Style="{StaticResource WindowButton}" Content="—" Width="42" Height="34" Padding="0" Click="Minimize_Click"/>
+                    <Button Style="{StaticResource WindowButton}" Content="□" Width="42" Height="34" Padding="0" Click="Maximize_Click"/>
+                    <Button Style="{StaticResource DangerButton}" Content="×" Width="42" Height="34" Padding="0" Click="Close_Click"/>
+                </StackPanel>
             </Grid>
 
-            <TabControl Grid.Row="1" TabStripPlacement="Left" Background="Transparent" BorderThickness="0" ItemContainerStyle="{StaticResource SettingsTabItem}">
-                <TabItem Header="⚙  Загальні / General">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="16,0,0,0">
+            <TabControl x:Name="SettingsTabs" Grid.Row="1" TabStripPlacement="Left" Background="Transparent" BorderThickness="0" ItemContainerStyle="{StaticResource SettingsNavItem}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                <TabItem>
+                    <TabItem.Header><StackPanel Orientation="Horizontal"><TextBlock Text="⚙" FontSize="25" Width="40" VerticalAlignment="Center"/><StackPanel><TextBlock Text="Загальні" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="General" FontSize="12" Opacity="0.78"/></StackPanel></StackPanel></TabItem.Header>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="14,0,0,0">
                         <TextBlock Text="ЗАГАЛЬНІ / GENERAL" Style="{StaticResource SettingsSectionTitle}"/>
-                        <Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Масштаб і поведінка інтерфейсу" FontWeight="Bold" FontSize="15"/><WrapPanel Margin="0,10,0,0"><CheckBox x:Name="AutoScaleCheck" Content="Автоматичний масштаб" Checked="AutoScaleCheck_Changed" Unchecked="AutoScaleCheck_Changed"/><TextBlock Text="Ручний масштаб:" VerticalAlignment="Center" Margin="18,0,6,0"/><Button Content="−" Width="40" Click="ScaleDown_Click"/><TextBlock x:Name="ScaleText" Text="100%" Width="64" TextAlignment="Center" VerticalAlignment="Center"/><Button Content="+" Width="40" Click="ScaleUp_Click"/></WrapPanel><WrapPanel Margin="0,10,0,0"><Button Content="ВІДНОВИТИ СТАНДАРТНИЙ МАКЕТ" Click="ResetDashboardLayout_Click"/><Button Content="ВІДКРИТИ ПАПКУ НАЛАШТУВАНЬ" Click="OpenSettingsFolder_Click"/></WrapPanel></StackPanel></Border>
-                        <Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Мова програми / Application language" FontWeight="Bold" FontSize="15"/><TextBlock Text="Підтримувані мови: Українська та English. Повне перемикання всіх вікон буде доступне через єдиний словник локалізації." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/></StackPanel></Border>
+                        <Border Style="{StaticResource SettingsCard}"><StackPanel>
+                            <TextBlock Text="Масштаб і поведінка інтерфейсу" FontWeight="Bold" FontSize="15"/>
+                            <WrapPanel Margin="0,10,0,0"><CheckBox x:Name="AutoScaleCheck" Content="Автоматичний масштаб"/><TextBlock Text="Ручний масштаб:" VerticalAlignment="Center" Margin="18,0,6,0"/><Button Content="−" Width="42" Click="ScaleDown_Click"/><TextBlock x:Name="ScaleText" Text="100%" Width="66" TextAlignment="Center" VerticalAlignment="Center"/><Button Content="+" Width="42" Click="ScaleUp_Click"/></WrapPanel>
+                            <WrapPanel Margin="0,10,0,0"><Button Content="ВІДНОВИТИ СТАНДАРТНИЙ МАКЕТ" Click="ResetDashboardLayout_Click"/><Button Content="ВІДКРИТИ ПАПКУ НАЛАШТУВАНЬ" Click="OpenSettingsFolder_Click"/></WrapPanel>
+                        </StackPanel></Border>
+                        <Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Мова програми / Application language" FontWeight="Bold" FontSize="15"/><TextBlock Text="Мова змінюється без перезапуску для головного та відкритих дочірніх вікон." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/></StackPanel></Border>
                     </StackPanel></ScrollViewer>
                 </TabItem>
 
-                <TabItem Header="🎨  Тема та інтерфейс">
-                    <Grid Margin="16,0,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="0.42*"/><ColumnDefinition Width="0.58*"/></Grid.ColumnDefinitions>
-                        <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="0,0,12,0"><TextBlock Text="ТЕМА ТА ІНТЕРФЕЙС / THEME &amp; UI" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Вибір теми" FontWeight="Bold"/><ComboBox x:Name="ThemeCombo" SelectionChanged="ThemeCombo_SelectionChanged" MinHeight="38" Margin="0,8,0,0"/><TextBlock Text="Наведіть курсор або виберіть тему, щоб побачити її зразок праворуч." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/><WrapPanel Margin="0,12,0,0"><Button Content="ЗАСТОСУВАТИ ТЕМУ" Click="ApplyTheme_Click" Style="{StaticResource AmberButton}"/><Button Content="ВІДНОВИТИ DEFAULT" Click="RestoreDefaultTheme_Click"/></WrapPanel></StackPanel></Border><Border Style="{StaticResource SettingsCard}"><StackPanel><CheckBox Content="Анімації інтерфейсу" IsChecked="True"/><CheckBox Content="Показувати підказки" IsChecked="True"/><CheckBox Content="Блокувати макет після запуску" IsChecked="True"/></StackPanel></Border></StackPanel></ScrollViewer>
-                        <Border x:Name="ThemePreviewBorder" Grid.Column="1" Background="{DynamicResource PanelGradient}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="8" Padding="8" ClipToBounds="True"><Grid><Image x:Name="ThemePreviewImage" Stretch="UniformToFill" Opacity="0.88"/><Border Background="#B0051324" VerticalAlignment="Bottom" Margin="8" CornerRadius="6" Padding="14"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock x:Name="ThemePreviewName" Text="Україна" Foreground="{DynamicResource Amber}" FontWeight="Bold" FontSize="19"/><TextBlock x:Name="ThemePreviewDescription" Text="Попередній перегляд теми" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,5,10,0"/></StackPanel><StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Ellipse x:Name="ThemePreviewPrimary" Width="26" Height="26" Fill="{DynamicResource Cyan}" Margin="3"/><Ellipse x:Name="ThemePreviewAccent" Width="26" Height="26" Fill="{DynamicResource Amber}" Margin="3"/><Ellipse x:Name="ThemePreviewSuccess" Width="26" Height="26" Fill="{DynamicResource Green}" Margin="3"/></StackPanel></Grid></Border></Grid></Border>
-                    </Grid>
+                <TabItem IsSelected="True">
+                    <TabItem.Header><StackPanel Orientation="Horizontal"><TextBlock Text="🎨" FontSize="24" Width="40" VerticalAlignment="Center"/><StackPanel><TextBlock Text="Тема та інтерфейс" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="Theme &amp; UI" FontSize="12" Opacity="0.78"/></StackPanel></StackPanel></TabItem.Header>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <Grid Margin="14,0,0,0">
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="270"/><RowDefinition Height="174"/><RowDefinition Height="228"/></Grid.RowDefinitions>
+                            <TextBlock Text="ТЕМА ТА ІНТЕРФЕЙС / THEME &amp; UI" Style="{StaticResource SettingsSectionTitle}"/>
+
+                            <Border Grid.Row="1" Style="{StaticResource SettingsCard}" Padding="10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="1.18*"/><ColumnDefinition Width="0.92*"/></Grid.ColumnDefinitions>
+                                    <Grid Margin="0,0,8,0">
+                                        <Grid.RowDefinitions><RowDefinition Height="30"/><RowDefinition Height="*"/><RowDefinition Height="32"/></Grid.RowDefinitions>
+                                        <TextBlock Text="ВИБІР ТЕМИ / THEME SELECTION" Foreground="{DynamicResource Cyan}" FontWeight="Bold" FontSize="15"/>
+                                        <ListBox x:Name="ThemeList" Grid.Row="1" Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectionChanged="ThemeList_SelectionChanged" ItemContainerStyle="{StaticResource ThemeCardItem}">
+                                            <ListBox.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ListBox.ItemsPanel>
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid>
+                                                        <Grid.RowDefinitions><RowDefinition Height="28"/><RowDefinition Height="96"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                                        <Grid><Ellipse Width="17" Height="17" Stroke="{DynamicResource Cyan}" StrokeThickness="2" HorizontalAlignment="Left"/><TextBlock Text="{Binding DisplayName}" Margin="25,0,0,0" FontWeight="Bold" Foreground="{DynamicResource Text}"/><TextBlock Text="✓" HorizontalAlignment="Right" Foreground="{DynamicResource Cyan}" FontWeight="Black"/></Grid>
+                                                        <Border Grid.Row="1" BorderBrush="#48525B" BorderThickness="1" CornerRadius="3" ClipToBounds="True"><Image Source="{Binding Preview}" Stretch="UniformToFill"/></Border>
+                                                        <TextBlock Grid.Row="2" Text="{Binding EnglishName}" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,5,0,0"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                        <Border Grid.Row="2" Background="#061426" BorderBrush="#164D73" BorderThickness="1" CornerRadius="4" Padding="8,5"><TextBlock Text="ⓘ  Наведіть курсор, щоб побачити швидкий preview" Foreground="{DynamicResource Muted}"/></Border>
+                                    </Grid>
+
+                                    <Grid Grid.Column="1" Margin="8,0,0,0">
+                                        <Grid.RowDefinitions><RowDefinition Height="30"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                        <TextBlock Text="ПОПЕРЕДНІЙ ПЕРЕГЛЯД / PREVIEW" Foreground="{DynamicResource Cyan}" FontWeight="Bold" FontSize="15"/>
+                                        <Border x:Name="ThemePreviewBorder" Grid.Row="1" Background="#061426" BorderBrush="#245578" BorderThickness="1" CornerRadius="5" Padding="8" ClipToBounds="True">
+                                            <Grid>
+                                                <Image x:Name="ThemePreviewImage" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                                                <Border Background="#D0041325" VerticalAlignment="Bottom" Margin="6" CornerRadius="4" Padding="10">
+                                                    <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                                        <StackPanel><TextBlock x:Name="ThemePreviewName" Text="Україна" Foreground="{DynamicResource Amber}" FontWeight="Bold" FontSize="17"/><TextBlock x:Name="ThemePreviewDescription" Text="Попередній перегляд теми" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,3,10,0"/></StackPanel>
+                                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Ellipse x:Name="ThemePreviewPrimary" Width="24" Height="24" Margin="3"/><Ellipse x:Name="ThemePreviewAccent" Width="24" Height="24" Margin="3"/><Ellipse x:Name="ThemePreviewSuccess" Width="24" Height="24" Margin="3"/></StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+
+                            <Border Grid.Row="2" Style="{StaticResource SettingsCard}" Padding="8">
+                                <Grid>
+                                    <Grid.RowDefinitions><RowDefinition Height="28"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                    <TextBlock Text="ІНТЕРФЕЙС / APPEARANCE" Foreground="{DynamicResource Cyan}" FontWeight="Bold" FontSize="15"/>
+                                    <UniformGrid Grid.Row="1" Columns="4">
+                                        <Border Style="{StaticResource SubCard}"><StackPanel>
+                                            <Grid><StackPanel><TextBlock Text="Мова інтерфейсу" FontWeight="SemiBold"/><TextBlock Text="Language" Foreground="{DynamicResource Muted}" FontSize="11"/></StackPanel><ComboBox x:Name="LanguageCombo" HorizontalAlignment="Right" Width="190"/></Grid>
+                                            <Grid Margin="0,8,0,0"><StackPanel><TextBlock Text="Масштаб інтерфейсу" FontWeight="SemiBold"/><TextBlock Text="UI Scale" Foreground="{DynamicResource Muted}" FontSize="11"/></StackPanel><ComboBox x:Name="ScaleCombo" HorizontalAlignment="Right" Width="190"><ComboBoxItem Content="80%" Tag="80"/><ComboBoxItem Content="90%" Tag="90"/><ComboBoxItem Content="100% (Рекомендовано)" Tag="100"/><ComboBoxItem Content="110%" Tag="110"/><ComboBoxItem Content="125%" Tag="125"/></ComboBox></Grid>
+                                            <Grid Margin="0,8,0,0"><StackPanel><TextBlock Text="Режим щільності" FontWeight="SemiBold"/><TextBlock Text="Density" Foreground="{DynamicResource Muted}" FontSize="11"/></StackPanel><ComboBox x:Name="DensityCombo" HorizontalAlignment="Right" Width="190"><ComboBoxItem Content="Компактний" Tag="Compact"/><ComboBoxItem Content="Стандартний" Tag="Standard"/><ComboBoxItem Content="Просторий" Tag="Comfortable"/></ComboBox></Grid>
+                                        </StackPanel></Border>
+                                        <Border Style="{StaticResource SubCard}"><StackPanel>
+                                            <Grid><StackPanel><TextBlock Text="Анімації інтерфейсу" FontWeight="SemiBold"/><TextBlock Text="Enable Animations" Foreground="{DynamicResource Muted}" FontSize="11"/></StackPanel><CheckBox x:Name="AnimationsCheck" Style="{StaticResource SwitchCheckBox}"/></Grid>
+                                            <Grid Margin="0,12,0,0"><StackPanel><TextBlock Text="Блокування розмітки" FontWeight="SemiBold"/><TextBlock Text="Lock Layout" Foreground="{DynamicResource Muted}" FontSize="11"/></StackPanel><CheckBox x:Name="LockLayoutCheck" Style="{StaticResource SwitchCheckBox}"/></Grid>
+                                            <Grid Margin="0,12,0,0"><StackPanel><TextBlock Text="Показувати підказки" FontWeight="SemiBold"/><TextBlock Text="Show Tooltips" Foreground="{DynamicResource Muted}" FontSize="11"/></StackPanel><CheckBox x:Name="TooltipsCheck" Style="{StaticResource SwitchCheckBox}"/></Grid>
+                                        </StackPanel></Border>
+                                        <Border Style="{StaticResource SubCard}"><StackPanel>
+                                            <Grid><StackPanel><TextBlock Text="Скинути розмітку" FontWeight="SemiBold"/><TextBlock Text="Reset Layout" Foreground="{DynamicResource Muted}" FontSize="11"/></StackPanel><Button Content="Скинути" Width="96" HorizontalAlignment="Right" Click="ResetDashboardLayout_Click"/></Grid>
+                                            <Grid Margin="0,12,0,0"><StackPanel><TextBlock Text="Запускати з Windows" FontWeight="SemiBold"/><TextBlock Text="Start with Windows" Foreground="{DynamicResource Muted}" FontSize="11"/></StackPanel><CheckBox x:Name="StartWithWindowsCheck" Style="{StaticResource SwitchCheckBox}"/></Grid>
+                                            <Grid Margin="0,12,0,0"><StackPanel><TextBlock Text="Згортати у трей" FontWeight="SemiBold"/><TextBlock Text="Minimize to Tray" Foreground="{DynamicResource Muted}" FontSize="11"/></StackPanel><CheckBox x:Name="MinimizeToTrayCheck" Style="{StaticResource SwitchCheckBox}"/></Grid>
+                                        </StackPanel></Border>
+                                        <Border Style="{StaticResource SubCard}"><StackPanel>
+                                            <Grid><StackPanel><TextBlock Text="Перевіряти оновлення" FontWeight="SemiBold"/><TextBlock Text="Check for Updates" Foreground="{DynamicResource Muted}" FontSize="11"/></StackPanel><ComboBox x:Name="UpdateFrequencyCombo" HorizontalAlignment="Right" Width="175"><ComboBoxItem Content="При запуску" Tag="Startup"/><ComboBoxItem Content="Щодня (рекоменд.)" Tag="Daily"/><ComboBoxItem Content="Щотижня" Tag="Weekly"/><ComboBoxItem Content="Вимкнено" Tag="Disabled"/></ComboBox></Grid>
+                                            <Grid Margin="0,8,0,0"><StackPanel><TextBlock Text="Канал оновлень" FontWeight="SemiBold"/><TextBlock Text="Update Channel" Foreground="{DynamicResource Muted}" FontSize="11"/></StackPanel><ComboBox x:Name="UpdateChannelCombo" HorizontalAlignment="Right" Width="175"><ComboBoxItem Content="Стабільний" Tag="Stable"/><ComboBoxItem Content="Попередній" Tag="Preview"/></ComboBox></Grid>
+                                            <Grid Margin="0,12,0,0"><StackPanel><TextBlock Text="Ефекти переходу" FontWeight="SemiBold"/><TextBlock Text="Transition Effects" Foreground="{DynamicResource Muted}" FontSize="11"/></StackPanel><CheckBox x:Name="TransitionEffectsCheck" Style="{StaticResource SwitchCheckBox}"/></Grid>
+                                        </StackPanel></Border>
+                                    </UniformGrid>
+                                </Grid>
+                            </Border>
+
+                            <UniformGrid Grid.Row="3" Columns="4">
+                                <Border Style="{StaticResource SettingsCard}" Margin="4"><Grid><Grid.RowDefinitions><RowDefinition Height="34"/><RowDefinition/><RowDefinition Height="48"/></Grid.RowDefinitions>
+                                    <TextBlock Text="◉  ПІДКЛЮЧЕННЯ OBS / OBS CONNECTION" Foreground="{DynamicResource Cyan}" FontWeight="Bold" FontSize="14"/>
+                                    <Grid Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="Статус"/><TextBlock Text="Адреса" Margin="0,10,0,0"/><TextBlock Text="Порт" Margin="0,10,0,0"/></StackPanel><StackPanel Grid.Column="1" HorizontalAlignment="Right"><TextBlock x:Name="ObsStatusTextCard" Text="Не підключено" Foreground="{DynamicResource Muted}" TextAlignment="Right"/><TextBlock x:Name="ObsAddressText" Text="127.0.0.1" TextAlignment="Right" Margin="0,10,0,0"/><TextBlock x:Name="ObsPortText" Text="4455" TextAlignment="Right" Margin="0,10,0,0"/></StackPanel></Grid>
+                                    <Button Grid.Row="2" Content="Перевірити підключення" Click="TestObsConnection_Click"/>
+                                </Grid></Border>
+
+                                <Border Style="{StaticResource SettingsCard}" Margin="4"><Grid><Grid.RowDefinitions><RowDefinition Height="34"/><RowDefinition/><RowDefinition Height="48"/></Grid.RowDefinitions>
+                                    <TextBlock Text="▣  TWITCH / YOUTUBE" Foreground="{DynamicResource Amber}" FontWeight="Bold" FontSize="14"/>
+                                    <Grid Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition Width="90"/><ColumnDefinition/></Grid.ColumnDefinitions><TextBlock Text="Twitch"/><TextBlock x:Name="TwitchConnectionText" Grid.Column="1" Text="Не підключено" Foreground="{DynamicResource Muted}" TextAlignment="Right"/><TextBlock Grid.Row="1" Text="YouTube" Margin="0,16,0,0"/><TextBlock x:Name="YouTubeConnectionText" Grid.Row="1" Grid.Column="1" Text="Не підключено" Foreground="{DynamicResource Muted}" TextAlignment="Right" Margin="0,16,0,0"/></Grid>
+                                    <Button Grid.Row="2" Content="Керувати підключеннями" Click="OpenChannelsWindow_Click"/>
+                                </Grid></Border>
+
+                                <Border Style="{StaticResource SettingsCard}" Margin="4"><Grid><Grid.RowDefinitions><RowDefinition Height="34"/><RowDefinition/><RowDefinition Height="48"/></Grid.RowDefinitions>
+                                    <TextBlock Text="🔑  API ТА КЛЮЧІ / API &amp; KEYS" Foreground="{DynamicResource Amber}" FontWeight="Bold" FontSize="14"/>
+                                    <Grid Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition Width="120"/><ColumnDefinition/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                                        <TextBlock Text="StreamElements API" VerticalAlignment="Center"/><PasswordBox x:Name="StreamElementsApiBox" Grid.Column="1" Margin="4"/>
+                                        <TextBlock Grid.Row="1" Text="Streamlabs API" VerticalAlignment="Center"/><PasswordBox x:Name="StreamlabsApiBox" Grid.Row="1" Grid.Column="1" Margin="4"/>
+                                        <TextBlock Grid.Row="2" Text="Discord Bot Token" VerticalAlignment="Center"/><PasswordBox x:Name="DiscordBotTokenBox" Grid.Row="2" Grid.Column="1" Margin="4"/>
+                                    </Grid>
+                                    <Button Grid.Row="2" Content="Керувати ключами" Click="SaveKeys_Click"/>
+                                </Grid></Border>
+
+                                <Border Style="{StaticResource SettingsCard}" Margin="4"><Grid><Grid.RowDefinitions><RowDefinition Height="34"/><RowDefinition/><RowDefinition Height="48"/></Grid.RowDefinitions>
+                                    <TextBlock Text="🛡  БЕЗПЕКА / SECURITY" Foreground="{DynamicResource Amber}" FontWeight="Bold" FontSize="14"/>
+                                    <StackPanel Grid.Row="1"><Grid><TextBlock Text="Пароль на налаштування" VerticalAlignment="Center"/><PasswordBox x:Name="SettingsPasswordBox" Width="150" HorizontalAlignment="Right"/></Grid><Grid Margin="0,10,0,0"><TextBlock Text="Автоблокування" VerticalAlignment="Center"/><ComboBox x:Name="AutoLockCombo" Width="150" HorizontalAlignment="Right"><ComboBoxItem Content="Вимкнено" Tag="0"/><ComboBoxItem Content="5 хвилин" Tag="5"/><ComboBoxItem Content="15 хвилин" Tag="15"/><ComboBoxItem Content="30 хвилин" Tag="30"/></ComboBox></Grid><Grid Margin="0,12,0,0"><StackPanel><TextBlock Text="Підтвердження виходу"/><TextBlock Text="Confirm on Exit" Foreground="{DynamicResource Muted}" FontSize="11"/></StackPanel><CheckBox x:Name="ConfirmExitCheck" Style="{StaticResource SwitchCheckBox}"/></Grid></StackPanel>
+                                    <Button Grid.Row="2" Content="Зберегти безпеку" Click="SaveSecurity_Click"/>
+                                </Grid></Border>
+                            </UniformGrid>
+                        </Grid>
+                    </ScrollViewer>
                 </TabItem>
 
-                <TabItem Header="📡  Трансляція / Broadcast"><StackPanel Margin="16,0,0,0"><TextBlock Text="ТРАНСЛЯЦІЯ / BROADCAST" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Оперативне керування трансляцією" FontWeight="Bold" FontSize="15"/><TextBlock Text="Налаштування YouTube-трансляції, каналів і overlay зібрані в цьому розділі." Foreground="{DynamicResource Muted}" Margin="0,6,0,10"/><WrapPanel><Button Content="YOUTUBE STREAM SETTINGS" Click="OpenYouTubeSettingsWindow_Click"/><Button Content="КАНАЛИ ТА ОБЛІКОВІ ЗАПИСИ" Click="OpenChannelsWindow_Click"/><Button Content="OVERLAY OBS" Click="OpenOverlayWindow_Click"/><Button Content="YOUTUBE STUDIO" Click="OpenBroadcastDashboard_Click"/></WrapPanel></StackPanel></Border></StackPanel></TabItem>
+                <TabItem>
+                    <TabItem.Header><StackPanel Orientation="Horizontal"><TextBlock Text="📡" FontSize="24" Width="40"/><StackPanel><TextBlock Text="Трансляція" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="Broadcast" FontSize="12" Opacity="0.78"/></StackPanel></StackPanel></TabItem.Header>
+                    <StackPanel Margin="14,0,0,0"><TextBlock Text="ТРАНСЛЯЦІЯ / BROADCAST" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Оперативне керування трансляцією" FontWeight="Bold" FontSize="15"/><TextBlock Text="YouTube-трансляція, канали та overlay зібрані в цьому розділі." Foreground="{DynamicResource Muted}" Margin="0,6,0,10"/><WrapPanel><Button Content="YOUTUBE STREAM SETTINGS" Click="OpenYouTubeSettingsWindow_Click"/><Button Content="КАНАЛИ ТА ОБЛІКОВІ ЗАПИСИ" Click="OpenChannelsWindow_Click"/><Button Content="OVERLAY OBS" Click="OpenOverlayWindow_Click"/><Button Content="YOUTUBE STUDIO" Click="OpenBroadcastDashboard_Click"/></WrapPanel></StackPanel></Border></StackPanel>
+                </TabItem>
 
-                <TabItem Header="◉  OBS"><ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="16,0,0,0"><TextBlock Text="OBS WEBSOCKET" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><StackPanel Margin="0,0,6,0"><TextBlock Text="Адреса OBS WebSocket" Foreground="{DynamicResource Muted}"/><TextBox x:Name="ObsUrlBox" Text="ws://127.0.0.1:4455" Margin="0,4,0,0"/></StackPanel><StackPanel Grid.Column="1" Margin="6,0,0,0"><TextBlock Text="Пароль" Foreground="{DynamicResource Muted}"/><PasswordBox x:Name="ObsPasswordBox" Margin="0,4,0,0"/></StackPanel></Grid><WrapPanel Margin="0,8,0,0"><CheckBox x:Name="RememberPasswordCheck" Content="Запам’ятати пароль"/><CheckBox x:Name="AutoConnectCheck" Content="Підключатися автоматично" Margin="12,3,3,3"/></WrapPanel><WrapPanel Margin="0,8,0,0"><Button Content="ЗБЕРЕГТИ Й ПІДКЛЮЧИТИ" Click="SaveAndConnect_Click" Background="#1453A5"/><Button Content="ВІДКЛЮЧИТИ OBS" Click="Disconnect_Click"/><Button Content="ЗАБУТИ ПАРОЛЬ" Click="ForgetPassword_Click" Background="#7C2027"/></WrapPanel><TextBlock x:Name="ObsStatusText" Text="OBS не підключено" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="4,8,0,0"/></StackPanel></Border></StackPanel></ScrollViewer></TabItem>
+                <TabItem>
+                    <TabItem.Header><StackPanel Orientation="Horizontal"><TextBlock Text="◉" FontSize="24" Width="40"/><StackPanel><TextBlock Text="OBS" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="WebSocket" FontSize="12" Opacity="0.78"/></StackPanel></StackPanel></TabItem.Header>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="14,0,0,0"><TextBlock Text="OBS WEBSOCKET" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><StackPanel Margin="0,0,6,0"><TextBlock Text="Адреса OBS WebSocket" Foreground="{DynamicResource Muted}"/><TextBox x:Name="ObsUrlBox" Text="ws://127.0.0.1:4455" Margin="0,4,0,0"/></StackPanel><StackPanel Grid.Column="1" Margin="6,0,0,0"><TextBlock Text="Пароль" Foreground="{DynamicResource Muted}"/><PasswordBox x:Name="ObsPasswordBox" Margin="0,4,0,0"/></StackPanel></Grid><WrapPanel Margin="0,8,0,0"><CheckBox x:Name="RememberPasswordCheck" Content="Запам’ятати пароль"/><CheckBox x:Name="AutoConnectCheck" Content="Підключатися автоматично" Margin="12,3,3,3"/></WrapPanel><WrapPanel Margin="0,8,0,0"><Button Content="ЗБЕРЕГТИ Й ПІДКЛЮЧИТИ" Click="SaveAndConnect_Click" Background="#1453A5"/><Button Content="ВІДКЛЮЧИТИ OBS" Click="Disconnect_Click"/><Button Content="ЗАБУТИ ПАРОЛЬ" Click="ForgetPassword_Click" Background="#7C2027"/></WrapPanel><TextBlock x:Name="ObsStatusText" Text="OBS не підключено" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="4,8,0,0"/></StackPanel></Border></StackPanel></ScrollViewer>
+                </TabItem>
 
-                <TabItem Header="T  Twitch"><StackPanel Margin="16,0,0,0"><TextBlock Text="TWITCH" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Авторизація, чат, модерація та автопідключення Twitch." TextWrapping="Wrap"/><Button Content="ВІДКРИТИ КАНАЛИ ТА TWITCH" Click="OpenChannelsWindow_Click" HorizontalAlignment="Left" Margin="0,12,0,0"/></StackPanel></Border></StackPanel></TabItem>
-                <TabItem Header="▶  YouTube"><StackPanel Margin="16,0,0,0"><TextBlock Text="YOUTUBE" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="OAuth, канал, активна трансляція, live chat і статистика лайків." TextWrapping="Wrap"/><WrapPanel Margin="0,12,0,0"><Button Content="НАЛАШТУВАННЯ YOUTUBE" Click="OpenYouTubeSettingsWindow_Click"/><Button Content="ВІДКРИТИ YOUTUBE STUDIO" Click="OpenBroadcastDashboard_Click"/></WrapPanel></StackPanel></Border></StackPanel></TabItem>
-                <TabItem Header="D  Discord"><StackPanel Margin="16,0,0,0"><TextBlock Text="DISCORD" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Discord-бот, сервер, канали та сповіщення."/><Button Content="ВІДКРИТИ DISCORD СПОВІЩЕННЯ" Click="OpenNotificationsWindow_Click" HorizontalAlignment="Left" Margin="0,12,0,0"/></StackPanel></Border></StackPanel></TabItem>
-                <TabItem Header="♥  Донати / Donations"><StackPanel Margin="16,0,0,0"><TextBlock Text="ДОНАТИ / DONATIONS" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Donatello, токени, віджети, звуки та правила показу донатів." TextWrapping="Wrap"/><Button Content="ВІДКРИТИ DONATELLO" Click="OpenDonatelloWindow_Click" HorizontalAlignment="Left" Margin="0,12,0,0"/></StackPanel></Border></StackPanel></TabItem>
-                <TabItem Header="♫  Музика / Music"><StackPanel Margin="16,0,0,0"><TextBlock Text="МУЗИКА / MUSIC" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Плейлист, локальні файли, Now Playing і відтворення."/><Button Content="ВІДКРИТИ МУЗИЧНИЙ ПЛЕЄР" Click="OpenMusicWindow_Click" HorizontalAlignment="Left" Margin="0,12,0,0"/></StackPanel></Border></StackPanel></TabItem>
-                <TabItem Header="🛡  Безпека / Security"><StackPanel Margin="16,0,0,0"><TextBlock Text="БЕЗПЕКА / SECURITY" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Паролі та ключі зберігаються окремо від settings.json. OBS-пароль використовує Windows Credential Manager." TextWrapping="Wrap"/><Button Content="ВИДАЛИТИ ЗБЕРЕЖЕНИЙ OBS-ПАРОЛЬ" Click="ForgetPassword_Click" HorizontalAlignment="Left" Margin="0,12,0,0"/></StackPanel></Border></StackPanel></TabItem>
+                <TabItem><TabItem.Header><StackPanel Orientation="Horizontal"><TextBlock Text="▣" FontSize="24" Width="40" Foreground="#A970FF"/><StackPanel><TextBlock Text="Twitch" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="Channel &amp; Chat" FontSize="12" Opacity="0.78"/></StackPanel></StackPanel></TabItem.Header><StackPanel Margin="14,0,0,0"><TextBlock Text="TWITCH" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Авторизація, чат, модерація та автопідключення Twitch."/><Button Content="ВІДКРИТИ КАНАЛИ ТА TWITCH" Click="OpenChannelsWindow_Click" HorizontalAlignment="Left" Margin="0,12,0,0"/></StackPanel></Border></StackPanel></TabItem>
+                <TabItem><TabItem.Header><StackPanel Orientation="Horizontal"><TextBlock Text="▶" FontSize="22" Width="40" Foreground="#FF3B3B"/><StackPanel><TextBlock Text="YouTube" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="Live &amp; Studio" FontSize="12" Opacity="0.78"/></StackPanel></StackPanel></TabItem.Header><StackPanel Margin="14,0,0,0"><TextBlock Text="YOUTUBE" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="OAuth, канал, активна трансляція, live chat і статистика лайків."/><WrapPanel Margin="0,12,0,0"><Button Content="НАЛАШТУВАННЯ YOUTUBE" Click="OpenYouTubeSettingsWindow_Click"/><Button Content="ВІДКРИТИ YOUTUBE STUDIO" Click="OpenBroadcastDashboard_Click"/></WrapPanel></StackPanel></Border></StackPanel></TabItem>
+                <TabItem><TabItem.Header><StackPanel Orientation="Horizontal"><TextBlock Text="◈" FontSize="24" Width="40" Foreground="#7C72FF"/><StackPanel><TextBlock Text="Discord" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="Bot &amp; Alerts" FontSize="12" Opacity="0.78"/></StackPanel></StackPanel></TabItem.Header><StackPanel Margin="14,0,0,0"><TextBlock Text="DISCORD" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Discord-бот, сервер, канали та сповіщення."/><Button Content="ВІДКРИТИ DISCORD СПОВІЩЕННЯ" Click="OpenNotificationsWindow_Click" HorizontalAlignment="Left" Margin="0,12,0,0"/></StackPanel></Border></StackPanel></TabItem>
+                <TabItem><TabItem.Header><StackPanel Orientation="Horizontal"><TextBlock Text="♥" FontSize="24" Width="40" Foreground="{DynamicResource Amber}"/><StackPanel><TextBlock Text="Донати" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="Donations" FontSize="12" Opacity="0.78"/></StackPanel></StackPanel></TabItem.Header><StackPanel Margin="14,0,0,0"><TextBlock Text="ДОНАТИ / DONATIONS" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Donatello, токени, віджети, звуки та правила показу донатів."/><Button Content="ВІДКРИТИ DONATELLO" Click="OpenDonatelloWindow_Click" HorizontalAlignment="Left" Margin="0,12,0,0"/></StackPanel></Border></StackPanel></TabItem>
+                <TabItem><TabItem.Header><StackPanel Orientation="Horizontal"><TextBlock Text="♫" FontSize="24" Width="40" Foreground="{DynamicResource Amber}"/><StackPanel><TextBlock Text="Музика" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="Music" FontSize="12" Opacity="0.78"/></StackPanel></StackPanel></TabItem.Header><StackPanel Margin="14,0,0,0"><TextBlock Text="МУЗИКА / MUSIC" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Плейлист, локальні файли, Now Playing і відтворення."/><Button Content="ВІДКРИТИ МУЗИЧНИЙ ПЛЕЄР" Click="OpenMusicWindow_Click" HorizontalAlignment="Left" Margin="0,12,0,0"/></StackPanel></Border></StackPanel></TabItem>
+                <TabItem><TabItem.Header><StackPanel Orientation="Horizontal"><TextBlock Text="🛡" FontSize="23" Width="40"/><StackPanel><TextBlock Text="Безпека" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="Security" FontSize="12" Opacity="0.78"/></StackPanel></StackPanel></TabItem.Header><StackPanel Margin="14,0,0,0"><TextBlock Text="БЕЗПЕКА / SECURITY" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="Паролі та ключі зберігаються окремо від settings.json у Windows Credential Manager." TextWrapping="Wrap"/><Button Content="ВИДАЛИТИ ЗБЕРЕЖЕНИЙ OBS-ПАРОЛЬ" Click="ForgetPassword_Click" HorizontalAlignment="Left" Margin="0,12,0,0"/></StackPanel></Border></StackPanel></TabItem>
 
-                <TabItem Header="▤  Журнал / Logs"><Grid Margin="16,0,0,0"><Grid.RowDefinitions><RowDefinition Height="38"/><RowDefinition/><RowDefinition Height="50"/></Grid.RowDefinitions><Grid><TextBlock Text="ЖУРНАЛ ПОДІЙ" Style="{StaticResource SettingsSectionTitle}"/><TextBlock Text="Останні 14 записів" HorizontalAlignment="Right" Foreground="{DynamicResource Muted}"/></Grid><ItemsControl Grid.Row="1" ItemsSource="{Binding VisibleLogs}"><ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="14" Columns="1"/></ItemsPanelTemplate></ItemsControl.ItemsPanel><ItemsControl.ItemTemplate><DataTemplate><Border BorderBrush="{DynamicResource LineSoft}" BorderThickness="0,0,0,1" Padding="7,4"><TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Muted}"/></Border></DataTemplate></ItemsControl.ItemTemplate></ItemsControl><StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right"><Button Content="ОЧИСТИТИ" Click="ClearLog_Click"/><Button Content="ВІДКРИТИ ПАПКУ LOGS" Click="OpenLogs_Click" Background="#123B32"/></StackPanel></Grid></TabItem>
-                <TabItem Header="ⓘ  Про програму / About"><StackPanel Margin="16,0,0,0"><TextBlock Text="ПРО ПРОГРАМУ / ABOUT" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="TiHiY StreamControl Center" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource Amber}"/><TextBlock Text="Версія 1.0.5.3 • .NET 9 • Windows x64" Margin="0,7,0,0"/><TextBlock Text="Єдиний центр керування мультичатом, донатами, OBS Audio, музикою та сповіщеннями." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/></StackPanel></Border></StackPanel></TabItem>
+                <TabItem><TabItem.Header><StackPanel Orientation="Horizontal"><TextBlock Text="▤" FontSize="24" Width="40"/><StackPanel><TextBlock Text="Журнал" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="Logs" FontSize="12" Opacity="0.78"/></StackPanel></StackPanel></TabItem.Header><Grid Margin="14,0,0,0"><Grid.RowDefinitions><RowDefinition Height="38"/><RowDefinition/><RowDefinition Height="50"/></Grid.RowDefinitions><Grid><TextBlock Text="ЖУРНАЛ ПОДІЙ" Style="{StaticResource SettingsSectionTitle}"/><TextBlock Text="Останні 14 записів" HorizontalAlignment="Right" Foreground="{DynamicResource Muted}"/></Grid><ItemsControl Grid.Row="1" ItemsSource="{Binding VisibleLogs}"><ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="14" Columns="1"/></ItemsPanelTemplate></ItemsControl.ItemsPanel><ItemsControl.ItemTemplate><DataTemplate><Border BorderBrush="{DynamicResource LineSoft}" BorderThickness="0,0,0,1" Padding="7,4"><TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Muted}"/></Border></DataTemplate></ItemsControl.ItemTemplate></ItemsControl><StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right"><Button Content="ОЧИСТИТИ" Click="ClearLog_Click"/><Button Content="ВІДКРИТИ ПАПКУ LOGS" Click="OpenLogs_Click"/></StackPanel></Grid></TabItem>
+                <TabItem><TabItem.Header><StackPanel Orientation="Horizontal"><TextBlock Text="ⓘ" FontSize="24" Width="40"/><StackPanel><TextBlock Text="Про програму" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="About" FontSize="12" Opacity="0.78"/></StackPanel></StackPanel></TabItem.Header><StackPanel Margin="14,0,0,0"><TextBlock Text="ПРО ПРОГРАМУ / ABOUT" Style="{StaticResource SettingsSectionTitle}"/><Border Style="{StaticResource SettingsCard}"><StackPanel><TextBlock Text="TiHiY StreamControl Center" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource Amber}"/><TextBlock Text="Версія 1.0.5.3 • .NET 9 • Windows x64" Margin="0,7,0,0"/><TextBlock Text="Єдиний центр керування мультичатом, донатами, OBS Audio, музикою та сповіщеннями." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/></StackPanel></Border></StackPanel></TabItem>
             </TabControl>
 
-            <Border Grid.Row="2" Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="5" Padding="9" Margin="0,8,0,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock x:Name="StatusText" Text="Налаштування готові" Foreground="{DynamicResource Green}" VerticalAlignment="Center"/><Button Grid.Column="1" Content="ЗАКРИТИ" Click="Close_Click"/></Grid></Border>
+            <Border Grid.Row="2" Background="#06172A" BorderBrush="{DynamicResource Line}" BorderThickness="1,1,1,1" CornerRadius="5" Padding="8" Margin="0,8,0,0">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <TextBlock x:Name="StatusText" Text="Налаштування готові" Foreground="{DynamicResource Green}" VerticalAlignment="Center" FontSize="13"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="✕  Скасувати / Cancel" Width="145" Click="Cancel_Click"/>
+                        <Button Content="▣  Зберегти / Save" Width="145" Click="Save_Click"/>
+                        <Button Content="✓  Застосувати / Apply" Width="178" Style="{StaticResource AmberButton}" Click="Apply_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
         </Grid>
     </Border>
 </services:ModuleWindowBase>
