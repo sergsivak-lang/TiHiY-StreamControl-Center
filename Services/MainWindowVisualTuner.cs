@@ -7,6 +7,10 @@ public static class MainWindowVisualTuner
 {
     private sealed class Controller : IDisposable
     {
+        private static readonly FieldInfo? SyncingVolumeField = typeof(MainWindow).GetField(
+            "_syncingVolumeFromObs",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+
         private readonly MainWindow _window;
         private readonly DispatcherTimer _guardTimer;
         private readonly HashSet<Slider> _hookedMixerSliders = new();
@@ -256,7 +260,9 @@ public static class MainWindowVisualTuner
             foreach (var slider in FindDescendants<Slider>(_window).Where(x => x.Tag is AudioChannel))
             {
                 if (!_hookedMixerSliders.Add(slider)) continue;
+                slider.PreviewMouseLeftButtonDown += MixerSlider_PreviewMouseLeftButtonDown;
                 slider.PreviewMouseLeftButtonUp += MixerSlider_PreviewMouseLeftButtonUp;
+                slider.LostMouseCapture += MixerSlider_LostMouseCapture;
             }
 
             foreach (var button in FindDescendants<Button>(_window).Where(x => x.Tag is AudioChannel))
@@ -266,8 +272,12 @@ public static class MainWindowVisualTuner
             }
         }
 
+        private void MixerSlider_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e) =>
+            SetOriginalVolumeSyncGuard(true);
+
         private async void MixerSlider_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
+            SetOriginalVolumeSyncGuard(false);
             if (sender is not Slider { Tag: AudioChannel channel } slider || !App.Services.Obs.IsConnected) return;
             try
             {
@@ -278,6 +288,15 @@ public static class MainWindowVisualTuner
             {
                 App.Services.Logger.Error($"Гучність {channel.Name}", ex);
             }
+        }
+
+        private void MixerSlider_LostMouseCapture(object sender, MouseEventArgs e) =>
+            SetOriginalVolumeSyncGuard(false);
+
+        private void SetOriginalVolumeSyncGuard(bool value)
+        {
+            try { SyncingVolumeField?.SetValue(_window, value); }
+            catch { }
         }
 
         private async void MixerMute_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -357,11 +376,16 @@ public static class MainWindowVisualTuner
             _window.Closed -= Window_Closed;
 
             foreach (var slider in _hookedMixerSliders)
+            {
+                slider.PreviewMouseLeftButtonDown -= MixerSlider_PreviewMouseLeftButtonDown;
                 slider.PreviewMouseLeftButtonUp -= MixerSlider_PreviewMouseLeftButtonUp;
+                slider.LostMouseCapture -= MixerSlider_LostMouseCapture;
+            }
             foreach (var button in _hookedMuteButtons)
                 button.PreviewMouseLeftButtonDown -= MixerMute_PreviewMouseLeftButtonDown;
             _hookedMixerSliders.Clear();
             _hookedMuteButtons.Clear();
+            SetOriginalVolumeSyncGuard(false);
         }
     }
 
