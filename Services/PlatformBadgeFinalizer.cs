@@ -12,6 +12,7 @@ internal static class PlatformBadgeFinalizer
     {
         EventManager.RegisterClassHandler(typeof(MainWindow), FrameworkElement.LoadedEvent, new RoutedEventHandler(OnLoaded));
         EventManager.RegisterClassHandler(typeof(ChatBotWindow), FrameworkElement.LoadedEvent, new RoutedEventHandler(OnLoaded));
+        EventManager.RegisterClassHandler(typeof(LocalChatOverlayWindow), FrameworkElement.LoadedEvent, new RoutedEventHandler(OnLoaded));
     }
 
     private static void OnLoaded(object sender, RoutedEventArgs e)
@@ -31,7 +32,7 @@ internal static class PlatformBadgeFinalizer
             _window.Closed += Window_Closed;
             _timer = new DispatcherTimer(DispatcherPriority.Render, window.Dispatcher)
             {
-                Interval = TimeSpan.FromMilliseconds(180)
+                Interval = TimeSpan.FromMilliseconds(220)
             };
             _timer.Tick += Timer_Tick;
             _timer.Start();
@@ -47,15 +48,20 @@ internal static class PlatformBadgeFinalizer
                          .ToList())
             {
                 var message = (ChatMessage)messageBorder.DataContext;
-                var row = Descendants<Grid>(messageBorder)
-                    .FirstOrDefault(x => x.ColumnDefinitions.Count == 4);
-                var badge = row?.Children.OfType<Border>()
-                    .FirstOrDefault(x => Grid.GetColumn(x) == 1);
-                if (badge is null || badge.Child is PlatformVectorIcon) continue;
+                var badge = Descendants<Border>(messageBorder)
+                    .FirstOrDefault(x =>
+                    {
+                        if (x.Child is PlatformVectorIcon) return true;
+                        if (x.Child is not Image image) return false;
+                        var source = image.Source?.ToString() ?? string.Empty;
+                        return source.Contains("Platforms", StringComparison.OrdinalIgnoreCase) ||
+                               source.Contains("PlatformIcon", StringComparison.OrdinalIgnoreCase);
+                    });
 
+                if (badge is null || badge.Child is PlatformVectorIcon) continue;
                 badge.Child = new PlatformVectorIcon(message.Platform)
                 {
-                    Margin = new Thickness(2),
+                    Margin = new Thickness(1.5),
                     HorizontalAlignment = HorizontalAlignment.Stretch,
                     VerticalAlignment = VerticalAlignment.Stretch
                 };
