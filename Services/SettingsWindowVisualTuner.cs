@@ -35,6 +35,7 @@ public static class SettingsWindowVisualTuner
         {
             _window = window;
             _window.Loaded += Window_Loaded;
+            _window.SizeChanged += Window_SizeChanged;
             _window.Closed += Window_Closed;
             App.Services.Language.LanguageChanged += Language_Changed;
             if (_window.IsLoaded)
@@ -42,6 +43,7 @@ public static class SettingsWindowVisualTuner
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) => Apply();
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e) => TuneLayout();
         private void Language_Changed(object? sender, EventArgs e) =>
             _window.Dispatcher.BeginInvoke(new Action(Apply), DispatcherPriority.Render);
         private void Window_Closed(object? sender, EventArgs e) => Dispose();
@@ -54,22 +56,93 @@ public static class SettingsWindowVisualTuner
             _previewName ??= FindNamed<TextBlock>("ThemePreviewName");
             _previewDescription ??= FindNamed<TextBlock>("ThemePreviewDescription");
 
+            TuneWindowGeometry();
+            TuneLayout();
+
             if (_previewImage is not null)
             {
                 _previewImage.Stretch = Stretch.Uniform;
                 _previewImage.HorizontalAlignment = HorizontalAlignment.Center;
                 _previewImage.VerticalAlignment = VerticalAlignment.Center;
+                _previewImage.Margin = new Thickness(6);
             }
 
             if (_themeCombo is not null)
             {
                 _themeCombo.DisplayMemberPath = string.Empty;
                 _themeCombo.ItemTemplate = CreateThemeItemTemplate();
+                _themeCombo.MinHeight = 38;
                 _themeCombo.SelectionChanged -= ThemeCombo_SelectionChanged;
                 _themeCombo.SelectionChanged += ThemeCombo_SelectionChanged;
             }
 
             UpdatePreviewText();
+        }
+
+        private void TuneWindowGeometry()
+        {
+            var work = SystemParameters.WorkArea;
+            _window.SizeToContent = SizeToContent.Manual;
+            _window.MinWidth = Math.Min(1120, work.Width);
+            _window.MinHeight = Math.Min(700, work.Height);
+            _window.MaxWidth = work.Width;
+            _window.MaxHeight = work.Height;
+
+            if (_window.Width < 1120 || _window.Width > work.Width)
+                _window.Width = Math.Min(1360, work.Width);
+            if (_window.Height < 700 || _window.Height > work.Height)
+                _window.Height = Math.Min(840, work.Height);
+        }
+
+        private void TuneLayout()
+        {
+            var designSurface = FindNamed<Grid>("DesignSurface");
+            if (designSurface is not null)
+            {
+                designSurface.Margin = new Thickness(10);
+                if (designSurface.RowDefinitions.Count >= 3)
+                {
+                    designSurface.RowDefinitions[0].Height = new GridLength(78);
+                    designSurface.RowDefinitions[2].Height = new GridLength(52);
+                }
+            }
+
+            var tabs = FindDescendants<TabControl>(_window).FirstOrDefault();
+            if (tabs is not null)
+            {
+                tabs.Margin = new Thickness(0);
+                tabs.HorizontalContentAlignment = HorizontalAlignment.Stretch;
+                tabs.VerticalContentAlignment = VerticalAlignment.Stretch;
+                tabs.Background = Brushes.Transparent;
+                foreach (var tab in tabs.Items.OfType<TabItem>())
+                {
+                    tab.MinWidth = 225;
+                    tab.MaxWidth = 225;
+                    tab.FontSize = 12.5;
+                    tab.HorizontalContentAlignment = HorizontalAlignment.Left;
+                }
+            }
+
+            var previewBorder = FindNamed<Border>("ThemePreviewBorder");
+            if (previewBorder is not null)
+            {
+                previewBorder.MinWidth = 560;
+                previewBorder.MinHeight = 470;
+                previewBorder.Padding = new Thickness(10);
+                previewBorder.Margin = new Thickness(4, 0, 0, 0);
+
+                if (previewBorder.Parent is Grid themeGrid && themeGrid.ColumnDefinitions.Count >= 2)
+                {
+                    themeGrid.ColumnDefinitions[0].Width = new GridLength(350, GridUnitType.Pixel);
+                    themeGrid.ColumnDefinitions[1].Width = new GridLength(1, GridUnitType.Star);
+                }
+            }
+
+            foreach (var scroll in FindDescendants<ScrollViewer>(_window))
+            {
+                scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            }
         }
 
         private void ThemeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e) => UpdatePreviewText();
@@ -110,6 +183,7 @@ public static class SettingsWindowVisualTuner
             if (_themeCombo is not null)
                 _themeCombo.SelectionChanged -= ThemeCombo_SelectionChanged;
             _window.Loaded -= Window_Loaded;
+            _window.SizeChanged -= Window_SizeChanged;
             _window.Closed -= Window_Closed;
             App.Services.Language.LanguageChanged -= Language_Changed;
         }
