@@ -45,6 +45,7 @@ internal static class SettingsWindowReferenceFinalizer
                 ConfigureLanguageSelector();
                 ConfigureReferenceGeometry();
                 EnsureReferenceTitleStrip();
+                StretchThemePage();
                 FixConnectionRows();
             }), DispatcherPriority.ApplicationIdle);
         }
@@ -80,8 +81,6 @@ internal static class SettingsWindowReferenceFinalizer
 
             if (ciCapture)
             {
-                // The CI screenshot must render the approved 1648×928 reference instead
-                // of compressing it to the runner's small virtual desktop.
                 _window.MaxWidth = 4096;
                 _window.MaxHeight = 2160;
                 _window.Width = 1648;
@@ -207,6 +206,29 @@ internal static class SettingsWindowReferenceFinalizer
             design.Children.Add(strip);
         }
 
+        private void StretchThemePage()
+        {
+            if (FindNamed<ListBox>("ThemeList") is not { } list) return;
+
+            var pageGrid = FindAncestorGridWithRows(list, 4);
+            if (pageGrid is null) return;
+
+            var scroll = FindAncestor<ScrollViewer>(pageGrid);
+            var tab = FindAncestor<TabItem>(scroll ?? pageGrid);
+            if (scroll is not null && tab is not null && ReferenceEquals(scroll.Content, pageGrid))
+            {
+                scroll.Content = null;
+                tab.Content = pageGrid;
+            }
+
+            pageGrid.VerticalAlignment = VerticalAlignment.Stretch;
+            pageGrid.HorizontalAlignment = HorizontalAlignment.Stretch;
+            pageGrid.RowDefinitions[0].Height = GridLength.Auto;
+            pageGrid.RowDefinitions[1].Height = new GridLength(1.22, GridUnitType.Star);
+            pageGrid.RowDefinitions[2].Height = new GridLength(0.75, GridUnitType.Star);
+            pageGrid.RowDefinitions[3].Height = new GridLength(0.95, GridUnitType.Star);
+        }
+
         private static Button CreateTitleButton(string text, Action action, bool closeButton = false)
         {
             var button = new Button
@@ -260,6 +282,14 @@ internal static class SettingsWindowReferenceFinalizer
 
         private T? FindNamed<T>(string name) where T : FrameworkElement =>
             FindDescendants<T>(_window).FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.Ordinal));
+    }
+
+    private static Grid? FindAncestorGridWithRows(DependencyObject source, int rowCount)
+    {
+        for (var current = source; current is not null; current = GetParent(current))
+            if (current is Grid grid && grid.RowDefinitions.Count == rowCount)
+                return grid;
+        return null;
     }
 
     private static T? FindAncestor<T>(DependencyObject? source) where T : DependencyObject
