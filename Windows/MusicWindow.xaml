@@ -5,39 +5,47 @@
         xmlns:models="clr-namespace:TiHiY.StreamControlCenter.Models"
         Title="Музичний плеєр" Width="1180" Height="760" MinWidth="610" MinHeight="400" WindowStyle="None" ResizeMode="CanResize">
     <Border BorderBrush="{DynamicResource Line}" BorderThickness="1" Background="{DynamicResource WindowGradient}">
-            <Grid x:Name="DesignSurface" Margin="12">
-                <Grid.RowDefinitions><RowDefinition Height="56"/><RowDefinition/><RowDefinition Height="64"/></Grid.RowDefinitions>
-                <Border Grid.Row="0" Background="{DynamicResource Panel2}" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-                    <Grid Margin="14,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"><TextBlock Text="TiHiY MUSIC PLAYER" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource Cyan}"/><TextBlock Text="  •  LOCAL PLAYLIST + NOW PLAYING" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/></StackPanel>
-                        <StackPanel Grid.Column="1" Orientation="Horizontal"><Button Style="{StaticResource WindowButton}" Content="—" Width="40" Height="32" Padding="0" Click="Minimize_Click"/><Button Style="{StaticResource WindowButton}" Content="□" Width="40" Height="32" Padding="0" Click="Maximize_Click"/><Button Style="{StaticResource WindowButton}" Content="×" Width="40" Height="32" Padding="0" Background="#3B0D13" BorderBrush="{DynamicResource Red}" Click="Close_Click"/></StackPanel>
+        <Grid x:Name="DesignSurface" Margin="12">
+            <Grid.RowDefinitions><RowDefinition Height="56"/><RowDefinition/><RowDefinition Height="64"/></Grid.RowDefinitions>
+            <Border Grid.Row="0" Background="{DynamicResource Panel2}" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid Margin="14,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center"><TextBlock Text="TiHiY MUSIC PLAYER" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource Cyan}"/><TextBlock Text="  •  LOCAL PLAYLIST + NOW PLAYING" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/></StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal"><Button Style="{StaticResource WindowButton}" Content="—" Width="40" Height="32" Padding="0" Click="Minimize_Click"/><Button Style="{StaticResource WindowButton}" Content="□" Width="40" Height="32" Padding="0" Click="Maximize_Click"/><Button Style="{StaticResource WindowButton}" Content="×" Width="40" Height="32" Padding="0" Background="#3B0D13" BorderBrush="{DynamicResource Red}" Click="Close_Click"/></StackPanel>
+                </Grid>
+            </Border>
+            <Grid Grid.Row="1" Margin="0,12,0,8">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="1.35*"/><ColumnDefinition Width="1*"/></Grid.ColumnDefinitions>
+                <Border Style="{StaticResource PanelBorder}" Margin="0,0,8,0">
+                    <Grid><Grid.RowDefinitions><RowDefinition Height="44"/><RowDefinition/><RowDefinition Height="46"/></Grid.RowDefinitions>
+                        <Grid><TextBlock Text="ПЛЕЙЛИСТ" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Cyan}"/><StackPanel HorizontalAlignment="Right" Orientation="Horizontal"><Button Content="ДОДАТИ ФАЙЛИ" Click="AddFiles_Click" Background="#1453A5"/><Button Content="ВИДАЛИТИ" Click="Remove_Click"/><Button Content="ОЧИСТИТИ" Click="Clear_Click"/></StackPanel></Grid>
+                        <ItemsControl Grid.Row="1" ItemsSource="{Binding PlaylistPage}">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="9" Columns="1"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate><DataTemplate DataType="{x:Type models:TrackItem}"><Button Tag="{Binding}" Click="Track_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="9" Margin="2"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="36"/><ColumnDefinition/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions><TextBlock Text="♫" Foreground="{DynamicResource Green}"/><TextBlock Grid.Column="1" Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/><TextBlock Grid.Column="2" Text="{Binding Artist}" Foreground="{DynamicResource Muted}" TextTrimming="CharacterEllipsis"/></Grid></Button></DataTemplate></ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center"><Button Content="‹" Width="44" Click="PreviousPage_Click"/><TextBlock x:Name="PageText" Text="1 / 1" Margin="12,0" VerticalAlignment="Center"/><Button Content="›" Width="44" Click="NextPage_Click"/></StackPanel>
                     </Grid>
                 </Border>
-                <Grid Grid.Row="1" Margin="0,12,0,8">
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="1.35*"/><ColumnDefinition Width="1*"/></Grid.ColumnDefinitions>
-                    <Border Style="{StaticResource PanelBorder}" Margin="0,0,8,0">
-                        <Grid><Grid.RowDefinitions><RowDefinition Height="44"/><RowDefinition/><RowDefinition Height="46"/></Grid.RowDefinitions>
-                            <Grid><TextBlock Text="ПЛЕЙЛИСТ" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Cyan}"/><StackPanel HorizontalAlignment="Right" Orientation="Horizontal"><Button Content="ДОДАТИ ФАЙЛИ" Click="AddFiles_Click" Background="#1453A5"/><Button Content="ВИДАЛИТИ" Click="Remove_Click"/><Button Content="ОЧИСТИТИ" Click="Clear_Click"/></StackPanel></Grid>
-                            <ItemsControl Grid.Row="1" ItemsSource="{Binding PlaylistPage}">
-                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="9" Columns="1"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate><DataTemplate DataType="{x:Type models:TrackItem}"><Button Tag="{Binding}" Click="Track_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="9" Margin="2"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="36"/><ColumnDefinition/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions><TextBlock Text="♫" Foreground="{DynamicResource Green}"/><TextBlock Grid.Column="1" Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/><TextBlock Grid.Column="2" Text="{Binding Artist}" Foreground="{DynamicResource Muted}" TextTrimming="CharacterEllipsis"/></Grid></Button></DataTemplate></ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center"><Button Content="‹" Width="44" Click="PreviousPage_Click"/><TextBlock x:Name="PageText" Text="1 / 1" Margin="12,0" VerticalAlignment="Center"/><Button Content="›" Width="44" Click="NextPage_Click"/></StackPanel>
-                        </Grid>
-                    </Border>
-                    <Border Grid.Column="1" Style="{StaticResource PanelBorder}" Margin="8,0,0,0">
-                        <Grid><Grid.RowDefinitions><RowDefinition Height="38"/><RowDefinition/><RowDefinition Height="44"/><RowDefinition Height="78"/><RowDefinition Height="62"/></Grid.RowDefinitions>
-                            <TextBlock Text="ЗАРАЗ ГРАЄ" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Cyan}"/>
-                            <StackPanel Grid.Row="1" VerticalAlignment="Center"><Border Width="180" Height="180" CornerRadius="10" Background="#092430" BorderBrush="#2C7585" BorderThickness="1" HorizontalAlignment="Center"><TextBlock Text="♫" FontSize="82" Foreground="{DynamicResource Green}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock x:Name="TitleText" Text="Трек не вибрано" FontSize="27" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap" Margin="0,18,0,3"/><TextBlock x:Name="ArtistText" Text="" Foreground="{DynamicResource Muted}" FontSize="17" TextAlignment="Center"/></StackPanel>
-                            <Grid Grid.Row="2"><Grid.RowDefinitions><RowDefinition/><RowDefinition Height="20"/></Grid.RowDefinitions><ProgressBar x:Name="Progress" Maximum="1" Height="8"/><TextBlock x:Name="TimeText" Grid.Row="1" Text="00:00 / 00:00" HorizontalAlignment="Right" Foreground="{DynamicResource Muted}"/></Grid>
-                            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"><Button Content="⏮" FontSize="22" Click="Previous_Click"/><Button x:Name="PlayPauseButton" Content="▶" FontSize="22" Click="PlayPause_Click" Background="#1453A5"/><Button Content="⏭" FontSize="22" Click="Next_Click"/><Button x:Name="MuteButton" Content="MUTE" Click="Mute_Click" Background="#52212A"/><ComboBox x:Name="RepeatModeCombo" Width="184" Margin="8,4" SelectionChanged="RepeatModeCombo_SelectionChanged" ToolTip="Режим повтору"><ComboBoxItem Tag="Off" Content="ПОВТОР: ВИМКНЕНО"/><ComboBoxItem Tag="Track" Content="ПОВТОР ТРЕКУ"/><ComboBoxItem Tag="Playlist" Content="ПОВТОР ПЛЕЙЛИСТА"/></ComboBox></StackPanel>
-                            <Grid Grid.Row="4"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="165"/></Grid.ColumnDefinitions><TextBlock Text="VOL" VerticalAlignment="Center" Foreground="{DynamicResource Muted}"/><Slider x:Name="VolumeSlider" Grid.Column="1" Minimum="0" Maximum="1" Value="0.65" ValueChanged="VolumeSlider_ValueChanged"/><ComboBox Grid.Column="2" SelectedIndex="0" ToolTip="У Trial плеєр використовує вибраний у Windows пристрій"><ComboBoxItem Content="Вихід Windows за замовч."/><ComboBoxItem Content="Віртуальний кабель (через Windows)"/></ComboBox></Grid>
-                        </Grid>
-                    </Border>
-                </Grid>
-                <Border Grid.Row="2" Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="5" Padding="8">
-                    <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock x:Name="StatusText" Text="Віджет «Зараз грає» автоматично оновлюється в OBS Browser Source" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/><StackPanel Grid.Column="1" Orientation="Horizontal"><Button Content="ВІДКРИТИ NOW PLAYING" Click="OpenOverlay_Click"/><Button Content="КОПІЮВАТИ URL" Click="CopyOverlay_Click" Background="#123B32"/></StackPanel></Grid>
+                <Border Grid.Column="1" Style="{StaticResource PanelBorder}" Margin="8,0,0,0">
+                    <Grid><Grid.RowDefinitions><RowDefinition Height="38"/><RowDefinition/><RowDefinition Height="44"/><RowDefinition Height="78"/><RowDefinition Height="78"/></Grid.RowDefinitions>
+                        <TextBlock Text="ЗАРАЗ ГРАЄ" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Cyan}"/>
+                        <StackPanel Grid.Row="1" VerticalAlignment="Center"><Border Width="180" Height="180" CornerRadius="10" Background="#092430" BorderBrush="#2C7585" BorderThickness="1" HorizontalAlignment="Center"><TextBlock Text="♫" FontSize="82" Foreground="{DynamicResource Green}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock x:Name="TitleText" Text="Трек не вибрано" FontSize="27" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap" Margin="0,18,0,3"/><TextBlock x:Name="ArtistText" Text="" Foreground="{DynamicResource Muted}" FontSize="17" TextAlignment="Center"/></StackPanel>
+                        <Grid Grid.Row="2"><Grid.RowDefinitions><RowDefinition/><RowDefinition Height="20"/></Grid.RowDefinitions><ProgressBar x:Name="Progress" Maximum="1" Height="8"/><TextBlock x:Name="TimeText" Grid.Row="1" Text="00:00 / 00:00" HorizontalAlignment="Right" Foreground="{DynamicResource Muted}"/></Grid>
+                        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"><Button Content="⏮" FontSize="22" Click="Previous_Click"/><Button x:Name="PlayPauseButton" Content="▶" FontSize="22" Click="PlayPause_Click" Background="#1453A5"/><Button Content="⏭" FontSize="22" Click="Next_Click"/><ComboBox x:Name="RepeatModeCombo" Width="184" Margin="8,4" SelectionChanged="RepeatModeCombo_SelectionChanged" ToolTip="Режим повтору"><ComboBoxItem Tag="Off" Content="ПОВТОР: ВИМКНЕНО"/><ComboBoxItem Tag="Track" Content="ПОВТОР ТРЕКУ"/><ComboBoxItem Tag="Playlist" Content="ПОВТОР ПЛЕЙЛИСТА"/></ComboBox></StackPanel>
+                        <Border Grid.Row="4" Background="#07182A" BorderBrush="#285A78" BorderThickness="1" CornerRadius="6" Padding="10,7" Margin="0,3,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="64"/><ColumnDefinition Width="98"/></Grid.ColumnDefinitions>
+                                <TextBlock Text="ГУЧНІСТЬ ПЛЕЄРА" Foreground="{DynamicResource Amber}" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                <Slider x:Name="VolumeSlider" Grid.Column="1" Minimum="0" Maximum="100" Value="65" TickFrequency="5" IsSnapToTickEnabled="False" ValueChanged="VolumeSlider_ValueChanged" Margin="0,0,10,0"/>
+                                <TextBlock x:Name="VolumeValueText" Grid.Column="2" Text="65%" Foreground="{DynamicResource Cyan}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Button x:Name="MuteButton" Grid.Column="3" Content="MUTE" Click="Mute_Click" Background="#52212A" Margin="4,0,0,0"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
                 </Border>
             </Grid>
+            <Border Grid.Row="2" Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="5" Padding="8">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock x:Name="StatusText" Text="Віджет «Зараз грає» автоматично оновлюється в OBS Browser Source" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/><StackPanel Grid.Column="1" Orientation="Horizontal"><Button Content="ВІДКРИТИ NOW PLAYING" Click="OpenOverlay_Click"/><Button Content="КОПІЮВАТИ URL" Click="CopyOverlay_Click" Background="#123B32"/></StackPanel></Grid>
+            </Border>
+        </Grid>
     </Border>
 </services:ModuleWindowBase>
