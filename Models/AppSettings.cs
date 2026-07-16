@@ -97,12 +97,13 @@ public sealed class AppSettings
     public Dictionary<string, string> DashboardFreeformBounds { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public int UkraineReferenceLayoutVersion { get; set; }
     public int SettingsWindowLayoutVersion { get; set; }
+    public int ChatColorMigrationVersion { get; set; }
     public string HighlightWords { get; set; } = "TiHiY-DED,tihiy_ded,@TiHiY-DED,@tihiy_ded,Тихий Дід,дід";
     public string OwnerColor { get; set; } = "#FFD329";
     public string ModeratorColor { get; set; } = "#45B6FF";
     public string SubscriberColor { get; set; } = "#22D878";
     public string VipColor { get; set; } = "#C77DFF";
-    public string ViewerColor { get; set; } = "#EDF7FF";
+    public string ViewerColor { get; set; } = "#55C8FF";
     public string BotColor { get; set; } = "#95A4AE";
     public string HighlightTextColor { get; set; } = "#07131E";
     public string HighlightBackgroundColor { get; set; } = "#FFD329";
@@ -116,7 +117,7 @@ public sealed class AppSettings
 
     public double StreamChatOverlayFontSize { get; set; } = 20;
     public string StreamChatOverlayTextColor { get; set; } = "#F2FAFF";
-    public string StreamChatOverlayUserColor { get; set; } = "#FFD329";
+    public string StreamChatOverlayUserColor { get; set; } = "#55C8FF";
     public string StreamChatOverlayBackgroundColor { get; set; } = "#000000";
     public double StreamChatOverlayBackgroundOpacity { get; set; }
     public int StreamChatOverlayMaxMessages { get; set; } = 12;
@@ -127,7 +128,7 @@ public sealed class AppSettings
     public double LocalChatOverlayFontSize { get; set; } = 20;
     public int LocalChatOverlayMaxMessages { get; set; } = 12;
     public string LocalChatOverlayTextColor { get; set; } = "#F2FAFF";
-    public string LocalChatOverlayUserColor { get; set; } = "#FFD329";
+    public string LocalChatOverlayUserColor { get; set; } = "#55C8FF";
 
     public bool ChatBotEnabled { get; set; } = true;
     public bool ChatBotAutoStart { get; set; } = true;
@@ -149,6 +150,8 @@ public sealed class AppSettings
     public List<BotCommand> BotCommands { get; set; } = new();
     public List<string> MusicPlaylistPaths { get; set; } = new();
     public string MusicRepeatMode { get; set; } = "Playlist";
+    public double MusicVolume { get; set; } = 0.65;
+    public bool MusicMuted { get; set; }
     public int DashboardLayoutVersion { get; set; } = 0;
     public double MainLeftColumnWidth { get; set; } = 1.035;
     public double MainBottomLeftColumnWidth { get; set; } = 1.02;
