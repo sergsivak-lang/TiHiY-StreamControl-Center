@@ -30,7 +30,7 @@ public static class ThemePreviewRenderer
             var footerWidth = (width - gap * 4) / 3d;
             DrawFooterPanel(drawing, theme, new Rect(gap, footerTop, footerWidth, footerHeight), "SYSTEM", 0);
             DrawFooterPanel(drawing, theme, new Rect(gap * 2 + footerWidth, footerTop, footerWidth, footerHeight), "UKRAINE", 1);
-            DrawFooterPanel(drawing, theme, new Rect(gap * 3 + footerWidth * 2, footerTop, footerWidth, footerHeight), "AIDA64", 2);
+            DrawFooterPanel(drawing, theme, new Rect(gap * 3 + footerWidth * 2, footerTop, footerWidth, footerHeight), "AIDA64 LIVE", 2);
         }
 
         var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
@@ -169,11 +169,22 @@ public static class ThemePreviewRenderer
         }
         else
         {
+            var labels = new[] { "CPU", "GPU", "RAM", "FPS" };
+            var values = new[] { "52°", "54°", "31%", "60" };
+            var gap = 3d;
+            var x = rect.X + 8;
+            var width = (rect.Width - 16 - gap * 3) / 4d;
             for (var i = 0; i < 4; i++)
             {
-                var center = new Point(rect.X + 24 + i * 35, rect.Y + 45);
-                drawing.DrawEllipse(null, new Pen(new SolidColorBrush(i == 2 ? theme.Palette.Amber : theme.Palette.Cyan), 2), center, 12, 12);
-                DrawText(drawing, i switch { 0 => "CPU", 1 => "GPU", 2 => "RAM", _ => "FPS" }, 5.5, FontWeights.Bold, new SolidColorBrush(theme.Palette.Text), new Point(center.X - 9, center.Y - 3));
+                var card = new Rect(x + i * (width + gap), rect.Y + 31, width, 24);
+                drawing.DrawRoundedRectangle(
+                    new SolidColorBrush(theme.Palette.Panel2),
+                    new Pen(new SolidColorBrush(i == 2 ? theme.Palette.Amber : theme.Palette.Cyan), 0.9),
+                    card,
+                    3,
+                    3);
+                DrawText(drawing, labels[i], 5.3, FontWeights.Bold, new SolidColorBrush(theme.Palette.Amber), new Point(card.X + 4, card.Y + 3));
+                DrawText(drawing, values[i], 8.5, FontWeights.Black, new SolidColorBrush(theme.Palette.Text), new Point(card.X + 4, card.Y + 11));
             }
         }
     }
