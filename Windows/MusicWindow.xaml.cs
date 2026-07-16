@@ -18,6 +18,13 @@ public partial class MusicWindow : ModuleWindowBase
         DataContext = this;
         ConfigureModule(DesignSurface, 1160, 730, "Music");
         VolumeSlider.Value = _services.Music.Volume;
+        _services.Music.RepeatMode = MusicPlayerService.ParseRepeatMode(_services.Settings.Value.MusicRepeatMode);
+        RepeatModeCombo.SelectedIndex = _services.Music.RepeatMode switch
+        {
+            MusicRepeatMode.Off => 0,
+            MusicRepeatMode.Track => 1,
+            _ => 2
+        };
         _services.Music.TrackChanged += Music_Changed;
         _services.Music.PositionChanged += Music_Changed;
         Closed += (_, _) =>
@@ -77,6 +84,25 @@ public partial class MusicWindow : ModuleWindowBase
         MuteButton.Content = _services.Music.IsMuted ? "MUTE: ON" : "MUTE";
     }
     private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) { if (IsLoaded) _services.Music.Volume = e.NewValue; }
+
+    private void RepeatModeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (RepeatModeCombo.SelectedItem is not ComboBoxItem item) return;
+        var mode = MusicPlayerService.ParseRepeatMode(item.Tag?.ToString());
+        _services.Music.RepeatMode = mode;
+        _services.Settings.Value.MusicRepeatMode = mode.ToString();
+        if (IsLoaded)
+        {
+            _services.Save();
+            StatusText.Text = mode switch
+            {
+                MusicRepeatMode.Off => "Повтор вимкнено: плейлист зупиниться після останнього треку.",
+                MusicRepeatMode.Track => "Увімкнено повтор поточного треку.",
+                _ => "Увімкнено повтор усього плейлиста."
+            };
+        }
+    }
+
     private void UpdateNowPlaying()
     {
         var track = _services.Music.CurrentTrack;
