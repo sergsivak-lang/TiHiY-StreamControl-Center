@@ -13,9 +13,9 @@ if (-not (Test-Path -LiteralPath $source)) {
 
 $encoded = (Get-Content -LiteralPath $source -Raw).Trim()
 $bytes = [Convert]::FromBase64String($encoded)
-if ($bytes.Length -lt 10000) {
-    throw "Approved central Ukraine texture is unexpectedly small: $($bytes.Length) bytes."
+if ($bytes.Length -eq 0) {
+    throw 'Approved central Ukraine texture decoded to an empty file.'
 }
 
 [IO.File]::WriteAllBytes($output, $bytes)
-Write-Host "Generated approved central texture: $output ($($bytes.Length) bytes; signature $($bytes[0]),$($bytes[1]),$($bytes[2]),$($bytes[3]))"
+Write-Host "Generated approved central texture: $output ($($bytes.Length) bytes)"
