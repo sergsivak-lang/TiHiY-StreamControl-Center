@@ -4,18 +4,22 @@ param(
 )
 
 $assetDir = Join-Path $ProjectDir 'Assets\Themes\UkraineExact'
-$source = Join-Path $assetDir 'central-glory.b64.000'
-$output = Join-Path $assetDir 'central-glory.png'
+$output = Join-Path $assetDir 'central-glory.jpg'
+$chunks = Get-ChildItem -LiteralPath $assetDir -Filter 'central-glory.b64.*' | Sort-Object Name
 
-if (-not (Test-Path -LiteralPath $source)) {
-    throw 'Approved central Ukraine texture source is missing.'
+if ($chunks.Count -lt 1) {
+    throw 'Approved central Ukraine texture source chunks are missing.'
 }
 
-$encoded = (Get-Content -LiteralPath $source -Raw).Trim()
-$bytes = [Convert]::FromBase64String($encoded)
+$builder = [System.Text.StringBuilder]::new()
+foreach ($chunk in $chunks) {
+    [void]$builder.Append((Get-Content -LiteralPath $chunk.FullName -Raw).Trim())
+}
+
+$bytes = [Convert]::FromBase64String($builder.ToString())
 if ($bytes.Length -eq 0) {
     throw 'Approved central Ukraine texture decoded to an empty file.'
 }
 
 [IO.File]::WriteAllBytes($output, $bytes)
-Write-Host "Generated approved central texture: $output ($($bytes.Length) bytes)"
+Write-Host "Generated approved central texture: $output ($($bytes.Length) bytes from $($chunks.Count) chunks)"
