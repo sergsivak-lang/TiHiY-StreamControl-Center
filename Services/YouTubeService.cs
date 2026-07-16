@@ -22,14 +22,18 @@ public sealed class YouTubeService : IAsyncDisposable
     private string _liveChatId = string.Empty;
     private string _broadcastId = string.Empty;
     private string _nextPageToken = string.Empty;
-    private int _pollIntervalMs = 5000;
+    private int _pollIntervalMs = 10_000;
     private bool _lastLive;
     private string _lastBroadcastId = string.Empty;
+    private DateTime _lastBroadcastLookupUtc = DateTime.MinValue;
+    private DateTime _lastStatsUpdateUtc = DateTime.MinValue;
+    private bool _quotaExceeded;
     private readonly HashSet<string> _seenDonationIds = new(StringComparer.Ordinal);
 
     public bool IsAuthorized => !string.IsNullOrWhiteSpace(_token.AccessToken);
     public bool IsConnected => _pollLoop is not null && !_pollLoop.IsCompleted;
-    public bool HasLiveChat => IsConnected && !string.IsNullOrWhiteSpace(_liveChatId);
+    public bool HasLiveChat => IsConnected && !_quotaExceeded && !string.IsNullOrWhiteSpace(_liveChatId);
+    public bool QuotaExceeded => _quotaExceeded;
     public string Status { get; private set; } = "НЕ ПІДКЛЮЧЕНО";
     public string ActiveBroadcastId => _broadcastId;
     public event EventHandler? StatusChanged;
@@ -83,6 +87,10 @@ public sealed class YouTubeService : IAsyncDisposable
         await EnsureTokenAsync(token);
         if (!_token.IsUsable) throw new InvalidOperationException("YouTube не авторизовано.");
         await DisconnectAsync();
+        _quotaExceeded = false;
+        _lastBroadcastLookupUtc = DateTime.MinValue;
+        _lastStatsUpdateUtc = DateTime.MinValue;
+        _pollIntervalMs = 10_000;
         _cts = CancellationTokenSource.CreateLinkedTokenSource(token);
         _pollLoop = Task.Run(() => PollLoopAsync(_cts.Token));
         SetStatus("ПОШУК ТРАНСЛЯЦІЇ");
@@ -91,7 +99,30 @@ public sealed class YouTubeService : IAsyncDisposable
     public async Task SendMessageAsync(string text, CancellationToken token = default)
     {
         await EnsureTokenAsync(token);
-        if (string.IsNullOrWhiteSpace(_liveChatId)) throw new InvalidOperationException("Активний YouTube live chat не знайдено.");
+        if (_quotaExceeded)
+            throw new InvalidOperationException("Добову квоту YouTube API вичерпано. Після відновлення квоти перепідключіть YouTube.");
+        if (string.IsNullOrWhiteSpace(text)) return;
+
+        await EnsureLiveChatContextAsync(token);
+        if (string.IsNullOrWhiteSpace(_liveChatId))
+            throw new InvalidOperationException("Активний YouTube live chat не знайдено. Переконайтеся, що ефір запущений і чат увімкнений.");
+
+        try
+        {
+            await PostMessageAsync(text, token);
+        }
+        catch (InvalidOperationException ex) when (!_quotaExceeded && IsLiveChatContextError(ex.Message))
+        {
+            _liveChatId = string.Empty;
+            _nextPageToken = string.Empty;
+            await RefreshBroadcastContextAsync(token, true);
+            if (string.IsNullOrWhiteSpace(_liveChatId)) throw;
+            await PostMessageAsync(text, token);
+        }
+    }
+
+    private async Task PostMessageAsync(string text, CancellationToken token)
+    {
         var payload = new JsonObject
         {
             ["snippet"] = new JsonObject
@@ -120,6 +151,7 @@ public sealed class YouTubeService : IAsyncDisposable
     private async Task BanOrTimeoutAsync(string channelId, int? durationSeconds, bool permanent, CancellationToken token)
     {
         await EnsureTokenAsync(token);
+        await EnsureLiveChatContextAsync(token);
         if (string.IsNullOrWhiteSpace(_liveChatId)) throw new InvalidOperationException("Активний YouTube live chat не знайдено.");
         if (string.IsNullOrWhiteSpace(channelId)) throw new InvalidOperationException("YouTube не передав ID каналу учасника.");
         var snippet = new JsonObject
@@ -190,7 +222,9 @@ public sealed class YouTubeService : IAsyncDisposable
         _cts?.Dispose();
         _cts = null;
         _liveChatId = string.Empty;
+        _broadcastId = string.Empty;
         _nextPageToken = string.Empty;
+        _quotaExceeded = false;
         SetStatus("НЕ ПІДКЛЮЧЕНО");
     }
 
@@ -208,41 +242,40 @@ public sealed class YouTubeService : IAsyncDisposable
     {
         while (!token.IsCancellationRequested)
         {
+            if (_quotaExceeded)
+            {
+                SetStatus("КВОТУ ВИЧЕРПАНО");
+                try { await Task.Delay(TimeSpan.FromMinutes(15), token); }
+                catch { break; }
+                _quotaExceeded = false;
+                _lastBroadcastLookupUtc = DateTime.MinValue;
+            }
+
             try
             {
                 await EnsureTokenAsync(token);
-                var mine = await ApiAsync(HttpMethod.Get, "liveBroadcasts?part=id,snippet,status&mine=true&broadcastType=all&maxResults=50", null, token);
-                var item = mine["items"] is JsonArray broadcasts
-                    ? broadcasts.OfType<JsonObject>().FirstOrDefault(IsLiveBroadcast)
-                    : null;
-                var live = item is not null;
-                var id = item?["id"]?.GetValue<string>() ?? string.Empty;
-                var snippet = item?["snippet"] as JsonObject;
-                var title = snippet?["title"]?.GetValue<string>() ?? string.Empty;
-                var chatId = snippet?["liveChatId"]?.GetValue<string>() ?? string.Empty;
-                if (id != _broadcastId)
+                var now = DateTime.UtcNow;
+                var refreshInterval = string.IsNullOrWhiteSpace(_broadcastId) ? TimeSpan.FromSeconds(30) : TimeSpan.FromSeconds(60);
+                if (now - _lastBroadcastLookupUtc >= refreshInterval)
+                    await RefreshBroadcastContextAsync(token, true);
+
+                var live = !string.IsNullOrWhiteSpace(_broadcastId);
+                var info = BuildLiveInfo(live);
+
+                if (live && !string.IsNullOrWhiteSpace(_liveChatId))
                 {
-                    _broadcastId = id;
-                    _liveChatId = chatId;
-                    _nextPageToken = string.Empty;
-                }
-                _settings.Value.YouTubeLive = live;
-                _settings.Value.YouTubeActiveBroadcastId = id;
-                _settings.Value.YouTubeStreamTitle = title;
-                var info = new StreamLiveInfo
-                {
-                    Platform = "YouTube",
-                    IsLive = live,
-                    BroadcastId = id,
-                    Title = title,
-                    Url = string.IsNullOrWhiteSpace(id) ? "https://www.youtube.com/@TiHiY-DED/live" : $"https://www.youtube.com/watch?v={id}",
-                    ThumbnailUrl = string.IsNullOrWhiteSpace(id) ? string.Empty : $"https://i.ytimg.com/vi/{id}/maxresdefault.jpg"
-                };
-                if (live)
-                {
-                    await UpdateStatsAsync(info, token);
+                    if (now - _lastStatsUpdateUtc >= TimeSpan.FromSeconds(30))
+                    {
+                        await UpdateStatsAsync(info, token);
+                        _lastStatsUpdateUtc = now;
+                        StatsChanged?.Invoke(this, info);
+                    }
                     await ReadChatAsync(token);
                     SetStatus("ЧАТ ПІДКЛЮЧЕНО");
+                }
+                else if (live)
+                {
+                    SetStatus("ЕФІР Є • ЧАТ НЕДОСТУПНИЙ");
                 }
                 else
                 {
@@ -250,21 +283,65 @@ public sealed class YouTubeService : IAsyncDisposable
                     _settings.Value.YouTubeLikes = 0;
                     SetStatus("ЕФІР НЕ ЗНАЙДЕНО");
                 }
-                StatsChanged?.Invoke(this, info);
-                if (live != _lastLive || (live && id != _lastBroadcastId)) LiveStateChanged?.Invoke(this, info);
+
+                if (live != _lastLive || (live && _broadcastId != _lastBroadcastId))
+                    LiveStateChanged?.Invoke(this, info);
                 _lastLive = live;
-                _lastBroadcastId = id;
-                _settingsService.Save(_settings.Value);
+                _lastBroadcastId = _broadcastId;
             }
             catch (OperationCanceledException) { break; }
             catch (Exception ex)
             {
                 _logger.Error("YouTube live", ex);
-                SetStatus("ПОМИЛКА API");
+                if (!_quotaExceeded) SetStatus("ПОМИЛКА API");
             }
-            try { await Task.Delay(Math.Clamp(_pollIntervalMs, 2000, 15000), token); } catch { break; }
+
+            var delay = string.IsNullOrWhiteSpace(_liveChatId) ? 15_000 : Math.Clamp(_pollIntervalMs, 10_000, 30_000);
+            try { await Task.Delay(delay, token); } catch { break; }
         }
     }
+
+    private async Task EnsureLiveChatContextAsync(CancellationToken token)
+    {
+        if (!string.IsNullOrWhiteSpace(_liveChatId)) return;
+        await RefreshBroadcastContextAsync(token, true);
+    }
+
+    private async Task RefreshBroadcastContextAsync(CancellationToken token, bool save)
+    {
+        var mine = await ApiAsync(HttpMethod.Get, "liveBroadcasts?part=id,snippet,status&mine=true&broadcastType=all&maxResults=50", null, token);
+        var item = mine["items"] is JsonArray broadcasts
+            ? broadcasts.OfType<JsonObject>().FirstOrDefault(IsLiveBroadcast)
+            : null;
+        var id = item?["id"]?.GetValue<string>() ?? string.Empty;
+        var snippet = item?["snippet"] as JsonObject;
+        var title = snippet?["title"]?.GetValue<string>() ?? string.Empty;
+        var chatId = snippet?["liveChatId"]?.GetValue<string>() ?? string.Empty;
+
+        if (!string.Equals(id, _broadcastId, StringComparison.Ordinal) ||
+            !string.Equals(chatId, _liveChatId, StringComparison.Ordinal))
+        {
+            _broadcastId = id;
+            _liveChatId = chatId;
+            _nextPageToken = string.Empty;
+        }
+
+        _lastBroadcastLookupUtc = DateTime.UtcNow;
+        _settings.Value.YouTubeLive = !string.IsNullOrWhiteSpace(id);
+        _settings.Value.YouTubeActiveBroadcastId = id;
+        _settings.Value.YouTubeStreamTitle = title;
+        if (save) _settingsService.Save(_settings.Value);
+    }
+
+    private StreamLiveInfo BuildLiveInfo(bool live) => new()
+    {
+        Platform = "YouTube",
+        IsLive = live,
+        BroadcastId = _broadcastId,
+        Title = _settings.Value.YouTubeStreamTitle,
+        Url = string.IsNullOrWhiteSpace(_broadcastId) ? "https://www.youtube.com/@TiHiY-DED/live" : $"https://www.youtube.com/watch?v={_broadcastId}",
+        ThumbnailUrl = string.IsNullOrWhiteSpace(_broadcastId) ? string.Empty : $"https://i.ytimg.com/vi/{_broadcastId}/maxresdefault.jpg"
+    };
 
     private static bool IsLiveBroadcast(JsonObject broadcast)
     {
@@ -286,6 +363,7 @@ public sealed class YouTubeService : IAsyncDisposable
         _settings.Value.YouTubeLikes = likes;
         info.Viewers = viewers;
         info.Likes = likes;
+        _settingsService.Save(_settings.Value);
     }
 
     private async Task ReadChatAsync(CancellationToken token)
@@ -295,7 +373,7 @@ public sealed class YouTubeService : IAsyncDisposable
         if (!string.IsNullOrWhiteSpace(_nextPageToken)) path += $"&pageToken={Uri.EscapeDataString(_nextPageToken)}";
         var json = await ApiAsync(HttpMethod.Get, path, null, token);
         _nextPageToken = json["nextPageToken"]?.GetValue<string>() ?? _nextPageToken;
-        _pollIntervalMs = json["pollingIntervalMillis"]?.GetValue<int>() ?? 5000;
+        _pollIntervalMs = Math.Clamp(json["pollingIntervalMillis"]?.GetValue<int>() ?? 10_000, 10_000, 30_000);
         if (json["items"] is not JsonArray items) return;
         foreach (var item in items.OfType<JsonObject>())
         {
@@ -329,7 +407,10 @@ public sealed class YouTubeService : IAsyncDisposable
                     Source = type.Contains("Sticker", StringComparison.OrdinalIgnoreCase) ? "YOUTUBE SUPER STICKER" : "YOUTUBE SUPER CHAT",
                     Kind = "DONATION",
                     User = author["displayName"]?.GetValue<string>() ?? "YouTube",
-                    Amount = amountMicros / 1_000_000m, Currency = currency, Message = comment, Accent = "#FF4B4B"
+                    Amount = amountMicros / 1_000_000m,
+                    Currency = currency,
+                    Message = comment,
+                    Accent = "#FF4B4B"
                 });
             }
             else if (isMembership && !string.IsNullOrWhiteSpace(messageId) && _seenDonationIds.Add(messageId))
@@ -345,7 +426,10 @@ public sealed class YouTubeService : IAsyncDisposable
                     Source = "YOUTUBE MEMBER",
                     Kind = "SUBSCRIPTION",
                     User = author["displayName"]?.GetValue<string>() ?? "YouTube",
-                    Amount = 1, Currency = "MEMBER", Message = level + (string.IsNullOrWhiteSpace(text) ? string.Empty : " • " + text), Accent = "#FF4B4B"
+                    Amount = 1,
+                    Currency = "MEMBER",
+                    Message = level + (string.IsNullOrWhiteSpace(text) ? string.Empty : " • " + text),
+                    Accent = "#FF4B4B"
                 });
             }
             MessageReceived?.Invoke(this, new ChatMessage
@@ -371,9 +455,44 @@ public sealed class YouTubeService : IAsyncDisposable
         var body = await response.Content.ReadAsStringAsync(token);
         if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             throw new InvalidOperationException("YouTube OAuth-токен відсутній або прострочений. Повторно авторизуйте YouTube у модулі «Канали».");
-        if (!response.IsSuccessStatusCode) throw new InvalidOperationException($"YouTube API {(int)response.StatusCode}: {body}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var reason = ExtractApiReason(body);
+            if (reason.Equals("quotaExceeded", StringComparison.OrdinalIgnoreCase) ||
+                body.Contains("exceeded your", StringComparison.OrdinalIgnoreCase) && body.Contains("quota", StringComparison.OrdinalIgnoreCase))
+            {
+                _quotaExceeded = true;
+                SetStatus("КВОТУ ВИЧЕРПАНО");
+                throw new InvalidOperationException("Добову квоту YouTube API вичерпано. Програма призупинила автоматичні запити на 15 хвилин.");
+            }
+            throw new InvalidOperationException(FriendlyApiError((int)response.StatusCode, reason, body));
+        }
         return string.IsNullOrWhiteSpace(body) ? new JsonObject() : JsonNode.Parse(body)?.AsObject() ?? new JsonObject();
     }
+
+    private static string ExtractApiReason(string body)
+    {
+        try
+        {
+            var json = JsonNode.Parse(body)?.AsObject();
+            return json?["error"]?["errors"]?.AsArray().FirstOrDefault()?["reason"]?.GetValue<string>() ?? string.Empty;
+        }
+        catch { return string.Empty; }
+    }
+
+    private static string FriendlyApiError(int statusCode, string reason, string raw)
+    {
+        if (reason.Contains("liveChatEnded", StringComparison.OrdinalIgnoreCase)) return "YouTube live chat уже завершено.";
+        if (reason.Contains("liveChatDisabled", StringComparison.OrdinalIgnoreCase)) return "Чат для цієї трансляції YouTube вимкнено.";
+        if (reason.Contains("liveChatNotFound", StringComparison.OrdinalIgnoreCase)) return "Активний YouTube live chat не знайдено.";
+        if (reason.Contains("forbidden", StringComparison.OrdinalIgnoreCase)) return "YouTube заборонив операцію. Перевірте права OAuth і власника трансляції.";
+        var compact = raw.Length > 500 ? raw[..500] + "…" : raw;
+        return $"YouTube API {statusCode}: {compact}";
+    }
+
+    private static bool IsLiveChatContextError(string message) =>
+        message.Contains("live chat", StringComparison.OrdinalIgnoreCase) ||
+        message.Contains("liveChat", StringComparison.OrdinalIgnoreCase);
 
     private async Task<OAuthToken> ExchangeCodeAsync(string code, string clientId, string clientSecret, CancellationToken token)
     {

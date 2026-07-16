@@ -7,6 +7,10 @@
         Background="Transparent" Topmost="True" ShowInTaskbar="False"
         WindowStartupLocation="CenterScreen" SourceInitialized="Window_SourceInitialized"
         Loaded="Window_Loaded" Closing="Window_Closing">
+    <Window.Resources>
+        <SolidColorBrush x:Key="LocalOverlayTextBrush" Color="#F2FAFF"/>
+        <SolidColorBrush x:Key="LocalOverlayUserBrush" Color="#55C8FF"/>
+    </Window.Resources>
     <Border x:Name="OverlayFrame" Background="#22000000" BorderBrush="#3D8CA0" BorderThickness="1" CornerRadius="8" Padding="8">
         <Grid>
             <Grid.RowDefinitions>
@@ -28,12 +32,7 @@
 
             <Border x:Name="ViewerStatsBar" Grid.Row="1" Background="#26030B10" BorderBrush="{DynamicResource LineSoft}" BorderThickness="0,0,0,1" Padding="5,3" Margin="0,0,0,5">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="1"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Image x:Name="TwitchOverlayIcon" Source="/TiHiY.StreamControlCenter;component/Assets/Platforms/twitch.png" Width="18" Height="18" Stretch="Uniform"/>
                         <TextBlock Text="  ГЛЯДАЧІ " Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
@@ -41,11 +40,9 @@
                         <Ellipse x:Name="TwitchOverlayLiveDot" Width="7" Height="7" Fill="#75838B" Margin="9,0,4,0"/>
                         <TextBlock x:Name="TwitchOverlayStatusText" Text="OFF" Foreground="{DynamicResource Muted}" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
-
                     <Border Grid.Column="1" Background="#355B6B"/>
-
                     <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Image x:Name="YouTubeOverlayIcon" Source="/TiHiY.StreamControlCenter;component/Assets/Platforms/youtube.png" Width="20" Height="18" Stretch="Uniform"/>
+                        <Image x:Name="YouTubeOverlayIcon" Source="/TiHiY.StreamControlCenter;component/Assets/Platforms/youtube.png" Width="22" Height="18" Stretch="Uniform"/>
                         <TextBlock Text="  ГЛЯДАЧІ " Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
                         <TextBlock x:Name="YouTubeOverlayViewersText" Text="0" Foreground="{DynamicResource Text}" FontWeight="Bold" VerticalAlignment="Center"/>
                         <TextBlock Text="   ♥ " Foreground="#FF6B6B" FontWeight="Bold" VerticalAlignment="Center"/>
@@ -66,7 +63,7 @@
                         <Setter Property="Focusable" Value="False"/>
                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                         <Setter Property="Padding" Value="0"/>
-                        <Setter Property="Margin" Value="0,0,0,4"/>
+                        <Setter Property="Margin" Value="0,0,0,6"/>
                         <Setter Property="Background" Value="Transparent"/>
                         <Setter Property="BorderThickness" Value="0"/>
                     </Style>
@@ -76,40 +73,37 @@
                         <Border Background="Transparent" CornerRadius="4" Padding="6,4">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="26"/>
-                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="30"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Width="22" Height="20" CornerRadius="4" Background="{Binding PlatformColor}" VerticalAlignment="Top">
+                                <Border Width="24" Height="22" CornerRadius="4" Background="{Binding PlatformColor}" VerticalAlignment="Top">
                                     <Image Source="{Binding PlatformIconPath}" Stretch="Uniform" Margin="2"/>
                                 </Border>
-                                <TextBlock Grid.Column="1" Text="{Binding User, StringFormat={}{0}:}" Foreground="{Binding Foreground}" FontWeight="Bold" Margin="4,0,6,0" TextWrapping="NoWrap"/>
-                                <Grid Grid.Column="2">
-                                    <TextBlock Text="{Binding Text}" Foreground="{Binding Foreground}" TextWrapping="Wrap">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBlock Text="{Binding Text}" Foreground="#FFD329" FontWeight="Bold" TextWrapping="Wrap">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
-                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </Grid>
+                                <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                    <TextBlock Text="{Binding User, StringFormat={}{0}:}" Foreground="{DynamicResource LocalOverlayUserBrush}" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <Grid Margin="0,2,0,0">
+                                        <TextBlock Text="{Binding Text}" Foreground="{DynamicResource LocalOverlayTextBrush}" TextWrapping="Wrap">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsHighlighted}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Text}" Foreground="#FFD329" FontWeight="Bold" TextWrapping="Wrap">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsHighlighted}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </StackPanel>
                             </Grid>
                         </Border>
                     </DataTemplate>

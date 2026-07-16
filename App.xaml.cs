@@ -11,14 +11,21 @@ public partial class App : Application
 {
     private static Mutex? _singleInstanceMutex;
     private static bool _ownsMutex;
+    private IDisposable? _mainWindowVisualTuner;
     public static AppServices Services { get; private set; } = null!;
 
     protected override async void OnStartup(StartupEventArgs e)
     {
         var screenshotArg = e.Args.FirstOrDefault(x => x.StartsWith("--ci-screenshot=", StringComparison.OrdinalIgnoreCase));
         var screenshotPath = screenshotArg is null ? null : screenshotArg[(screenshotArg.IndexOf('=') + 1)..].Trim('"');
+        var shortcutArg = e.Args.FirstOrDefault(x => x.StartsWith("--ci-shortcut=", StringComparison.OrdinalIgnoreCase));
+        var shortcutPath = shortcutArg is null ? null : shortcutArg[(shortcutArg.IndexOf('=') + 1)..].Trim('"');
+        var languageArg = e.Args.FirstOrDefault(x => x.StartsWith("--ci-language=", StringComparison.OrdinalIgnoreCase));
+        var requestedLanguage = languageArg is null ? null : languageArg[(languageArg.IndexOf('=') + 1)..].Trim('"');
         var ciMode = !string.IsNullOrWhiteSpace(screenshotPath);
         var openSettingsInCi = e.Args.Any(x => string.Equals(x, "--ci-open-settings", StringComparison.OrdinalIgnoreCase));
+        var showThemePreviewInCi = e.Args.Any(x => string.Equals(x, "--ci-settings-theme-preview", StringComparison.OrdinalIgnoreCase));
+        var applyUkraineThemeInCi = e.Args.Any(x => string.Equals(x, "--ci-apply-ukraine-theme", StringComparison.OrdinalIgnoreCase));
 
         _singleInstanceMutex = new Mutex(true, "Local\\TiHiY.StreamControlCenter.SingleInstance", out _ownsMutex);
         if (!_ownsMutex)
@@ -35,9 +42,19 @@ public partial class App : Application
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
         try
         {
-            // Service construction stays inside the guarded startup block so startup failures are logged and shown.
             WriteStartupStage("01 Services construction");
             Services = new AppServices();
+            if (!string.IsNullOrWhiteSpace(requestedLanguage))
+                Services.Language.Apply(requestedLanguage, save: false);
+            if (ciMode)
+            {
+                Services.Settings.Value.AutoConnectObs = false;
+                Services.Settings.Value.TwitchAutoConnect = false;
+                Services.Settings.Value.YouTubeAutoConnect = false;
+                Services.Settings.Value.NotificationBotAutoStart = false;
+                Services.Settings.Value.DonatelloAutoStart = false;
+                Services.Settings.Value.LocalChatOverlayAutoStart = false;
+            }
             WriteStartupStage("02 Services initialized in memory");
             await Services.InitializeAsync();
             WriteStartupStage("03 Background services initialized");
@@ -45,6 +62,11 @@ public partial class App : Application
             WriteStartupStage("04 MainWindow constructed");
             MainWindow = main;
             main.Show();
+            UiTextLocalizer.Apply(main, Services.Language.CurrentLanguage);
+            ButtonIconService.Apply(main);
+            _mainWindowVisualTuner = MainWindowVisualTuner.Attach(main);
+            if (!ciMode)
+                ShortcutService.EnsureDesktopShortcut(Services.Logger);
             WriteStartupStage("05 MainWindow shown");
 
             if (ciMode)
@@ -54,29 +76,53 @@ public partial class App : Application
                 main.WindowState = WindowState.Normal;
                 main.Left = 0;
                 main.Top = 0;
-                main.ApplyCiDemoState();
+
+                if (applyUkraineThemeInCi)
+                {
+                    Services.Theme.Apply("Україна", save: false);
+                    WriteStartupStage("06 Ukraine theme applied in CI");
+                }
 
                 Window captureWindow = main;
+                TiHiY.StreamControlCenter.Windows.SettingsWindow? settingsWindow = null;
                 if (openSettingsInCi)
                 {
-                    // Reproduce the real user path that previously crashed when the Ukraine preview PNG was absent.
                     Services.Settings.Value.UiTheme = "Україна";
-                    var settings = new TiHiY.StreamControlCenter.Windows.SettingsWindow
+                    settingsWindow = new TiHiY.StreamControlCenter.Windows.SettingsWindow
                     {
                         Owner = main,
-                        Width = 1140,
-                        Height = 730,
                         WindowState = WindowState.Normal,
                         Left = 0,
                         Top = 0
                     };
-                    settings.Show();
-                    captureWindow = settings;
-                    WriteStartupStage("06 SettingsWindow shown in CI");
+                    settingsWindow.Show();
+                    captureWindow = settingsWindow;
+                    WriteStartupStage("07 SettingsWindow shown in CI");
                 }
 
                 await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
-                await Task.Delay(900);
+                await Task.Delay(850);
+
+                if (settingsWindow is not null && showThemePreviewInCi && FindVisualDescendant<TabControl>(settingsWindow) is { } tabs)
+                    tabs.SelectedIndex = 1;
+
+                UiTextLocalizer.Apply(captureWindow, Services.Language.CurrentLanguage);
+                ButtonIconService.Apply(captureWindow);
+                if (settingsWindow is not null)
+                    _ = SettingsWindowVisualTuner.Attach(settingsWindow);
+
+                if (!string.IsNullOrWhiteSpace(shortcutPath) && !ShortcutService.EnsureShortcut(shortcutPath, Services.Logger))
+                    throw new InvalidOperationException($"CI shortcut was not created: {shortcutPath}");
+
+                await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
+                await Task.Delay(180);
+
+                main.ApplyCiDemoState();
+                MainWindowVisualTuner.ApplyNow(main);
+                if (settingsWindow is not null)
+                    _ = SettingsWindowVisualTuner.Attach(settingsWindow);
+                await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Render);
+
                 SaveWindowScreenshot(captureWindow, screenshotPath!);
                 if (!ReferenceEquals(captureWindow, main)) captureWindow.Close();
                 Shutdown(0);
@@ -102,6 +148,17 @@ public partial class App : Application
                 catch { }
             Shutdown(1);
         }
+    }
+
+    private static T? FindVisualDescendant<T>(DependencyObject root) where T : DependencyObject
+    {
+        for (var index = 0; index < VisualTreeHelper.GetChildrenCount(root); index++)
+        {
+            var child = VisualTreeHelper.GetChild(root, index);
+            if (child is T match) return match;
+            if (FindVisualDescendant<T>(child) is { } descendant) return descendant;
+        }
+        return null;
     }
 
     private static string BuildStartupErrorMessage(Exception ex, string crashFile)
@@ -169,6 +226,8 @@ public partial class App : Application
     {
         try
         {
+            _mainWindowVisualTuner?.Dispose();
+            _mainWindowVisualTuner = null;
             if (Services is not null)
             {
                 var cleanupTask = Task.Run(async () => await Services.DisposeAsync().ConfigureAwait(false));

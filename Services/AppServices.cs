@@ -16,6 +16,7 @@ public sealed class AppServices : IAsyncDisposable
     public DonatelloService Donatello { get; }
     public UiScaleService UiScale { get; }
     public ThemeService Theme { get; }
+    public LanguageService Language { get; }
     public WindowPlacementService Placement { get; }
     public WindowManager Windows { get; }
     public ChatService Chat { get; }
@@ -34,6 +35,8 @@ public sealed class AppServices : IAsyncDisposable
         Settings.Value = SettingsService.Load();
         Donations = new DonationService(SettingsService.Folder, Logger);
         SystemMonitor = new Aida64SensorService(Logger);
+        Language = new LanguageService(Settings, SettingsService);
+        Language.ApplySavedLanguage();
         Theme = new ThemeService(Settings, SettingsService);
         Theme.ApplySavedTheme();
         UiScale = new UiScaleService(Settings);
@@ -46,6 +49,7 @@ public sealed class AppServices : IAsyncDisposable
         Donatello = new DonatelloService(Settings, SettingsService, Credentials, Logger);
         Notifications = new StreamNotificationBotService(Settings, SettingsService, Credentials, Twitch, YouTube, Discord, Logger);
         Donations.GoalAmount = Settings.Value.DonationGoalAmount;
+        Donations.GoalInitialAmount = Math.Max(0, Settings.Value.DonationGoalInitialAmount);
         Donations.GoalCurrency = string.IsNullOrWhiteSpace(Settings.Value.DonationGoalCurrency) ? "UAH" : Settings.Value.DonationGoalCurrency.Trim().ToUpperInvariant();
         Chat.SongProvider = () => Music.CurrentTrack?.Display ?? "нічого";
         Chat.MessageSender = SendChatAsync;
@@ -63,7 +67,8 @@ public sealed class AppServices : IAsyncDisposable
                 youtubeLive = Settings.Value.YouTubeLive
             },
             () => Application.Current.Dispatcher.Invoke(BuildDonationSummaryPayload),
-            () => Settings.Value.OverlayTheme);
+            () => Settings.Value.OverlayTheme,
+            () => Settings.Value);
         Obs.Log += (_, m) => Logger.Info(m);
         Music.PlaybackError += (_, m) => Logger.Error($"Плеєр: {m}");
         Twitch.MessageReceived += Channel_MessageReceived;
@@ -99,7 +104,6 @@ public sealed class AppServices : IAsyncDisposable
         if (Settings.Value.DonatelloEnabled && Donatello.HasApiToken)
             _ = SafeConnectAsync(StartAndImportDonatelloAsync, "Автозапуск і синхронізація Donatello");
     }
-
 
     private async Task StartAndImportDonatelloAsync()
     {
@@ -160,7 +164,6 @@ public sealed class AppServices : IAsyncDisposable
 
     private void Channel_StatsChanged(object? sender, StreamLiveInfo info) =>
         Application.Current.Dispatcher.BeginInvoke(new Action(() => ChannelStatusChanged?.Invoke(this, EventArgs.Empty)));
-
 
     public async Task SendChatAsync(string text, string target)
     {
@@ -236,6 +239,7 @@ public sealed class AppServices : IAsyncDisposable
     public void Save()
     {
         Settings.Value.DonationGoalAmount = Donations.GoalAmount;
+        Settings.Value.DonationGoalInitialAmount = Donations.GoalInitialAmount;
         Settings.Value.DonationGoalCurrency = Donations.GoalCurrency;
         Settings.Value.ScheduledNotices = Chat.Notices.ToList();
         Settings.Value.BotCommands = Chat.Commands.ToList();
@@ -261,13 +265,40 @@ public sealed class AppServices : IAsyncDisposable
             isReplay = x.IsReplay
         }).ToList();
 
+        var topDonors = Donations.GetTopDonors(Settings.Value.DonationTopDonorPeriod, Settings.Value.DonationTopDonorCount)
+            .Select((x, index) => new
+            {
+                rank = index + 1,
+                user = x.User,
+                amount = x.Amount,
+                currency = Donations.GoalCurrency
+            })
+            .ToList();
+
         return new
         {
             goalTitle = Settings.Value.DonationGoalTitle,
             goalAmount = Donations.GoalAmount,
+            initialAmount = Donations.GoalInitialAmount,
             goalCurrency = Donations.GoalCurrency,
             currentAmount = Donations.TotalAmount,
             progressPercent = Donations.GoalProgress * 100d,
+            goalStyle = new
+            {
+                barColor = Settings.Value.DonationGoalBarColor,
+                textColor = Settings.Value.DonationGoalTextColor,
+                backgroundColor = Settings.Value.DonationGoalBackgroundColor
+            },
+            tickerStyle = new
+            {
+                speed = Settings.Value.DonationTickerSpeed,
+                textColor = Settings.Value.DonationTickerTextColor,
+                backgroundColor = Settings.Value.DonationTickerBackgroundColor,
+                backgroundOpacity = Settings.Value.DonationTickerBackgroundOpacity,
+                period = Settings.Value.DonationTopDonorPeriod,
+                count = Settings.Value.DonationTopDonorCount
+            },
+            topDonors,
             donatelloStatus = Donatello.Status,
             lastDonation = last is null ? null : new
             {

@@ -1,0 +1,42 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+    <sys:String x:Key="LanguageDictionaryMarker">uk-UA</sys:String>
+    <sys:String x:Key="LanguageDisplayName">Українська</sys:String>
+
+    <sys:String x:Key="App.Settings">НАЛАШТУВАННЯ</sys:String>
+    <sys:String x:Key="App.Broadcast">ТРАНСЛЯЦІЯ</sys:String>
+    <sys:String x:Key="App.MusicPlayer">МУЗИЧНИЙ ПЛЕЄР</sys:String>
+    <sys:String x:Key="App.Scale">МАСШТАБ</sys:String>
+    <sys:String x:Key="App.LayoutLocked">МАКЕТ: ЗАКРІПЛЕНО</sys:String>
+    <sys:String x:Key="App.LayoutEditing">МАКЕТ: РЕДАГУВАННЯ</sys:String>
+
+    <sys:String x:Key="Main.Multichat">МУЛЬТИЧАТ • TWITCH + YOUTUBE</sys:String>
+    <sys:String x:Key="Main.Donations">ДОНАТИ</sys:String>
+    <sys:String x:Key="Main.QuickMixer">ШВИДКИЙ МІКШЕР • AUDIO MIXER OBS</sys:String>
+    <sys:String x:Key="Main.Notifications">СПОВІЩЕННЯ</sys:String>
+    <sys:String x:Key="Main.SystemStatus">СТАН СИСТЕМИ</sys:String>
+    <sys:String x:Key="Main.AidaLive">AIDA64 LIVE</sys:String>
+    <sys:String x:Key="Main.Twitch">TWITCH</sys:String>
+    <sys:String x:Key="Main.YouTube">YOUTUBE</sys:String>
+    <sys:String x:Key="Main.Both">ОБИДВА</sys:String>
+    <sys:String x:Key="Main.OpenMixer">ВІДКРИТИ ПОВНИЙ МІКШЕР</sys:String>
+    <sys:String x:Key="Main.OpenJournal">ВІДКРИТИ ПОВНИЙ ЖУРНАЛ</sys:String>
+    <sys:String x:Key="Main.OpenDonations">ВІДКРИТИ ДОНАТИ / ВІДЖЕТИ</sys:String>
+    <sys:String x:Key="Main.OpenAida">ВІДКРИТИ AIDA64 / МОНІТОРИНГ</sys:String>
+    <sys:String x:Key="Main.GloryUkraine">СЛАВА УКРАЇНІ!</sys:String>
+    <sys:String x:Key="Main.GloryHeroes">ГЕРОЯМ СЛАВА!</sys:String>
+
+    <sys:String x:Key="Settings.Title">НАЛАШТУВАННЯ</sys:String>
+    <sys:String x:Key="Settings.General">Загальні</sys:String>
+    <sys:String x:Key="Settings.ThemeUi">Тема та інтерфейс</sys:String>
+    <sys:String x:Key="Settings.Broadcast">Трансляція</sys:String>
+    <sys:String x:Key="Settings.Donations">Донати</sys:String>
+    <sys:String x:Key="Settings.Music">Музика</sys:String>
+    <sys:String x:Key="Settings.Security">Безпека</sys:String>
+    <sys:String x:Key="Settings.Logs">Журнал</sys:String>
+    <sys:String x:Key="Settings.About">Про програму</sys:String>
+    <sys:String x:Key="Settings.Language">Мова програми</sys:String>
+    <sys:String x:Key="Settings.ApplyTheme">ЗАСТОСУВАТИ ТЕМУ</sys:String>
+    <sys:String x:Key="Settings.Close">ЗАКРИТИ</sys:String>
+</ResourceDictionary>

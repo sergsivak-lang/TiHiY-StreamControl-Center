@@ -7,6 +7,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Themes/CyberAmber.xaml"/>
                 <ResourceDictionary Source="Themes/Compatibility.xaml"/>
+                <ResourceDictionary Source="Themes/UkraineReference.xaml"/>
+                <ResourceDictionary Source="Localization/Strings.uk-UA.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
