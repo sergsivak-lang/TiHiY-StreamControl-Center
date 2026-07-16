@@ -1,7 +1,5 @@
 using System.Threading;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Windows.Interop;
 using System.Windows.Markup;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -56,8 +54,6 @@ public partial class App : Application
                 Services.Settings.Value.NotificationBotAutoStart = false;
                 Services.Settings.Value.DonatelloAutoStart = false;
                 Services.Settings.Value.LocalChatOverlayAutoStart = false;
-                Services.Settings.Value.UiScaleAuto = false;
-                Services.Settings.Value.UiScalePercent = 100;
             }
             WriteStartupStage("02 Services initialized in memory");
             await Services.InitializeAsync();
@@ -95,12 +91,6 @@ public partial class App : Application
                     settingsWindow = new TiHiY.StreamControlCenter.Windows.SettingsWindow
                     {
                         Owner = main,
-                        Width = 1648,
-                        Height = 928,
-                        MinWidth = 1180,
-                        MinHeight = 720,
-                        MaxWidth = 4096,
-                        MaxHeight = 2160,
                         WindowState = WindowState.Normal,
                         Left = 0,
                         Top = 0
@@ -220,92 +210,17 @@ public partial class App : Application
 
     private static void SaveWindowScreenshot(Window window, string path)
     {
-        var target = window switch
-        {
-            TiHiY.StreamControlCenter.Windows.SettingsWindow => new Size(1648, 928),
-            TiHiY.StreamControlCenter.MainWindow => new Size(1672, 941),
-            _ => new Size(
-                Math.Max(1, Math.Ceiling(window.ActualWidth)),
-                Math.Max(1, Math.Ceiling(window.ActualHeight)))
-        };
-
-        ForceNativeWindowSize(window, target);
-        FrameworkElement visual = window.Content as FrameworkElement ?? window;
-
-        if (window.FindName("DesignSurface") is FrameworkElement designSurface)
-        {
-            designSurface.LayoutTransform = Transform.Identity;
-            designSurface.RenderTransform = Transform.Identity;
-            designSurface.HorizontalAlignment = HorizontalAlignment.Center;
-            designSurface.VerticalAlignment = VerticalAlignment.Center;
-
-            if (window is TiHiY.StreamControlCenter.Windows.SettingsWindow)
-            {
-                designSurface.Width = 1628;
-                designSurface.Height = 908;
-            }
-            else
-            {
-                designSurface.Width = double.NaN;
-                designSurface.Height = double.NaN;
-            }
-        }
-
-        visual.Width = target.Width;
-        visual.Height = target.Height;
-        visual.Measure(target);
-        visual.Arrange(new Rect(new Point(0, 0), target));
-        visual.UpdateLayout();
-
-        if (window is TiHiY.StreamControlCenter.MainWindow main)
-            MainWindowVisualTuner.ApplyNow(main);
-
-        var width = Math.Max(1, (int)Math.Ceiling(target.Width));
-        var height = Math.Max(1, (int)Math.Ceiling(target.Height));
+        window.UpdateLayout();
+        var width = Math.Max(1, (int)Math.Ceiling(window.ActualWidth));
+        var height = Math.Max(1, (int)Math.Ceiling(window.ActualHeight));
         var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
-        bitmap.Render(visual);
+        bitmap.Render(window);
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(bitmap));
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
         using var stream = File.Create(path);
         encoder.Save(stream);
     }
-
-    private static void ForceNativeWindowSize(Window window, Size logicalSize)
-    {
-        window.WindowState = WindowState.Normal;
-        window.MaxWidth = 4096;
-        window.MaxHeight = 2160;
-        window.Width = logicalSize.Width;
-        window.Height = logicalSize.Height;
-        window.Left = 0;
-        window.Top = 0;
-        window.UpdateLayout();
-
-        var handle = new WindowInteropHelper(window).Handle;
-        if (handle != IntPtr.Zero)
-        {
-            var dpi = VisualTreeHelper.GetDpi(window);
-            var pixelWidth = Math.Max(1, (int)Math.Round(logicalSize.Width * dpi.DpiScaleX));
-            var pixelHeight = Math.Max(1, (int)Math.Round(logicalSize.Height * dpi.DpiScaleY));
-            const uint flags = 0x0002 | 0x0004 | 0x0010 | 0x0020;
-            _ = SetWindowPos(handle, IntPtr.Zero, 0, 0, pixelWidth, pixelHeight, flags);
-        }
-
-        window.InvalidateMeasure();
-        window.InvalidateArrange();
-        window.Dispatcher.Invoke(window.UpdateLayout, DispatcherPriority.Render);
-    }
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool SetWindowPos(
-        IntPtr hWnd,
-        IntPtr hWndInsertAfter,
-        int x,
-        int y,
-        int cx,
-        int cy,
-        uint flags);
 
     protected override void OnExit(ExitEventArgs e)
     {
