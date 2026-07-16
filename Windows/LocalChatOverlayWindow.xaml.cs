@@ -44,21 +44,27 @@ public partial class LocalChatOverlayWindow : Window
         Topmost = true;
         SetBackgroundOpacity(settings.LocalChatOverlayBackgroundOpacity);
         SetClickThrough(settings.LocalChatOverlayClickThrough);
-        FontSize = Math.Clamp(settings.LocalChatOverlayFontSize, 11, 32);
+        FontSize = Math.Clamp(settings.LocalChatOverlayFontSize, 11, 42);
+        Resources["LocalOverlayTextBrush"] = BrushFrom(settings.LocalChatOverlayTextColor, "#F2FAFF");
+        Resources["LocalOverlayUserBrush"] = BrushFrom(settings.LocalChatOverlayUserColor, "#FFD329");
+
         var statsFont = Math.Clamp(FontSize * 0.65, 9, 20);
         ViewerStatsBar.SetValue(System.Windows.Documents.TextElement.FontSizeProperty, statsFont);
         var iconSize = Math.Clamp(statsFont + 7, 16, 28);
         TwitchOverlayIcon.Width = iconSize;
         TwitchOverlayIcon.Height = iconSize;
-        YouTubeOverlayIcon.Width = iconSize + 2;
+        YouTubeOverlayIcon.Width = iconSize + 3;
         YouTubeOverlayIcon.Height = iconSize;
+
+        var max = Math.Max(3, settings.LocalChatOverlayMaxMessages);
+        while (Messages.Count > max) Messages.RemoveAt(0);
 
         if (IsLoaded)
         {
             _responsiveController?.Dispose();
             _responsiveController = ResponsiveBlockService.Attach(OverlayFrame, 0.55, 1.60);
+            if (Messages.Count > 0) OverlayChatList.ScrollIntoView(Messages[^1]);
         }
-
         UpdateViewerStats();
     }
 
@@ -98,7 +104,6 @@ public partial class LocalChatOverlayWindow : Window
     private void UpdateViewerStats()
     {
         if (!IsInitialized) return;
-
         var settings = _services.Settings.Value;
         TwitchOverlayViewersText.Text = settings.TwitchViewers.ToString("N0");
         TwitchOverlayStatusText.Text = settings.TwitchLive ? "LIVE" : "OFF";
@@ -110,6 +115,18 @@ public partial class LocalChatOverlayWindow : Window
         YouTubeOverlayStatusText.Text = settings.YouTubeLive ? "LIVE" : "OFF";
         YouTubeOverlayStatusText.Foreground = settings.YouTubeLive ? Brushes.LimeGreen : Brushes.Gray;
         YouTubeOverlayLiveDot.Fill = settings.YouTubeLive ? Brushes.LimeGreen : Brushes.Gray;
+    }
+
+    private static Brush BrushFrom(string value, string fallback)
+    {
+        try
+        {
+            var text = value.Trim();
+            if (!text.StartsWith('#')) text = "#" + text;
+            if (!(text.Length is 7 or 9) || !text.Skip(1).All(Uri.IsHexDigit)) text = fallback;
+            return new SolidColorBrush((Color)ColorConverter.ConvertFromString(text));
+        }
+        catch { return new SolidColorBrush((Color)ColorConverter.ConvertFromString(fallback)); }
     }
 
     private void Window_SourceInitialized(object? sender, EventArgs e)
@@ -131,6 +148,7 @@ public partial class LocalChatOverlayWindow : Window
     private void Window_Loaded(object sender, RoutedEventArgs e)
     {
         _statsTimer.Start();
+        ApplySettings();
         UpdateViewerStats();
         if (Messages.Count > 0) OverlayChatList.ScrollIntoView(Messages[^1]);
     }
@@ -153,20 +171,16 @@ public partial class LocalChatOverlayWindow : Window
 
     [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")]
     private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
-
     [DllImport("user32.dll", EntryPoint = "GetWindowLongW")]
     private static extern int GetWindowLong32(IntPtr hWnd, int nIndex);
-
     private static IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex) => IntPtr.Size == 8
         ? GetWindowLongPtr64(hWnd, nIndex)
         : new IntPtr(GetWindowLong32(hWnd, nIndex));
 
     [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")]
     private static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
-
     [DllImport("user32.dll", EntryPoint = "SetWindowLongW")]
     private static extern int SetWindowLong32(IntPtr hWnd, int nIndex, int dwNewLong);
-
     private static IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr value) => IntPtr.Size == 8
         ? SetWindowLongPtr64(hWnd, nIndex, value)
         : new IntPtr(SetWindowLong32(hWnd, nIndex, value.ToInt32()));
