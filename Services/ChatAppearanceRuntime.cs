@@ -53,6 +53,8 @@ internal static class ChatAppearanceRuntime
         {
             if (!_window.IsLoaded) return;
             var settings = App.Services.Settings.Value;
+            MigrateDefaultChatColors(settings);
+
             var input = FindNamed<TextBox>("ChatInput");
             var list = FindNamed<ListBox>("MainChatList");
             if (input is null || list is null) return;
@@ -90,18 +92,45 @@ internal static class ChatAppearanceRuntime
             ReplacePlatformBitmaps(_window);
         }
 
+        private static void MigrateDefaultChatColors(AppSettings settings)
+        {
+            if (settings.ChatColorMigrationVersion >= 1) return;
+
+            if (string.Equals(settings.ViewerColor, "#EDF7FF", StringComparison.OrdinalIgnoreCase) ||
+                string.IsNullOrWhiteSpace(settings.ViewerColor))
+                settings.ViewerColor = "#55C8FF";
+
+            if (string.Equals(settings.StreamChatOverlayUserColor, "#FFD329", StringComparison.OrdinalIgnoreCase) ||
+                string.IsNullOrWhiteSpace(settings.StreamChatOverlayUserColor))
+                settings.StreamChatOverlayUserColor = "#55C8FF";
+
+            if (string.Equals(settings.LocalChatOverlayUserColor, "#FFD329", StringComparison.OrdinalIgnoreCase) ||
+                string.IsNullOrWhiteSpace(settings.LocalChatOverlayUserColor))
+                settings.LocalChatOverlayUserColor = "#55C8FF";
+
+            settings.ChatColorMigrationVersion = 1;
+            App.Services.Save();
+        }
+
         private void EnsureButtons(Grid grid, TextBox input)
         {
             var twitch = FindNamed<Button>("SendTwitchButton");
             var youtube = FindNamed<Button>("SendYouTubeButton");
             var both = FindNamed<Button>("SendBothButton");
-            var send = grid.Children.OfType<Button>().FirstOrDefault(x => Equals(x.Content, "➤"));
-            if (twitch is null || youtube is null || both is null || send is null) return;
+            if (twitch is null || youtube is null || both is null) return;
+
+            var send = grid.Children.OfType<Button>().FirstOrDefault(x =>
+                !ReferenceEquals(x, twitch) &&
+                !ReferenceEquals(x, youtube) &&
+                !ReferenceEquals(x, both) &&
+                !ReferenceEquals(x, _settingsButton) &&
+                (Equals(x.Content, "➤") || string.IsNullOrWhiteSpace(x.Name)));
 
             if (_settingsButton is null || !grid.Children.Contains(_settingsButton))
             {
                 _settingsButton = new Button
                 {
+                    Name = "ChatAppearanceSettingsRuntimeButton",
                     Width = 44,
                     MinWidth = 44,
                     ToolTip = "Налаштування мультичату, OBS-оверлею та чату поверх гри",
@@ -126,13 +155,15 @@ internal static class ChatAppearanceRuntime
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0.62, GridUnitType.Star), MinWidth = 108 });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0.52, GridUnitType.Star), MinWidth = 92 });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(48) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(48) });
+            if (send is not null) grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(48) });
+
             Grid.SetColumn(input, 0);
             Grid.SetColumn(twitch, 1);
             Grid.SetColumn(youtube, 2);
             Grid.SetColumn(both, 3);
             Grid.SetColumn(_settingsButton, 4);
-            Grid.SetColumn(send, 5);
+            if (send is not null) Grid.SetColumn(send, 5);
+
             grid.Margin = new Thickness(0, 7, 0, 0);
             grid.MinHeight = Math.Max(48, input.MinHeight);
 
