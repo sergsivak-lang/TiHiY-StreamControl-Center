@@ -50,7 +50,7 @@ internal static class PlatformBadgeFinalizer
                 var message = (ChatMessage)messageHost.DataContext;
                 var badge = Descendants<Border>(messageHost)
                     .Where(x => x.Child is Image or PlatformVectorIcon)
-                    .OrderBy(x => Math.Max(x.ActualWidth, x.Width))
+                    .OrderBy(x => Math.Max(x.ActualWidth, double.IsNaN(x.Width) ? 0 : x.Width))
                     .FirstOrDefault(x =>
                     {
                         if (x.Child is PlatformVectorIcon) return true;
@@ -62,11 +62,15 @@ internal static class PlatformBadgeFinalizer
                     });
 
                 if (badge is null || badge.Child is PlatformVectorIcon) continue;
+                var availableWidth = double.IsNaN(badge.Width) || badge.Width <= 0 ? 21 : badge.Width;
+                var availableHeight = double.IsNaN(badge.Height) || badge.Height <= 0 ? 21 : badge.Height;
                 badge.Child = new PlatformVectorIcon(message.Platform)
                 {
-                    Margin = new Thickness(1.5),
-                    HorizontalAlignment = HorizontalAlignment.Stretch,
-                    VerticalAlignment = VerticalAlignment.Stretch
+                    Width = Math.Max(14, availableWidth - 4),
+                    Height = Math.Max(14, availableHeight - 4),
+                    Margin = new Thickness(1),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
                 };
                 badge.ToolTip = message.Platform;
             }
