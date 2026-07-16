@@ -29,6 +29,7 @@ public static class SettingsWindowVisualTuner
         private Image? _previewImage;
         private TextBlock? _previewName;
         private TextBlock? _previewDescription;
+        private Button? _resetLayoutButton;
         private bool _disposed;
 
         public Controller(SettingsWindow window)
@@ -58,6 +59,7 @@ public static class SettingsWindowVisualTuner
 
             TuneWindowGeometry();
             TuneLayout();
+            HookResetLayoutButton();
 
             if (_previewImage is not null)
             {
@@ -88,9 +90,9 @@ public static class SettingsWindowVisualTuner
             _window.MaxWidth = work.Width;
             _window.MaxHeight = work.Height;
 
-            if (_window.Width < 1120 || _window.Width > work.Width)
+            if (_window.Width < 1280 || _window.Width > work.Width)
                 _window.Width = Math.Min(1360, work.Width);
-            if (_window.Height < 700 || _window.Height > work.Height)
+            if (_window.Height < 780 || _window.Height > work.Height)
                 _window.Height = Math.Min(840, work.Height);
         }
 
@@ -145,6 +147,38 @@ public static class SettingsWindowVisualTuner
             }
         }
 
+        private void HookResetLayoutButton()
+        {
+            if (_resetLayoutButton is not null) return;
+            _resetLayoutButton = FindDescendants<Button>(_window).FirstOrDefault(button =>
+            {
+                var text = ButtonText(button);
+                return text.Contains("СТАНДАРТНИЙ МАКЕТ", StringComparison.OrdinalIgnoreCase) ||
+                       text.Contains("DEFAULT LAYOUT", StringComparison.OrdinalIgnoreCase);
+            });
+            if (_resetLayoutButton is not null)
+                _resetLayoutButton.Click += ResetLayoutButton_Click;
+        }
+
+        private static string ButtonText(Button button)
+        {
+            if (button.Content is string text) return text;
+            if (button.Content is TextBlock block) return block.Text;
+            if (button.Content is Panel panel)
+                return string.Join(" ", panel.Children.OfType<TextBlock>().Select(x => x.Text));
+            return button.Content?.ToString() ?? string.Empty;
+        }
+
+        private void ResetLayoutButton_Click(object sender, RoutedEventArgs e)
+        {
+            var settings = App.Services.Settings.Value;
+            settings.DashboardBlockSlots.Clear();
+            settings.UkraineReferenceLayoutVersion = 0;
+            settings.UiScaleAuto = true;
+            settings.UiScalePercent = 100;
+            App.Services.Save();
+        }
+
         private void ThemeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e) => UpdatePreviewText();
 
         private void UpdatePreviewText()
@@ -182,6 +216,8 @@ public static class SettingsWindowVisualTuner
             _disposed = true;
             if (_themeCombo is not null)
                 _themeCombo.SelectionChanged -= ThemeCombo_SelectionChanged;
+            if (_resetLayoutButton is not null)
+                _resetLayoutButton.Click -= ResetLayoutButton_Click;
             _window.Loaded -= Window_Loaded;
             _window.SizeChanged -= Window_SizeChanged;
             _window.Closed -= Window_Closed;
