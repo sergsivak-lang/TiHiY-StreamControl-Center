@@ -45,9 +45,28 @@ internal static class MediaAndOverlayCiCapture
                 else if (localArg is not null)
                 {
                     var path = ExtractPath(localArg);
-                    App.Services.Settings.Value.LocalChatOverlayClickThrough = false;
-                    App.Services.Settings.Value.LocalChatOverlayFontSize = 20;
-                    App.Services.Settings.Value.LocalChatOverlayUserColor = "#55C8FF";
+                    var settings = App.Services.Settings.Value;
+                    settings.LocalChatOverlayClickThrough = false;
+                    settings.LocalChatOverlayFontSize = 20;
+                    settings.LocalChatOverlayUserColor = "#55C8FF";
+                    settings.ViewerColor = "#55C8FF";
+
+                    App.Services.Chat.AddIncoming(
+                        "YOUTUBE",
+                        "ВікторРоцняк-Я5ь",
+                        "Це тест довгого повідомлення: текст повинен починатися з нового рядка під ніком та займати всю доступну ширину оверлею.",
+                        "Viewer");
+                    App.Services.Chat.AddIncoming(
+                        "TWITCH",
+                        "Falcon_One",
+                        "Звичайний глядач за замовчуванням має блакитний колір ніку.",
+                        "Viewer");
+                    App.Services.Chat.AddIncoming(
+                        "YOUTUBE",
+                        "gaming_bro_ua",
+                        "Другий рядок не повинен стискатися у вузьку колонку праворуч.",
+                        "Viewer");
+
                     var window = new LocalChatOverlayWindow
                     {
                         Owner = main,
