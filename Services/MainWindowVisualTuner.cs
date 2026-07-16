@@ -1,4 +1,5 @@
-using System.Windows.Threading;
+using System.Reflection;
+using TiHiY.StreamControlCenter.Models;
 
 namespace TiHiY.StreamControlCenter.Services;
 
@@ -8,7 +9,10 @@ public static class MainWindowVisualTuner
     {
         private readonly MainWindow _window;
         private readonly DispatcherTimer _guardTimer;
+        private readonly HashSet<Slider> _hookedMixerSliders = new();
+        private readonly HashSet<Button> _hookedMuteButtons = new();
         private bool _footerLayoutInitialized;
+        private bool _autoMixerRepairBusy;
         private bool _disposed;
 
         public Controller(MainWindow window)
@@ -29,28 +33,107 @@ public static class MainWindowVisualTuner
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) => ApplyNow();
+
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            TunePatrioticCard();
             TuneAidaCard();
-            TuneSystemStatusCard();
+            HookQuickMixerControls();
         }
-        private void GuardTimer_Tick(object? sender, EventArgs e)
+
+        private async void GuardTimer_Tick(object? sender, EventArgs e)
         {
+            if (_disposed) return;
             EnforceAidaHeader();
+            EnforceDigitalAidaValues();
             UpdateEmptyStates();
+            HookQuickMixerControls();
+            await TryRepairQuickMixerAsync();
         }
+
         private void Window_Closed(object? sender, EventArgs e) => Dispose();
 
         public void ApplyNow()
         {
             if (_disposed) return;
+            RestoreApprovedDashboardOnce();
             InitializeFooterLayoutOnce();
-            TunePatrioticCard();
             TuneAidaCard();
-            TuneSystemStatusCard();
             EnforceAidaHeader();
+            EnforceDigitalAidaValues();
             UpdateEmptyStates();
+            HookQuickMixerControls();
+        }
+
+        private void RestoreApprovedDashboardOnce()
+        {
+            var settings = App.Services.Settings.Value;
+            if (settings.UkraineReferenceLayoutVersion >= 1) return;
+
+            var top = FindNamed<Grid>("TopBlocksGrid");
+            var bottom = FindNamed<Grid>("BottomBlocksGrid");
+            var footer = FindNamed<Grid>("FooterBlocksGrid");
+            var chat = FindNamed<ContentControl>("ChatBlockPanel");
+            var donations = FindNamed<ContentControl>("DonationsBlockPanel");
+            var mixer = FindNamed<ContentControl>("MixerBlockPanel");
+            var notifications = FindNamed<ContentControl>("NotificationsBlockPanel");
+            var system = FindNamed<ContentControl>("SystemStatusBlockPanel");
+            var aida = FindNamed<ContentControl>("SystemMonitorPanel");
+
+            if (top is null || bottom is null || footer is null || chat is null || donations is null ||
+                mixer is null || notifications is null || system is null || aida is null)
+                return;
+
+            PlaceBlock(chat, top, 0, 0, new Thickness(0, 0, 3, 0));
+            PlaceBlock(donations, top, 0, 2, new Thickness(3, 0, 0, 0));
+            PlaceBlock(mixer, bottom, 0, 0, new Thickness(0, 0, 3, 0));
+            PlaceBlock(notifications, bottom, 0, 2, new Thickness(3, 0, 0, 0));
+            PlaceBlock(system, footer, 0, 0, new Thickness(0, 0, 3, 0));
+            PlaceBlock(aida, footer, 0, 4, new Thickness(3, 0, 0, 0));
+
+            settings.DashboardBlockSlots.Clear();
+            settings.MainLeftColumnWidth = 1.0;
+            settings.MainBottomLeftColumnWidth = 1.0;
+            settings.MainTopRowHeight = 1.12;
+            settings.FooterHeight = 178;
+            settings.FooterSystemColumnWeight = 0.37;
+            settings.FooterEventsColumnWeight = 0.26;
+            settings.FooterMonitorColumnWeight = 0.37;
+            settings.UiScaleAuto = true;
+            settings.UiScalePercent = 100;
+            settings.UkraineReferenceLayoutVersion = 1;
+            App.Services.Save();
+        }
+
+        private static void PlaceBlock(ContentControl block, Grid target, int row, int column, Thickness margin)
+        {
+            if (!ReferenceEquals(block.Parent, target))
+            {
+                Detach(block);
+                target.Children.Add(block);
+            }
+
+            Grid.SetRow(block, row);
+            Grid.SetColumn(block, column);
+            Grid.SetRowSpan(block, 1);
+            Grid.SetColumnSpan(block, 1);
+            block.Margin = margin;
+            block.Visibility = Visibility.Visible;
+        }
+
+        private static void Detach(UIElement element)
+        {
+            switch (element)
+            {
+                case FrameworkElement { Parent: Panel panel }:
+                    panel.Children.Remove(element);
+                    break;
+                case FrameworkElement { Parent: ContentControl content } when ReferenceEquals(content.Content, element):
+                    content.Content = null;
+                    break;
+                case FrameworkElement { Parent: Decorator decorator } when ReferenceEquals(decorator.Child, element):
+                    decorator.Child = null;
+                    break;
+            }
         }
 
         private void InitializeFooterLayoutOnce()
@@ -59,105 +142,79 @@ public static class MainWindowVisualTuner
             _footerLayoutInitialized = true;
 
             var settings = App.Services.Settings.Value;
-            if (settings.DashboardLayoutVersion >= 20) return;
-
-            settings.FooterHeight = 165;
-            settings.FooterSystemColumnWeight = 0.32;
-            settings.FooterEventsColumnWeight = 0.25;
-            settings.FooterMonitorColumnWeight = 0.43;
-            settings.DashboardLayoutVersion = 20;
-            App.Services.Save();
-
             var footerGrid = FindNamed<Grid>("FooterBlocksGrid");
             if (footerGrid is not null && footerGrid.ColumnDefinitions.Count >= 5)
             {
-                footerGrid.ColumnDefinitions[0].Width = new GridLength(settings.FooterSystemColumnWeight, GridUnitType.Star);
-                footerGrid.ColumnDefinitions[2].Width = new GridLength(settings.FooterEventsColumnWeight, GridUnitType.Star);
-                footerGrid.ColumnDefinitions[4].Width = new GridLength(settings.FooterMonitorColumnWeight, GridUnitType.Star);
+                footerGrid.ColumnDefinitions[0].Width = new GridLength(Math.Max(0.1, settings.FooterSystemColumnWeight), GridUnitType.Star);
+                footerGrid.ColumnDefinitions[2].Width = new GridLength(Math.Max(0.1, settings.FooterEventsColumnWeight), GridUnitType.Star);
+                footerGrid.ColumnDefinitions[4].Width = new GridLength(Math.Max(0.1, settings.FooterMonitorColumnWeight), GridUnitType.Star);
             }
 
             var designSurface = FindNamed<Grid>("DesignSurface");
             if (designSurface is not null && designSurface.RowDefinitions.Count >= 5)
             {
-                designSurface.RowDefinitions[4].Height = new GridLength(settings.FooterHeight, GridUnitType.Pixel);
+                designSurface.RowDefinitions[4].Height = new GridLength(Math.Clamp(settings.FooterHeight, 150, 230), GridUnitType.Pixel);
                 designSurface.RowDefinitions[4].MinHeight = 150;
                 designSurface.RowDefinitions[4].MaxHeight = 230;
             }
         }
 
-        private void TuneSystemStatusCard()
-        {
-            if (FindNamed<TextBlock>("CpuLoadMonitorText")?.Parent is not StackPanel metricsStack ||
-                metricsStack.Parent is not Grid systemGrid || systemGrid.ColumnDefinitions.Count < 3)
-                return;
-
-            systemGrid.ColumnDefinitions[0].Width = new GridLength(1.35, GridUnitType.Star);
-            systemGrid.ColumnDefinitions[1].Width = new GridLength(0.65, GridUnitType.Star);
-            systemGrid.ColumnDefinitions[2].Width = new GridLength(90, GridUnitType.Pixel);
-
-            foreach (var text in metricsStack.Children.OfType<TextBlock>())
-                text.FontSize = text.FontWeight == FontWeights.Bold ? 10 : 9;
-        }
-
-        private void TunePatrioticCard()
-        {
-            var gloryLine = FindDescendants<TextBlock>(_window).FirstOrDefault(x =>
-                x.Text.Contains("СЛАВА УКРАЇНІ", StringComparison.OrdinalIgnoreCase) ||
-                x.Text.Contains("GLORY TO UKRAINE", StringComparison.OrdinalIgnoreCase));
-            if (gloryLine?.Parent is not StackPanel textStack || textStack.Parent is not Grid cardGrid)
-                return;
-
-            textStack.VerticalAlignment = VerticalAlignment.Bottom;
-            textStack.HorizontalAlignment = HorizontalAlignment.Center;
-            textStack.Margin = new Thickness(6, 0, 6, 5);
-
-            foreach (var text in textStack.Children.OfType<TextBlock>())
-            {
-                text.FontSize = 11.5;
-                text.LineHeight = 13;
-                text.Margin = new Thickness(0);
-                text.TextAlignment = TextAlignment.Center;
-            }
-
-            var emblem = cardGrid.Children.OfType<Image>().FirstOrDefault();
-            if (emblem is not null)
-            {
-                emblem.Width = 66;
-                emblem.Height = 66;
-                emblem.VerticalAlignment = VerticalAlignment.Top;
-                emblem.HorizontalAlignment = HorizontalAlignment.Center;
-                emblem.Margin = new Thickness(0);
-            }
-
-            if (FindAncestor<ContentControl>(cardGrid) is { } card)
-                card.Padding = new Thickness(5);
-        }
-
         private void TuneAidaCard()
         {
             if (FindNamed<ContentControl>("SystemMonitorPanel") is { } panel)
-                panel.Padding = new Thickness(10, 7, 10, 7);
+                panel.Padding = new Thickness(14, 9, 14, 9);
 
-            foreach (var name in new[]
-                     {
-                         "CpuTemperatureMonitorText",
-                         "GpuTemperatureMonitorText",
-                         "GpuLoadMonitorText",
-                         "ObsFpsText"
-                     })
+            var valueNames = new[]
+            {
+                "CpuTemperatureMonitorText",
+                "GpuTemperatureMonitorText",
+                "GpuLoadMonitorText",
+                "ObsFpsText"
+            };
+
+            UniformGrid? metricsGrid = null;
+            foreach (var name in valueNames)
             {
                 if (FindNamed<TextBlock>(name) is not { } valueText) continue;
-                if (FindAncestor<Border>(valueText) is not { } circle) continue;
-                circle.Width = 70;
-                circle.Height = 70;
-                circle.CornerRadius = new CornerRadius(35);
-                circle.Margin = new Thickness(3, 0, 3, 1);
-                valueText.FontSize = name == "ObsFpsText" ? 9.5 : 14.5;
+                if (FindAncestor<Border>(valueText) is not { } metricCard) continue;
+
+                metricsGrid ??= metricCard.Parent as UniformGrid;
+                metricCard.Width = double.NaN;
+                metricCard.MinWidth = 72;
+                metricCard.Height = 62;
+                metricCard.CornerRadius = new CornerRadius(4);
+                metricCard.BorderThickness = new Thickness(1.2);
+                metricCard.Margin = new Thickness(4, 2, 4, 3);
+
+                valueText.FontFamily = new FontFamily("Consolas");
+                valueText.FontSize = name == "ObsFpsText" ? 18 : 21;
+                valueText.FontWeight = FontWeights.Black;
+                valueText.TextAlignment = TextAlignment.Center;
+
+                if (valueText.Parent is StackPanel stack)
+                {
+                    stack.VerticalAlignment = VerticalAlignment.Center;
+                    var label = stack.Children.OfType<TextBlock>().FirstOrDefault(x => !ReferenceEquals(x, valueText));
+                    if (label is not null)
+                    {
+                        label.FontSize = 11.5;
+                        label.FontWeight = FontWeights.Bold;
+                        if (_window.TryFindResource("Amber") is Brush amber)
+                            label.Foreground = amber;
+                    }
+                }
+            }
+
+            if (metricsGrid is not null)
+            {
+                metricsGrid.Columns = 4;
+                metricsGrid.Rows = 1;
+                metricsGrid.Margin = new Thickness(0, 2, 0, 1);
             }
 
             if (FindNamed<TextBlock>("AidaStatusText") is { } header)
             {
-                header.FontSize = 15;
+                header.FontSize = 16;
                 header.FontWeight = FontWeights.Bold;
             }
         }
@@ -173,6 +230,105 @@ public static class MainWindowVisualTuner
             header.Text = "AIDA64 LIVE";
             if (_window.TryFindResource("Amber") is Brush amber)
                 header.Foreground = amber;
+        }
+
+        private void EnforceDigitalAidaValues()
+        {
+            if (FindNamed<TextBlock>("RamLoadMonitorText") is { } ramSource &&
+                FindNamed<TextBlock>("GpuLoadMonitorText") is { } ramTarget)
+            {
+                var ram = ramSource.Text.Split('•', StringSplitOptions.TrimEntries)[0].Trim();
+                if (!string.IsNullOrWhiteSpace(ram)) ramTarget.Text = ram;
+            }
+
+            if (FindNamed<TextBlock>("ObsFpsText") is { } fps)
+            {
+                var value = fps.Text
+                    .Replace("OBS", string.Empty, StringComparison.OrdinalIgnoreCase)
+                    .Replace("FPS", string.Empty, StringComparison.OrdinalIgnoreCase)
+                    .Trim();
+                fps.Text = string.IsNullOrWhiteSpace(value) ? "—" : value;
+            }
+        }
+
+        private void HookQuickMixerControls()
+        {
+            foreach (var slider in FindDescendants<Slider>(_window).Where(x => x.Tag is AudioChannel))
+            {
+                if (!_hookedMixerSliders.Add(slider)) continue;
+                slider.PreviewMouseLeftButtonUp += MixerSlider_PreviewMouseLeftButtonUp;
+            }
+
+            foreach (var button in FindDescendants<Button>(_window).Where(x => x.Tag is AudioChannel))
+            {
+                if (!_hookedMuteButtons.Add(button)) continue;
+                button.PreviewMouseLeftButtonDown += MixerMute_PreviewMouseLeftButtonDown;
+            }
+        }
+
+        private async void MixerSlider_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not Slider { Tag: AudioChannel channel } slider || !App.Services.Obs.IsConnected) return;
+            try
+            {
+                await App.Services.Obs.SetInputVolumeAsync(channel.Name, slider.Value);
+                channel.Volume = slider.Value;
+            }
+            catch (Exception ex)
+            {
+                App.Services.Logger.Error($"Гучність {channel.Name}", ex);
+            }
+        }
+
+        private async void MixerMute_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not Button { Tag: AudioChannel channel } || !App.Services.Obs.IsConnected) return;
+            e.Handled = true;
+            try
+            {
+                var current = await App.Services.Obs.GetInputMuteAsync(channel.Name);
+                var target = !current;
+                await App.Services.Obs.SetInputMuteAsync(channel.Name, target);
+                channel.IsMuted = target;
+            }
+            catch (Exception ex)
+            {
+                App.Services.Logger.Error($"MUTE {channel.Name}", ex);
+            }
+        }
+
+        private async Task TryRepairQuickMixerAsync()
+        {
+            if (_autoMixerRepairBusy || !App.Services.Obs.IsConnected ||
+                _window.QuickAudioPage.Count > 0 || !App.Services.Settings.Value.AudioAutoDetect)
+                return;
+
+            _autoMixerRepairBusy = true;
+            try
+            {
+                var inputs = (await App.Services.Obs.GetPrimaryMixerInputsAsync()).ToList();
+                if (inputs.Count == 0)
+                    inputs = (await App.Services.Obs.GetMixerInputsAsync()).ToList();
+                if (inputs.Count == 0) return;
+
+                var settings = App.Services.Settings.Value;
+                settings.SelectedAudioInputs = inputs.Select(x => x.name).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+                App.Services.Save();
+
+                var refresh = typeof(MainWindow).GetMethod(
+                    "RefreshQuickAudioSafeAsync",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                if (refresh?.Invoke(_window, null) is Task task)
+                    await task;
+            }
+            catch (Exception ex)
+            {
+                App.Services.Logger.Error("Автовідновлення швидкого мікшера", ex);
+            }
+            finally
+            {
+                _autoMixerRepairBusy = false;
+            }
         }
 
         private void UpdateEmptyStates()
@@ -199,6 +355,13 @@ public static class MainWindowVisualTuner
             _window.Loaded -= Window_Loaded;
             _window.SizeChanged -= Window_SizeChanged;
             _window.Closed -= Window_Closed;
+
+            foreach (var slider in _hookedMixerSliders)
+                slider.PreviewMouseLeftButtonUp -= MixerSlider_PreviewMouseLeftButtonUp;
+            foreach (var button in _hookedMuteButtons)
+                button.PreviewMouseLeftButtonDown -= MixerMute_PreviewMouseLeftButtonDown;
+            _hookedMixerSliders.Clear();
+            _hookedMuteButtons.Clear();
         }
     }
 
