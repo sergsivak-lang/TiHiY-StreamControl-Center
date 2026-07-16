@@ -64,7 +64,7 @@ internal static class ChatAppearanceRuntime
             input.Height = Math.Clamp(settings.MainChatInputHeight, 36, 64);
             input.Foreground = BrushFrom(settings.MainChatInputTextColor, "#EAF6FF");
             input.Background = BrushFrom(settings.MainChatInputBackgroundColor, "#071525");
-            input.Padding = new Thickness(12, 5);
+            input.Padding = new Thickness(12, 5, 12, 5);
 
             foreach (var text in Descendants<TextBlock>(list).Where(x => x.DataContext is ChatMessage))
             {
