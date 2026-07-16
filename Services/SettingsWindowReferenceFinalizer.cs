@@ -214,7 +214,7 @@ internal static class SettingsWindowReferenceFinalizer
             if (pageGrid is null) return;
 
             var scroll = FindAncestor<ScrollViewer>(pageGrid);
-            var tab = FindAncestor<TabItem>(scroll ?? pageGrid);
+            var tab = FindAncestor<TabItem>((DependencyObject?)scroll ?? pageGrid);
             if (scroll is not null && tab is not null && ReferenceEquals(scroll.Content, pageGrid))
             {
                 scroll.Content = null;
