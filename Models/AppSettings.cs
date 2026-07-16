@@ -72,6 +72,17 @@ public sealed class AppSettings
     public string OverlayTheme { get; set; } = "Star Citizen MFD";
     public string UiTheme { get; set; } = "TiHiY Default / Cyber Amber";
     public string UiLanguage { get; set; } = "uk-UA";
+    public string UiDensity { get; set; } = "Standard";
+    public bool InterfaceAnimationsEnabled { get; set; } = true;
+    public bool ShowTooltips { get; set; } = true;
+    public bool LockLayoutAfterStartup { get; set; } = true;
+    public bool StartWithWindows { get; set; }
+    public bool MinimizeToTray { get; set; } = true;
+    public bool TransitionEffectsEnabled { get; set; } = true;
+    public string UpdateCheckFrequency { get; set; } = "Daily";
+    public string UpdateChannel { get; set; } = "Stable";
+    public int SecurityAutoLockMinutes { get; set; } = 15;
+    public bool ConfirmOnExit { get; set; } = true;
     public Dictionary<string, string> DashboardBlockSlots { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public Dictionary<string, string> DashboardFreeformBounds { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public int UkraineReferenceLayoutVersion { get; set; }
