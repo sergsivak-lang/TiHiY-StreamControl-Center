@@ -149,43 +149,33 @@ public sealed class OverlayServer : IAsyncDisposable
             }
 
             var theme = GetQuery(uri, "theme") ?? _themeProvider();
-            if (path == "/overlay/chat")
+            switch (path)
             {
-                await RespondAsync(stream, "text/html; charset=utf-8", BuildChatHtml(theme, _settingsProvider()), token);
-                return;
+                case "/overlay/chat":
+                    await RespondAsync(stream, "text/html; charset=utf-8", BuildChatHtml(theme, _settingsProvider()), token);
+                    return;
+                case "/overlay/alerts":
+                    await RespondAsync(stream, "text/html; charset=utf-8", BuildAlertsHtml(theme), token);
+                    return;
+                case "/overlay/now-playing":
+                    await RespondAsync(stream, "text/html; charset=utf-8", BuildNowPlayingHtml(theme), token);
+                    return;
+                case "/overlay/donatello":
+                    await RespondAsync(stream, "text/html; charset=utf-8", BuildDonatelloHtml(theme), token);
+                    return;
+                case "/overlay/top-donors":
+                    await RespondAsync(stream, "text/html; charset=utf-8", BuildTopDonorsHtml(), token);
+                    return;
+                case "/overlay/goal":
+                    await RespondAsync(stream, "text/html; charset=utf-8", BuildGoalHtml(), token);
+                    return;
+                case "/health":
+                    await RespondAsync(stream, "text/plain; charset=utf-8", "TiHiY Overlay Server OK", token);
+                    return;
+                default:
+                    await RespondAsync(stream, "text/plain; charset=utf-8", "Not found", token, "404 Not Found");
+                    return;
             }
-            if (path == "/overlay/alerts")
-            {
-                await RespondAsync(stream, "text/html; charset=utf-8", BuildAlertsHtml(theme), token);
-                return;
-            }
-            if (path == "/overlay/now-playing")
-            {
-                await RespondAsync(stream, "text/html; charset=utf-8", BuildNowPlayingHtml(theme), token);
-                return;
-            }
-            if (path == "/overlay/donatello")
-            {
-                await RespondAsync(stream, "text/html; charset=utf-8", BuildDonatelloHtml(theme), token);
-                return;
-            }
-            if (path == "/overlay/top-donors")
-            {
-                await RespondAsync(stream, "text/html; charset=utf-8", BuildTopDonorsHtml(), token);
-                return;
-            }
-            if (path == "/overlay/goal")
-            {
-                await RespondAsync(stream, "text/html; charset=utf-8", BuildGoalHtml(), token);
-                return;
-            }
-            if (path == "/health")
-            {
-                await RespondAsync(stream, "text/plain; charset=utf-8", "TiHiY Overlay Server OK", token);
-                return;
-            }
-
-            await RespondAsync(stream, "text/plain; charset=utf-8", "Not found", token, "404 Not Found");
         }
     }
 
@@ -214,18 +204,18 @@ public sealed class OverlayServer : IAsyncDisposable
         var fontSize = Math.Clamp(settings.StreamChatOverlayFontSize, 11, 48).ToString("0.#", CultureInfo.InvariantCulture);
         var maxMessages = Math.Clamp(settings.StreamChatOverlayMaxMessages, 3, 30).ToString(CultureInfo.InvariantCulture);
         var textColor = CssColor(settings.StreamChatOverlayTextColor, "#F2FAFF");
-        var userColor = CssColor(settings.StreamChatOverlayUserColor, "#FFD329");
+        var userColor = CssColor(settings.StreamChatOverlayUserColor, "#55C8FF");
         var background = CssRgba(settings.StreamChatOverlayBackgroundColor, settings.StreamChatOverlayBackgroundOpacity);
 
         var template = """
 <!doctype html><html lang="uk"><head><meta charset="utf-8"><style>
-html,body{margin:0;background:transparent;overflow:hidden;font-family:"Segoe UI",sans-serif}.wrap{position:absolute;left:12px;right:12px;bottom:44px;display:flex;flex-direction:column;gap:5px}.stats{position:absolute;left:12px;right:12px;bottom:7px;display:flex;justify-content:flex-end;gap:16px;padding:5px 3px;background:transparent;font-size:14px;font-weight:800;color:#dff7ff;text-shadow:0 2px 5px rgba(0,0,0,.95)}.msg{padding:6px 8px;border-radius:5px;font-size:__FONT__px;line-height:1.32;color:__TEXT__;background:__BACKGROUND__;text-shadow:0 2px 5px rgba(0,0,0,.98)}.line{display:flex;gap:9px;align-items:flex-start}.platformIcon,.statIcon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}.platformIcon{width:28px;height:23px}.statIcon{width:20px;height:18px;margin-right:5px}.platformIcon svg,.statIcon svg{display:block;width:100%;height:100%}.user{font-weight:900;flex:0 0 auto;color:__USER__}.text{word-break:break-word;min-width:0}.highlight .text,.highlight .user{color:#FFD329!important;font-weight:900}
+html,body{margin:0;background:transparent;overflow:hidden;font-family:"Segoe UI",sans-serif}.wrap{position:absolute;left:12px;right:12px;bottom:44px;display:flex;flex-direction:column;gap:6px}.stats{position:absolute;left:12px;right:12px;bottom:7px;display:flex;justify-content:flex-end;gap:16px;padding:5px 3px;background:transparent;font-size:14px;font-weight:800;color:#dff7ff;text-shadow:0 2px 5px rgba(0,0,0,.95)}.msg{padding:7px 9px;border-radius:5px;font-size:__FONT__px;line-height:1.32;color:__TEXT__;background:__BACKGROUND__;text-shadow:0 2px 5px rgba(0,0,0,.98)}.line{display:grid;grid-template-columns:30px minmax(0,1fr);column-gap:9px;align-items:start}.content{min-width:0}.platformIcon,.statIcon{display:inline-flex;align-items:center;justify-content:center}.platformIcon{width:28px;height:23px}.statIcon{width:20px;height:18px;margin-right:5px}.platformIcon svg,.statIcon svg{display:block;width:100%;height:100%}.user{display:block;font-weight:900;color:__USER__;line-height:1.15;word-break:break-word}.text{display:block;margin-top:3px;word-break:break-word;white-space:pre-wrap}.highlight .text,.highlight .user{color:#FFD329!important;font-weight:900}
 __THEME__
 </style></head><body><div id="chat" class="wrap"></div><div class="stats"><span id="tw"></span><span id="yt"></span><span id="likes">♥ 0</span></div><script>
 const nodes=new Map();const maxMessages=__MAX__;
 function svg(platform){const p=(platform||'').toUpperCase();if(p==='YOUTUBE')return '<svg viewBox="0 0 32 22" aria-label="YouTube"><rect width="32" height="22" rx="6" fill="#ff0033"/><path d="M13 6.5L22 11l-9 4.5z" fill="#fff"/></svg>';if(p==='DONATELLO')return '<svg viewBox="0 0 24 24"><path d="M12 21S3 15.6 3 8.8C3 5.2 7.5 3.7 12 7.5 16.5 3.7 21 5.2 21 8.8 21 15.6 12 21 12 21z" fill="#ffd329"/></svg>';return '<svg viewBox="0 0 28 28" aria-label="Twitch"><path d="M4 3h21v15l-6 6h-5l-3 3v-3H4z" fill="#9147ff"/><path d="M9 7h3v8H9zm7 0h3v8h-3z" fill="#fff"/></svg>'}
 function icon(platform,small=false){const e=document.createElement('span');e.className=small?'statIcon':'platformIcon';e.innerHTML=svg(platform);return e}
-function makeMessage(m){const box=document.createElement('div');box.className='msg'+(m.highlighted?' highlight':'');const line=document.createElement('div');line.className='line';line.append(icon(m.platform));const user=document.createElement('span');user.className='user';user.style.color=m.foreground||'';user.textContent=(m.user||'Глядач')+':';line.append(user);const text=document.createElement('span');text.className='text';text.textContent=m.text||'';line.append(text);box.append(line);return box}
+function makeMessage(m){const box=document.createElement('div');box.className='msg'+(m.highlighted?' highlight':'');const line=document.createElement('div');line.className='line';line.append(icon(m.platform));const content=document.createElement('div');content.className='content';const user=document.createElement('span');user.className='user';user.style.color=m.foreground||'__USER__';user.textContent=(m.user||'Глядач')+':';content.append(user);const text=document.createElement('span');text.className='text';text.textContent=m.text||'';content.append(text);line.append(content);box.append(line);return box}
 async function update(){try{const data=await(await fetch('/api/chat',{cache:'no-store'})).json();const root=document.getElementById('chat');const latest=data.slice(-maxMessages);const active=new Set();for(const m of latest){const key=String(m.id||((m.platform||'')+'|'+(m.user||'')+'|'+(m.text||'')));active.add(key);let box=nodes.get(key);if(!box){box=makeMessage(m);nodes.set(key,box)}root.append(box)}for(const [key,box] of [...nodes])if(!active.has(key)){box.remove();nodes.delete(key)}const st=await(await fetch('/api/stream-stats',{cache:'no-store'})).json();const tw=document.getElementById('tw');tw.replaceChildren(icon('TWITCH',true),document.createTextNode(' '+(st.twitchViewers||0)));const yt=document.getElementById('yt');yt.replaceChildren(icon('YOUTUBE',true),document.createTextNode(' '+(st.youtubeViewers||0)));document.getElementById('likes').textContent='♥ '+(st.youtubeLikes||0)}catch(e){}}
 setInterval(update,900);update();
 </script></body></html>
@@ -269,7 +259,7 @@ function fmt(v,c){return (Number(v)||0).toLocaleString('uk-UA',{maximumFractionD
 <!doctype html><html lang="uk"><head><meta charset="utf-8"><style>
 html,body{margin:0;background:transparent;overflow:hidden;font-family:"Segoe UI",sans-serif}#frame{position:absolute;inset:0;display:flex;align-items:center;overflow:hidden;border-radius:8px}#track{display:flex;align-items:center;gap:42px;white-space:nowrap;will-change:transform;font-size:30px;font-weight:900;text-shadow:0 2px 6px #000}.item{display:inline-flex;gap:10px;align-items:center}.rank{opacity:.72}.amount{font-weight:1000}
 </style></head><body><div id="frame"><div id="track"></div></div><script>
-let signature='';function hexRgba(hex,a){const h=(hex||'#06172A').replace('#','');const v=h.length===8?h.slice(2):h;const n=parseInt(v,16)||0;return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${Math.max(0,Math.min(1,Number(a)||0))})`}async function update(){try{const d=await(await fetch('/api/donation-summary',{cache:'no-store'})).json();const items=d.topDonors||[];const sig=JSON.stringify(items)+JSON.stringify(d.tickerStyle||{});if(sig===signature)return;signature=sig;const s=d.tickerStyle||{};const frame=document.getElementById('frame');const track=document.getElementById('track');frame.style.background=hexRgba(s.backgroundColor,s.backgroundOpacity);track.style.color=s.textColor||'#FFD329';track.replaceChildren();const source=items.length?items:[{rank:1,user:'Очікування донатів',amount:0,currency:d.goalCurrency||'UAH'}];for(let r=0;r<2;r++)for(const x of source){const el=document.createElement('span');el.className='item';el.innerHTML='<span class="rank"></span><span class="user"></span><span class="amount"></span>';el.children[0].textContent='#'+x.rank;el.children[1].textContent=x.user||'Анонім';el.children[2].textContent=(Number(x.amount)||0).toLocaleString('uk-UA')+' '+(x.currency||'UAH');track.append(el)}requestAnimationFrame(()=>{const distance=Math.max(1,track.scrollWidth/2);const speed=Math.max(20,Math.min(250,Number(s.speed)||70));track.animate([{transform:'translateX(0)'},{transform:`translateX(-${distance}px)`}],{duration:distance/speed*1000,iterations:Infinity,easing:'linear'})})}catch(e){}}setInterval(update,1500);update();
+let signature='';let animation=null;function hexRgba(hex,a){const h=(hex||'#06172A').replace('#','');const v=h.length===8?h.slice(2):h;const n=parseInt(v,16)||0;return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${Math.max(0,Math.min(1,Number(a)||0))})`}async function update(){try{const d=await(await fetch('/api/donation-summary',{cache:'no-store'})).json();const items=d.topDonors||[];const sig=JSON.stringify(items)+JSON.stringify(d.tickerStyle||{});if(sig===signature)return;signature=sig;const s=d.tickerStyle||{};const frame=document.getElementById('frame');const track=document.getElementById('track');frame.style.background=hexRgba(s.backgroundColor,s.backgroundOpacity);track.style.color=s.textColor||'#FFD329';track.replaceChildren();const source=items.length?items:[{rank:1,user:'Очікування донатів',amount:0,currency:d.goalCurrency||'UAH'}];for(let r=0;r<2;r++)for(const x of source){const el=document.createElement('span');el.className='item';el.innerHTML='<span class="rank"></span><span class="user"></span><span class="amount"></span>';el.children[0].textContent='#'+x.rank;el.children[1].textContent=x.user||'Анонім';el.children[2].textContent=(Number(x.amount)||0).toLocaleString('uk-UA')+' '+(x.currency||'UAH');track.append(el)}requestAnimationFrame(()=>{animation?.cancel();const distance=Math.max(1,track.scrollWidth/2);const speed=Math.max(20,Math.min(250,Number(s.speed)||70));animation=track.animate([{transform:'translateX(0)'},{transform:`translateX(-${distance}px)`}],{duration:distance/speed*1000,iterations:Infinity,easing:'linear'})})}catch(e){}}setInterval(update,1500);update();
 </script></body></html>
 """;
 
