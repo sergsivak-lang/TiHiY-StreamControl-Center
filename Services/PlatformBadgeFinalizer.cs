@@ -32,7 +32,7 @@ internal static class PlatformBadgeFinalizer
             _window.Closed += Window_Closed;
             _timer = new DispatcherTimer(DispatcherPriority.Render, window.Dispatcher)
             {
-                Interval = TimeSpan.FromMilliseconds(220)
+                Interval = TimeSpan.FromMilliseconds(180)
             };
             _timer.Tick += Timer_Tick;
             _timer.Start();
@@ -43,19 +43,22 @@ internal static class PlatformBadgeFinalizer
 
         private void Apply()
         {
-            foreach (var messageBorder in Descendants<Border>(_window)
+            foreach (var messageHost in Descendants<FrameworkElement>(_window)
                          .Where(x => x.DataContext is ChatMessage)
                          .ToList())
             {
-                var message = (ChatMessage)messageBorder.DataContext;
-                var badge = Descendants<Border>(messageBorder)
+                var message = (ChatMessage)messageHost.DataContext;
+                var badge = Descendants<Border>(messageHost)
+                    .Where(x => x.Child is Image or PlatformVectorIcon)
+                    .OrderBy(x => Math.Max(x.ActualWidth, x.Width))
                     .FirstOrDefault(x =>
                     {
                         if (x.Child is PlatformVectorIcon) return true;
                         if (x.Child is not Image image) return false;
                         var source = image.Source?.ToString() ?? string.Empty;
                         return source.Contains("Platforms", StringComparison.OrdinalIgnoreCase) ||
-                               source.Contains("PlatformIcon", StringComparison.OrdinalIgnoreCase);
+                               source.Contains("PlatformIcon", StringComparison.OrdinalIgnoreCase) ||
+                               ((double.IsNaN(x.Width) || x.Width <= 34) && (double.IsNaN(x.Height) || x.Height <= 30));
                     });
 
                 if (badge is null || badge.Child is PlatformVectorIcon) continue;
