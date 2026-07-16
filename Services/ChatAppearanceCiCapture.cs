@@ -13,10 +13,21 @@ internal static class ChatAppearanceCiCapture
     private static void OnMainLoaded(object sender, RoutedEventArgs e)
     {
         if (_started || sender is not MainWindow main) return;
-        var argument = Environment.GetCommandLineArgs()
-            .FirstOrDefault(x => x.StartsWith("--ci-chat-appearance-screenshot=", StringComparison.OrdinalIgnoreCase));
-        if (argument is null) return;
-        var path = argument[(argument.IndexOf('=') + 1)..].Trim('"');
+        var arguments = Environment.GetCommandLineArgs();
+        var explicitArgument = arguments.FirstOrDefault(x =>
+            x.StartsWith("--ci-chat-appearance-screenshot=", StringComparison.OrdinalIgnoreCase));
+        var normalScreenshot = arguments.FirstOrDefault(x =>
+            x.StartsWith("--ci-screenshot=", StringComparison.OrdinalIgnoreCase));
+        if (explicitArgument is null && normalScreenshot is null) return;
+
+        string path;
+        if (explicitArgument is not null)
+            path = explicitArgument[(explicitArgument.IndexOf('=') + 1)..].Trim('"');
+        else
+        {
+            var normalPath = normalScreenshot![(normalScreenshot.IndexOf('=') + 1)..].Trim('"');
+            path = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(normalPath))!, "TiHiY-Chat-Appearance-Settings.png");
+        }
         if (string.IsNullOrWhiteSpace(path)) return;
         _started = true;
 
@@ -48,6 +59,8 @@ internal static class ChatAppearanceCiCapture
                 Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
                 using var stream = File.Create(path);
                 encoder.Save(stream);
+                if (new FileInfo(path).Length < 25000)
+                    throw new InvalidOperationException("Multichat settings screenshot is unexpectedly small.");
             }
             catch (Exception ex)
             {
