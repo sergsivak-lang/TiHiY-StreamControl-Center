@@ -20,9 +20,9 @@ public sealed class DonationService
     {
         get
         {
-            var historyTotal = History.Where(CountsTowardGoal).Sum(x => x.Amount);
-            var synchronizedTotal = Math.Max(historyTotal, ExternalTotalAmount);
-            return Math.Max(Math.Max(0, GoalInitialAmount), synchronizedTotal);
+            var liveTotal = History.Where(x => !x.IsHistorical && CountsTowardGoal(x)).Sum(x => x.Amount);
+            var startingAmount = Math.Max(Math.Max(0, GoalInitialAmount), Math.Max(0, ExternalTotalAmount));
+            return startingAmount + liveTotal;
         }
     }
 
