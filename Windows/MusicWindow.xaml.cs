@@ -17,8 +17,14 @@ public partial class MusicWindow : ModuleWindowBase
         InitializeComponent();
         DataContext = this;
         ConfigureModule(DesignSurface, 1160, 730, "Music");
-        VolumeSlider.Value = _services.Music.Volume;
-        _services.Music.RepeatMode = MusicPlayerService.ParseRepeatMode(_services.Settings.Value.MusicRepeatMode);
+
+        var settings = _services.Settings.Value;
+        _services.Music.Volume = Math.Clamp(settings.MusicVolume, 0, 1);
+        _services.Music.IsMuted = settings.MusicMuted;
+        VolumeSlider.Value = _services.Music.Volume * 100;
+        UpdateVolumeUi();
+
+        _services.Music.RepeatMode = MusicPlayerService.ParseRepeatMode(settings.MusicRepeatMode);
         RepeatModeCombo.SelectedIndex = _services.Music.RepeatMode switch
         {
             MusicRepeatMode.Off => 0,
@@ -31,6 +37,7 @@ public partial class MusicWindow : ModuleWindowBase
         {
             _services.Music.TrackChanged -= Music_Changed;
             _services.Music.PositionChanged -= Music_Changed;
+            SaveAudioState();
             _services.Save();
         };
         ShowPage();
@@ -81,9 +88,34 @@ public partial class MusicWindow : ModuleWindowBase
     private void Mute_Click(object sender, RoutedEventArgs e)
     {
         _services.Music.IsMuted = !_services.Music.IsMuted;
-        MuteButton.Content = _services.Music.IsMuted ? "MUTE: ON" : "MUTE";
+        SaveAudioState();
+        UpdateVolumeUi();
     }
-    private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) { if (IsLoaded) _services.Music.Volume = e.NewValue; }
+
+    private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (!IsInitialized) return;
+        _services.Music.Volume = Math.Clamp(e.NewValue / 100d, 0, 1);
+        SaveAudioState();
+        UpdateVolumeUi();
+    }
+
+    private void SaveAudioState()
+    {
+        _services.Settings.Value.MusicVolume = Math.Clamp(_services.Music.Volume, 0, 1);
+        _services.Settings.Value.MusicMuted = _services.Music.IsMuted;
+    }
+
+    private void UpdateVolumeUi()
+    {
+        if (!IsInitialized) return;
+        var percent = (int)Math.Round(_services.Music.Volume * 100);
+        VolumeValueText.Text = $"{percent}%";
+        MuteButton.Content = _services.Music.IsMuted ? "MUTE: ON" : "MUTE";
+        MuteButton.Background = _services.Music.IsMuted
+            ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8A1724"))
+            : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#52212A"));
+    }
 
     private void RepeatModeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -113,6 +145,7 @@ public partial class MusicWindow : ModuleWindowBase
         var position = _services.Music.Position;
         Progress.Value = duration.TotalSeconds > 0 ? Math.Clamp(position.TotalSeconds / duration.TotalSeconds, 0, 1) : 0;
         TimeText.Text = $"{Format(position)} / {Format(duration)}";
+        UpdateVolumeUi();
     }
     private string OverlayUrl => $"http://127.0.0.1:{_services.Settings.Value.OverlayPort}/overlay/now-playing?theme={Uri.EscapeDataString(_services.Settings.Value.OverlayTheme)}";
     private void OpenOverlay_Click(object sender, RoutedEventArgs e) { try { Process.Start(new ProcessStartInfo(OverlayUrl) { UseShellExecute = true }); } catch (Exception ex) { _services.Logger.Error("Now Playing", ex); } }
