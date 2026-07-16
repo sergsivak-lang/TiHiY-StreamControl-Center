@@ -134,17 +134,31 @@ public sealed class ChatService
 
     private async Task SendBotReplyAsync(string text, string target, int delayMilliseconds)
     {
-        if (delayMilliseconds > 0)
-            await Task.Delay(Math.Clamp(delayMilliseconds, 0, 10000));
-        await SendManualAsync(text, target);
+        try
+        {
+            if (delayMilliseconds > 0)
+                await Task.Delay(Math.Clamp(delayMilliseconds, 0, 10000));
+            await SendManualAsync(text, target);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Чат-бот: надсилання в {target}", ex);
+        }
     }
 
-    public void SendManual(string text, string target) => _ = SendManualAsync(text, target);
+    public void SendManual(string text, string target) => _ = SendManualSilentlyAsync(text, target);
+
+    private async Task SendManualSilentlyAsync(string text, string target)
+    {
+        try { await SendManualAsync(text, target); }
+        catch { }
+    }
 
     public async Task SendManualAsync(string text, string target)
     {
         if (string.IsNullOrWhiteSpace(text)) return;
         if (MessageSender is null) throw new InvalidOperationException("Канали чату ще не налаштовані.");
+
         try
         {
             await MessageSender(text.Trim(), target);
@@ -153,6 +167,7 @@ public sealed class ChatService
         catch (Exception ex)
         {
             _logger.Error($"Надсилання в {target}", ex);
+            throw;
         }
     }
 
