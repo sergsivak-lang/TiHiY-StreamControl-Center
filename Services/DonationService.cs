@@ -14,13 +14,15 @@ public sealed class DonationService
     public event EventHandler<DonationEvent>? DonationAdded;
 
     public decimal ExternalTotalAmount { get; set; }
+    public decimal GoalInitialAmount { get; set; }
 
     public decimal TotalAmount
     {
         get
         {
             var historyTotal = History.Where(CountsTowardGoal).Sum(x => x.Amount);
-            return Math.Max(historyTotal, ExternalTotalAmount);
+            var synchronizedTotal = Math.Max(historyTotal, ExternalTotalAmount);
+            return Math.Max(Math.Max(0, GoalInitialAmount), synchronizedTotal);
         }
     }
 
@@ -48,6 +50,28 @@ public sealed class DonationService
         !item.ExternalId.StartsWith("replay:", StringComparison.OrdinalIgnoreCase) &&
         !item.Currency.Equals("SUB", StringComparison.OrdinalIgnoreCase) &&
         !item.Currency.Equals("MEMBER", StringComparison.OrdinalIgnoreCase);
+
+    public IReadOnlyList<(string User, decimal Amount)> GetTopDonors(string period, int count)
+    {
+        var now = DateTime.Now;
+        var cutoff = period.Trim().ToLowerInvariant() switch
+        {
+            "stream" => now.Date,
+            "day" => now.Date,
+            "month" => new DateTime(now.Year, now.Month, 1),
+            _ => DateTime.MinValue
+        };
+
+        return History
+            .Where(CountsTowardGoal)
+            .Where(x => x.Time >= cutoff)
+            .GroupBy(x => string.IsNullOrWhiteSpace(x.User) ? "Анонім" : x.User.Trim(), StringComparer.OrdinalIgnoreCase)
+            .Select(x => (User: x.Key, Amount: x.Sum(y => y.Amount)))
+            .OrderByDescending(x => x.Amount)
+            .ThenBy(x => x.User, StringComparer.OrdinalIgnoreCase)
+            .Take(Math.Clamp(count, 1, 30))
+            .ToList();
+    }
 
     public void Add(DonationEvent donation)
     {
