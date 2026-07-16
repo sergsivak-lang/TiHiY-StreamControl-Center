@@ -2,9 +2,8 @@ namespace TiHiY.StreamControlCenter.Services;
 
 /// <summary>
 /// Applies one geometric scale to the complete design surface of every application window.
-/// Fonts, icons, buttons, lists, sliders and all child controls therefore scale together.
-/// The logical design surface also expands in the spare dimension, allowing responsive
-/// star-sized rows and columns to fill the complete client area without top/bottom bars.
+/// The automatic mode never enlarges the approved layout above 100%; spare space is consumed
+/// by responsive star-sized rows and columns instead of stretching or clipping the interface.
 /// </summary>
 public sealed class UiScaleService
 {
@@ -62,15 +61,14 @@ public sealed class UiScaleService
         var fitFactor = Math.Min(availableWidth / Math.Max(1, baseWidth),
                                  availableHeight / Math.Max(1, baseHeight));
 
-        // Manual zoom may make the interface smaller, but never larger than the
-        // current fit. This guarantees that resizing a window cannot clip controls.
+        // Never auto-enlarge the approved reference layout. On Full HD and larger screens
+        // the responsive Grid receives the spare logical width/height and fills the window.
         var requestedFactor = Percent / 100.0;
-        var factor = Auto ? fitFactor : Math.Min(fitFactor, requestedFactor);
-        factor = Math.Clamp(factor, 0.32, 1.55);
+        var factor = Auto
+            ? Math.Min(1.0, fitFactor)
+            : Math.Min(fitFactor, requestedFactor);
+        factor = Math.Clamp(factor, 0.32, 1.0);
 
-        // Preserve a uniform scale for text and icons, while giving the responsive
-        // Grid extra logical width/height in the dimension that otherwise produced
-        // letterboxing. Star-sized rows and columns consume that space naturally.
         designSurface.Width = Math.Max(baseWidth, availableWidth / factor);
         designSurface.Height = Math.Max(baseHeight, availableHeight / factor);
         designSurface.HorizontalAlignment = HorizontalAlignment.Center;
