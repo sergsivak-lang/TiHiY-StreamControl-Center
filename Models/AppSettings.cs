@@ -100,6 +100,7 @@ public sealed class AppSettings
     public List<ScheduledNotice> ScheduledNotices { get; set; } = new();
     public List<BotCommand> BotCommands { get; set; } = new();
     public List<string> MusicPlaylistPaths { get; set; } = new();
+    public string MusicRepeatMode { get; set; } = "Playlist";
     public int DashboardLayoutVersion { get; set; } = 0;
     public double MainLeftColumnWidth { get; set; } = 1.035;
     public double MainBottomLeftColumnWidth { get; set; } = 1.02;
