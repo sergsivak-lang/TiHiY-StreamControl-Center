@@ -9,7 +9,7 @@
         Loaded="Window_Loaded" Closing="Window_Closing">
     <Window.Resources>
         <SolidColorBrush x:Key="LocalOverlayTextBrush" Color="#F2FAFF"/>
-        <SolidColorBrush x:Key="LocalOverlayUserBrush" Color="#FFD329"/>
+        <SolidColorBrush x:Key="LocalOverlayUserBrush" Color="#55C8FF"/>
     </Window.Resources>
     <Border x:Name="OverlayFrame" Background="#22000000" BorderBrush="#3D8CA0" BorderThickness="1" CornerRadius="8" Padding="8">
         <Grid>
@@ -63,7 +63,7 @@
                         <Setter Property="Focusable" Value="False"/>
                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                         <Setter Property="Padding" Value="0"/>
-                        <Setter Property="Margin" Value="0,0,0,4"/>
+                        <Setter Property="Margin" Value="0,0,0,6"/>
                         <Setter Property="Background" Value="Transparent"/>
                         <Setter Property="BorderThickness" Value="0"/>
                     </Style>
@@ -72,19 +72,38 @@
                     <DataTemplate DataType="{x:Type models:ChatMessage}">
                         <Border Background="Transparent" CornerRadius="4" Padding="6,4">
                             <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
                                 <Border Width="24" Height="22" CornerRadius="4" Background="{Binding PlatformColor}" VerticalAlignment="Top">
                                     <Image Source="{Binding PlatformIconPath}" Stretch="Uniform" Margin="2"/>
                                 </Border>
-                                <TextBlock Grid.Column="1" Text="{Binding User, StringFormat={}{0}:}" Foreground="{DynamicResource LocalOverlayUserBrush}" FontWeight="Bold" Margin="5,0,7,0" TextWrapping="NoWrap"/>
-                                <Grid Grid.Column="2">
-                                    <TextBlock Text="{Binding Text}" Foreground="{DynamicResource LocalOverlayTextBrush}" TextWrapping="Wrap">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding IsHighlighted}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBlock Text="{Binding Text}" Foreground="#FFD329" FontWeight="Bold" TextWrapping="Wrap">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding IsHighlighted}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                </Grid>
+                                <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                    <TextBlock Text="{Binding User, StringFormat={}{0}:}" Foreground="{DynamicResource LocalOverlayUserBrush}" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <Grid Margin="0,2,0,0">
+                                        <TextBlock Text="{Binding Text}" Foreground="{DynamicResource LocalOverlayTextBrush}" TextWrapping="Wrap">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsHighlighted}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Text}" Foreground="#FFD329" FontWeight="Bold" TextWrapping="Wrap">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsHighlighted}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </StackPanel>
                             </Grid>
                         </Border>
                     </DataTemplate>
