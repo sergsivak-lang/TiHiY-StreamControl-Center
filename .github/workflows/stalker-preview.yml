@@ -3,6 +3,8 @@ name: STALKER Preview
 on:
   push:
     branches: [ "feature/stalker-theme-ci-preview" ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
