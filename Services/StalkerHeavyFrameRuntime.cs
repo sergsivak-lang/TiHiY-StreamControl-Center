@@ -161,6 +161,11 @@ internal static class StalkerHeavyFrameRuntime
         }
     }
 
-    private sealed record BorderState(Brush? BorderBrush, Thickness BorderThickness, CornerRadius CornerRadius, Effect? Effect);
+    private sealed record BorderState(
+        Brush? BorderBrush,
+        Thickness BorderThickness,
+        CornerRadius CornerRadius,
+        System.Windows.Media.Effects.Effect? Effect);
+
     private sealed record ButtonState(Brush? BorderBrush, Thickness BorderThickness, Thickness Padding);
 }
