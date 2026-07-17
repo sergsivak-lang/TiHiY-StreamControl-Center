@@ -4,9 +4,8 @@ namespace TiHiY.StreamControlCenter.Services;
 
 internal static class StalkerDecorationRuntime
 {
-    private const string CenterBlockKey = "UkraineCenterBlock";
     private static readonly ConditionalWeakTable<Image, ImageState> ImageStates = new();
-    private static readonly ConditionalWeakTable<ContentControl, CenterContentState> CenterStates = new();
+    private static readonly ConditionalWeakTable<Grid, CenterGridState> CenterStates = new();
     private static DispatcherTimer? _timer;
 
     [ModuleInitializer]
@@ -64,13 +63,13 @@ internal static class StalkerDecorationRuntime
                     image.Visibility = Visibility.Hidden;
                 }
 
-                ReplaceFooterCenter(window);
+                ReplaceCenterVisual(window);
             }
             else
             {
                 foreach (var image in ukraineImages)
                     RestoreImage(image);
-                RestoreFooterCenter(window);
+                RestoreCenterVisual(window);
             }
         }
     }
@@ -81,37 +80,50 @@ internal static class StalkerDecorationRuntime
         return source.Contains("UkraineExact", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static void ReplaceFooterCenter(Window window)
+    private static void ReplaceCenterVisual(Window window)
     {
-        var center = FindCenterControl(window);
-        if (center is null || CenterStates.TryGetValue(center, out _)) return;
+        var centerGrid = FindCenterGrid(window);
+        if (centerGrid is null || CenterStates.TryGetValue(centerGrid, out _)) return;
 
-        CenterStates.Add(center, new CenterContentState(center.Content));
-        center.Content = BuildOverlay();
+        var visibility = centerGrid.Children
+            .Cast<UIElement>()
+            .ToDictionary(child => child, child => child.Visibility);
+
+        foreach (var child in visibility.Keys)
+            child.Visibility = Visibility.Hidden;
+
+        var overlay = BuildOverlay();
+        Panel.SetZIndex(overlay, 100);
+        centerGrid.Children.Add(overlay);
+        CenterStates.Add(centerGrid, new CenterGridState(visibility, overlay));
     }
 
-    private static void RestoreFooterCenter(Window window)
+    private static void RestoreCenterVisual(Window window)
     {
-        var center = FindCenterControl(window);
-        if (center is null || !CenterStates.TryGetValue(center, out var state)) return;
+        var centerGrid = FindCenterGrid(window);
+        if (centerGrid is null || !CenterStates.TryGetValue(centerGrid, out var state)) return;
 
-        center.Content = state.Content;
-        CenterStates.Remove(center);
+        centerGrid.Children.Remove(state.Overlay);
+        foreach (var pair in state.Visibility)
+            pair.Key.Visibility = pair.Value;
+        CenterStates.Remove(centerGrid);
     }
 
-    private static ContentControl? FindCenterControl(Window window)
+    private static Grid? FindCenterGrid(Window window)
     {
-        var movedHost = FindVisualChildren<Grid>(window)
-            .FirstOrDefault(grid => string.Equals(grid.Tag?.ToString(), CenterBlockKey, StringComparison.Ordinal));
-        if (movedHost is not null)
+        var title = FindVisualChildren<TextBlock>(window)
+            .FirstOrDefault(text => string.Equals(text.Text, "СЛАВА УКРАЇНІ!", StringComparison.Ordinal));
+        if (title is null) return null;
+
+        DependencyObject? current = title;
+        while (current is not null)
         {
-            var movedControl = FindVisualChildren<ContentControl>(movedHost).FirstOrDefault();
-            if (movedControl is not null) return movedControl;
+            current = VisualTreeHelper.GetParent(current);
+            if (current is Grid grid &&
+                FindVisualChildren<TextBlock>(grid)
+                    .Any(text => string.Equals(text.Text, "ГЕРОЯМ СЛАВА!", StringComparison.Ordinal)))
+                return grid;
         }
-
-        if (window.FindName("FooterBlocksGrid") is Grid footer)
-            return footer.Children.OfType<ContentControl>()
-                .FirstOrDefault(control => Grid.GetColumn(control) == 2);
 
         return null;
     }
@@ -125,6 +137,8 @@ internal static class StalkerDecorationRuntime
             BorderThickness = new Thickness(2),
             BorderBrush = new SolidColorBrush(Color.FromRgb(151, 88, 28)),
             Background = CreateZoneBrush(),
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Stretch,
             SnapsToDevicePixels = true
         };
 
@@ -211,5 +225,5 @@ internal static class StalkerDecorationRuntime
     }
 
     private sealed record ImageState(double Opacity, Visibility Visibility);
-    private sealed record CenterContentState(object? Content);
+    private sealed record CenterGridState(Dictionary<UIElement, Visibility> Visibility, FrameworkElement Overlay);
 }
