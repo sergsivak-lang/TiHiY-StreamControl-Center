@@ -15,6 +15,19 @@
                         <Border Margin="11" BorderBrush="#3D3926" BorderThickness="2"/>
                         <ContentPresenter Margin="13"/>
 
+                        <!-- Cover only the legacy brand block while preserving window controls on the right. -->
+                        <Border Width="620" Height="43" Margin="22,102,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                Background="#FB17180F" BorderBrush="#625837" BorderThickness="0,1,1,1" IsHitTestVisible="False">
+                            <Grid Margin="14,4,10,4">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Ellipse Width="9" Height="9" Fill="#7FAD53" Stroke="#B7D77B" StrokeThickness="1"/>
+                                    <TextBlock Text="  ZONE NETWORK ONLINE" Margin="3,0,0,0" FontSize="11" FontWeight="Bold" Foreground="#B8C994" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="SECTOR 07  •  BUNKER NODE TSC-01" FontSize="9.5" FontWeight="Bold" Foreground="#77745D" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
                         <Grid Height="91" Margin="22,19,22,0" VerticalAlignment="Top" IsHitTestVisible="False">
                             <Border Background="#F017180F" BorderBrush="#9D8748" BorderThickness="2" CornerRadius="2">
                                 <Grid>
@@ -58,13 +71,13 @@
                             </Border>
                         </Grid>
 
-                        <Rectangle Margin="15" IsHitTestVisible="False" Opacity="0.08">
+                        <Rectangle Margin="15" IsHitTestVisible="False" Opacity="0.035">
                             <Rectangle.Fill>
-                                <DrawingBrush TileMode="Tile" Viewport="0,0,1,5" ViewportUnits="Absolute">
+                                <DrawingBrush TileMode="Tile" Viewport="0,0,1,6" ViewportUnits="Absolute">
                                     <DrawingBrush.Drawing>
                                         <DrawingGroup>
-                                            <GeometryDrawing Brush="#00000000" Geometry="M0,0 H1 V4 H0 Z"/>
-                                            <GeometryDrawing Brush="#89966F" Geometry="M0,4 H1 V5 H0 Z"/>
+                                            <GeometryDrawing Brush="#00000000" Geometry="M0,0 H1 V5 H0 Z"/>
+                                            <GeometryDrawing Brush="#89966F" Geometry="M0,5 H1 V6 H0 Z"/>
                                         </DrawingGroup>
                                     </DrawingBrush.Drawing>
                                 </DrawingBrush>
