@@ -3,27 +3,21 @@
     <DrawingBrush x:Key="WindowGradient" Viewbox="0,0,1000,500" ViewboxUnits="Absolute" Stretch="Fill">
         <DrawingBrush.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Brush="#070806" Geometry="M0,0 H1000 V500 H0 Z"/>
-                <GeometryDrawing Geometry="M5,5 H995 V495 H5 Z">
+                <ImageDrawing Rect="0,0,1000,500" ImageSource="pack://application:,,,/TiHiY.StreamControlCenter;component/Assets/Themes/stalker_zone.png"/>
+                <GeometryDrawing Geometry="M0,0 H1000 V500 H0 Z">
                     <GeometryDrawing.Brush>
-                        <RadialGradientBrush Center="0.52,0.34" GradientOrigin="0.50,0.30" RadiusX="0.78" RadiusY="0.75">
-                            <GradientStop Color="#24261C" Offset="0"/>
-                            <GradientStop Color="#11130E" Offset="0.46"/>
-                            <GradientStop Color="#070806" Offset="1"/>
-                        </RadialGradientBrush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#78060705" Offset="0"/>
+                            <GradientStop Color="#B0060805" Offset="0.28"/>
+                            <GradientStop Color="#E5070906" Offset="1"/>
+                        </LinearGradientBrush>
                     </GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#74633A" Thickness="3"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Brush="#141610" Geometry="M0,102 L40,102 L40,78 L55,78 L55,102 L92,102 L92,60 L100,60 L100,102 L136,102 L136,87 L151,87 L151,102 L205,102 L205,73 L213,73 L213,102 L253,102 L253,50 L263,50 L263,102 L291,102 L291,82 L306,82 L306,102 L360,102 L360,67 L370,67 L370,102 L408,102 L408,42 L416,42 L416,102 L460,102 L460,88 L476,88 L476,102 L531,102 L531,57 L542,57 L542,102 L588,102 L588,76 L599,76 L599,102 L641,102 L641,38 L651,38 L651,102 L692,102 L692,68 L703,68 L703,102 L752,102 L752,49 L762,49 L762,102 L810,102 L810,80 L824,80 L824,102 L866,102 L866,56 L876,56 L876,102 L915,102 L915,72 L928,72 L928,102 L1000,102 V122 H0 Z"/>
-                <GeometryDrawing Geometry="M100,60 V32 M97,32 H103 M408,42 V18 M405,18 H411 M641,38 V12 M638,12 H644 M752,49 V24 M749,24 H755 M915,72 V40 M912,40 H918"><GeometryDrawing.Pen><Pen Brush="#403C29" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
-                <GeometryDrawing Brush="#1B1E15" Geometry="M0,118 C96,110 166,126 252,116 C337,105 432,129 520,115 C609,102 702,130 792,114 C871,101 934,117 1000,109 V145 H0 Z"/>
-                <GeometryDrawing Geometry="M28,31 L183,27 M220,54 L394,49 M558,35 L724,31 M786,62 L966,56 M48,458 L238,463 M676,462 L952,467"><GeometryDrawing.Pen><Pen Brush="#6C6244" Thickness="1"/></GeometryDrawing.Pen></GeometryDrawing>
-                <GeometryDrawing Geometry="M120,154 L112,398 M334,135 L346,424 M615,150 L603,415 M872,138 L884,430"><GeometryDrawing.Pen><Pen Brush="#25271C" Thickness="1"/></GeometryDrawing.Pen></GeometryDrawing>
-                <GeometryDrawing Brush="#0A0C08" Geometry="M14,126 H986 V456 H14 Z"><GeometryDrawing.Pen><Pen Brush="#3E3B2A" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
-                <GeometryDrawing Brush="#0A0B08" Geometry="M14,460 H986 V486 H14 Z"><GeometryDrawing.Pen><Pen Brush="#51482E" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
-                <GeometryDrawing Geometry="M16,16 H984 V484 H16 Z"><GeometryDrawing.Pen><Pen Brush="#2C2D20" Thickness="6"/></GeometryDrawing.Pen></GeometryDrawing>
-                <GeometryDrawing Geometry="M22,22 H978 V478 H22 Z"><GeometryDrawing.Pen><Pen Brush="#8C7948" Thickness="1.4"/></GeometryDrawing.Pen></GeometryDrawing>
-                <GeometryDrawing Brush="#15160F" Geometry="M22,22 A7,7 0 1 1 8,22 A7,7 0 1 1 22,22 M992,22 A7,7 0 1 1 978,22 A7,7 0 1 1 992,22 M22,478 A7,7 0 1 1 8,478 A7,7 0 1 1 22,478 M992,478 A7,7 0 1 1 978,478 A7,7 0 1 1 992,478"/>
+                <GeometryDrawing Geometry="M5,5 H995 V495 H5 Z"><GeometryDrawing.Pen><Pen Brush="#887546" Thickness="3"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Geometry="M13,13 H987 V487 H13 Z"><GeometryDrawing.Pen><Pen Brush="#302E21" Thickness="6"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Geometry="M20,20 H980 V480 H20 Z"><GeometryDrawing.Pen><Pen Brush="#9B8550" Thickness="1.4"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Geometry="M30,35 L190,29 M235,56 L408,50 M575,34 L748,30 M805,61 L967,55 M48,457 L238,463 M681,461 L952,468"><GeometryDrawing.Pen><Pen Brush="#80714A" Thickness="1"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Brush="#15160F" Geometry="M25,25 A7,7 0 1 1 11,25 A7,7 0 1 1 25,25 M989,25 A7,7 0 1 1 975,25 A7,7 0 1 1 989,25 M25,475 A7,7 0 1 1 11,475 A7,7 0 1 1 25,475 M989,475 A7,7 0 1 1 975,475 A7,7 0 1 1 989,475"/>
             </DrawingGroup>
         </DrawingBrush.Drawing>
     </DrawingBrush>
