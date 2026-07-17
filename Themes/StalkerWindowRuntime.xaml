@@ -3,13 +3,13 @@
     <DrawingBrush x:Key="WindowGradient" Viewbox="0,0,1000,500" ViewboxUnits="Absolute" Stretch="Fill">
         <DrawingBrush.Drawing>
             <DrawingGroup>
-                <ImageDrawing Rect="0,0,1000,500" ImageSource="pack://application:,,,/TiHiY.StreamControlCenter;component/Assets/Themes/stalker_zone.png"/>
+                <ImageDrawing Rect="0,0,1000,500" ImageSource="{DynamicResource ThemeMapImage}"/>
                 <GeometryDrawing Geometry="M0,0 H1000 V500 H0 Z">
                     <GeometryDrawing.Brush>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <GradientStop Color="#78060705" Offset="0"/>
-                            <GradientStop Color="#B0060805" Offset="0.28"/>
-                            <GradientStop Color="#E5070906" Offset="1"/>
+                            <GradientStop Color="#72060705" Offset="0"/>
+                            <GradientStop Color="#B2060805" Offset="0.30"/>
+                            <GradientStop Color="#EA070906" Offset="1"/>
                         </LinearGradientBrush>
                     </GeometryDrawing.Brush>
                 </GeometryDrawing>
