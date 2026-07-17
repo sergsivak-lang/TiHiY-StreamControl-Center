@@ -19,6 +19,8 @@ public partial class App : Application
         var screenshotPath = screenshotArg is null ? null : screenshotArg[(screenshotArg.IndexOf('=') + 1)..].Trim('"');
         var ciMode = !string.IsNullOrWhiteSpace(screenshotPath);
         var openSettingsInCi = e.Args.Any(x => string.Equals(x, "--ci-open-settings", StringComparison.OrdinalIgnoreCase));
+        var themeArg = e.Args.FirstOrDefault(x => x.StartsWith("--ci-theme=", StringComparison.OrdinalIgnoreCase));
+        var ciTheme = themeArg is null ? null : themeArg[(themeArg.IndexOf('=') + 1)..].Trim('"');
 
         _singleInstanceMutex = new Mutex(true, "Local\\TiHiY.StreamControlCenter.SingleInstance", out _ownsMutex);
         if (!_ownsMutex)
@@ -35,12 +37,18 @@ public partial class App : Application
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
         try
         {
-            // Service construction stays inside the guarded startup block so startup failures are logged and shown.
             WriteStartupStage("01 Services construction");
             Services = new AppServices();
             WriteStartupStage("02 Services initialized in memory");
             await Services.InitializeAsync();
             WriteStartupStage("03 Background services initialized");
+
+            if (ciMode && !string.IsNullOrWhiteSpace(ciTheme))
+            {
+                Services.Theme.Apply(ciTheme, save: false);
+                WriteStartupStage($"03.1 CI theme applied: {ciTheme}");
+            }
+
             var main = new MainWindow();
             WriteStartupStage("04 MainWindow constructed");
             MainWindow = main;
@@ -59,8 +67,7 @@ public partial class App : Application
                 Window captureWindow = main;
                 if (openSettingsInCi)
                 {
-                    // Reproduce the real user path that previously crashed when the Ukraine preview PNG was absent.
-                    Services.Settings.Value.UiTheme = "Україна";
+                    Services.Settings.Value.UiTheme = string.IsNullOrWhiteSpace(ciTheme) ? "Україна" : ciTheme;
                     var settings = new TiHiY.StreamControlCenter.Windows.SettingsWindow
                     {
                         Owner = main,
