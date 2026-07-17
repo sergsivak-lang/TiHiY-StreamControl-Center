@@ -4,6 +4,7 @@ namespace TiHiY.StreamControlCenter.Services;
 
 internal static class StalkerDecorationRuntime
 {
+    private const string CenterBlockKey = "UkraineCenterBlock";
     private static readonly ConditionalWeakTable<Image, ImageState> ImageStates = new();
     private static readonly ConditionalWeakTable<ContentControl, CenterContentState> CenterStates = new();
     private static DispatcherTimer? _timer;
@@ -82,11 +83,7 @@ internal static class StalkerDecorationRuntime
 
     private static void ReplaceFooterCenter(Window window)
     {
-        if (window.FindName("FooterBlocksGrid") is not Grid footer) return;
-
-        var center = footer.Children
-            .OfType<ContentControl>()
-            .FirstOrDefault(control => Grid.GetColumn(control) == 2);
+        var center = FindCenterControl(window);
         if (center is null || CenterStates.TryGetValue(center, out _)) return;
 
         CenterStates.Add(center, new CenterContentState(center.Content));
@@ -95,15 +92,28 @@ internal static class StalkerDecorationRuntime
 
     private static void RestoreFooterCenter(Window window)
     {
-        if (window.FindName("FooterBlocksGrid") is not Grid footer) return;
-
-        var center = footer.Children
-            .OfType<ContentControl>()
-            .FirstOrDefault(control => Grid.GetColumn(control) == 2);
+        var center = FindCenterControl(window);
         if (center is null || !CenterStates.TryGetValue(center, out var state)) return;
 
         center.Content = state.Content;
         CenterStates.Remove(center);
+    }
+
+    private static ContentControl? FindCenterControl(Window window)
+    {
+        var movedHost = FindVisualChildren<Grid>(window)
+            .FirstOrDefault(grid => string.Equals(grid.Tag?.ToString(), CenterBlockKey, StringComparison.Ordinal));
+        if (movedHost is not null)
+        {
+            var movedControl = FindVisualChildren<ContentControl>(movedHost).FirstOrDefault();
+            if (movedControl is not null) return movedControl;
+        }
+
+        if (window.FindName("FooterBlocksGrid") is Grid footer)
+            return footer.Children.OfType<ContentControl>()
+                .FirstOrDefault(control => Grid.GetColumn(control) == 2);
+
+        return null;
     }
 
     private static FrameworkElement BuildOverlay()
