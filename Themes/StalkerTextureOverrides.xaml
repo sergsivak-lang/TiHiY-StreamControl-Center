@@ -1,0 +1,154 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Full-surface industrial artwork. These brushes are stretched once and never tiled. -->
+    <DrawingBrush x:Key="StalkerExactWindowTexture" Stretch="Fill" TileMode="None">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#090B08" Geometry="M0,0 H1024 V640 H0 Z"/>
+                <GeometryDrawing Brush="#151710" Geometry="M0,0 H1024 V78 H0 Z M0,292 H1024 V306 H0 Z M0,574 H1024 V640 H0 Z"/>
+                <GeometryDrawing Brush="#211E16" Geometry="M0,78 H1024 V82 H0 Z M0,306 H1024 V310 H0 Z M0,570 H1024 V574 H0 Z"/>
+                <GeometryDrawing Brush="#6A3215" Geometry="M44,36 C104,8 190,18 230,64 C191,111 99,109 44,36 Z M741,458 C814,401 945,425 1011,509 C946,588 817,573 741,458 Z"/>
+                <GeometryDrawing Brush="#8C451A" Geometry="M349,162 C405,121 493,136 523,193 C486,252 397,253 349,162 Z M74,466 C129,421 218,437 246,498 C209,554 119,553 74,466 Z"/>
+                <GeometryDrawing Brush="#3D291A" Geometry="M618,73 C690,39 797,61 836,125 C783,182 683,170 618,73 Z"/>
+                <GeometryDrawing Geometry="M0,160 H1024 M0,420 H1024 M256,0 V640 M768,0 V640" Brush="Transparent">
+                    <GeometryDrawing.Pen><Pen Brush="#2E2419" Thickness="3"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M32,130 L286,119 M407,52 L707,45 M624,214 L963,199 M71,359 L413,344 M533,527 L952,511 M98,603 L307,590" Brush="Transparent">
+                    <GeometryDrawing.Pen><Pen Brush="#6A83745B" Thickness="1.4"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M92,196 L249,207 M429,378 L781,351 M108,517 L353,498 M680,112 L957,131" Brush="Transparent">
+                    <GeometryDrawing.Pen><Pen Brush="#75000000" Thickness="5"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#83725E42" Geometry="M18,18 A7,7 0 1 0 32,18 A7,7 0 1 0 18,18 M992,18 A7,7 0 1 0 1006,18 A7,7 0 1 0 992,18 M18,608 A7,7 0 1 0 32,608 A7,7 0 1 0 18,608 M992,608 A7,7 0 1 0 1006,608 A7,7 0 1 0 992,608"/>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DrawingBrush x:Key="StalkerExactPanelTexture" Stretch="Fill" TileMode="None">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#F014160F" Geometry="M0,0 H640 V420 H0 Z"/>
+                <GeometryDrawing Brush="#2D292019" Geometry="M0,0 H640 V34 H0 Z M0,386 H640 V420 H0 Z"/>
+                <GeometryDrawing Brush="#53301913" Geometry="M18,26 C87,-7 163,7 194,59 C150,116 69,108 18,26 Z M415,271 C479,213 589,236 632,315 C576,398 468,381 415,271 Z"/>
+                <GeometryDrawing Brush="#78401B" Geometry="M231,137 C296,91 387,112 416,174 C373,235 278,229 231,137 Z"/>
+                <GeometryDrawing Brush="#2A2117" Geometry="M0,118 H640 V123 H0 Z M318,0 H323 V420 H318 Z"/>
+                <GeometryDrawing Geometry="M25,100 L244,91 M345,42 L602,34 M74,217 L419,202 M39,347 L263,336 M382,382 L616,366" Brush="Transparent">
+                    <GeometryDrawing.Pen><Pen Brush="#60776752" Thickness="1.4"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M105,62 L112,179 M516,86 L499,223 M282,247 L294,395" Brush="Transparent">
+                    <GeometryDrawing.Pen><Pen Brush="#65000000" Thickness="4"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#8B786449" Geometry="M15,15 A6,6 0 1 0 27,15 A6,6 0 1 0 15,15 M613,15 A6,6 0 1 0 625,15 A6,6 0 1 0 613,15 M15,393 A6,6 0 1 0 27,393 A6,6 0 1 0 15,393 M613,393 A6,6 0 1 0 625,393 A6,6 0 1 0 613,393"/>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DrawingBrush x:Key="StalkerExactButtonTexture" Stretch="Fill" TileMode="None">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#312D23" Geometry="M0,0 H260 V78 H0 Z"/>
+                <GeometryDrawing Brush="#17160F" Geometry="M0,55 H260 V78 H0 Z"/>
+                <GeometryDrawing Brush="#713718" Geometry="M16,9 C55,-4 101,8 116,31 C90,58 45,52 16,9 Z M176,45 C205,23 245,31 258,58 C232,77 197,72 176,45 Z"/>
+                <GeometryDrawing Geometry="M22,37 L118,29 M139,61 L235,52" Brush="Transparent">
+                    <GeometryDrawing.Pen><Pen Brush="#75857158" Thickness="1.3"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#9A80694B" Geometry="M8,8 A4,4 0 1 0 16,8 A4,4 0 1 0 8,8 M244,8 A4,4 0 1 0 252,8 A4,4 0 1 0 244,8 M8,62 A4,4 0 1 0 16,62 A4,4 0 1 0 8,62 M244,62 A4,4 0 1 0 252,62 A4,4 0 1 0 244,62"/>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DrawingBrush x:Key="StalkerHazardBrush" TileMode="Tile" Viewport="0,0,96,18" ViewportUnits="Absolute" Stretch="None">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#15140F" Geometry="M0,0 H96 V18 H0 Z"/>
+                <GeometryDrawing Brush="#B98225" Geometry="M-20,18 L2,18 L20,0 L-2,0 Z M28,18 L50,18 L68,0 L46,0 Z M76,18 L98,18 L116,0 L94,0 Z"/>
+                <GeometryDrawing Geometry="M0,1 H96 M0,17 H96" Brush="Transparent"><GeometryDrawing.Pen><Pen Brush="#6F3D19" Thickness="1.5"/></GeometryDrawing.Pen></GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DropShadowEffect x:Key="StalkerExactPanelShadow" Color="#000000" BlurRadius="14" ShadowDepth="4" Opacity="0.82"/>
+
+    <Style x:Key="StalkerHudPanel" TargetType="ContentControl">
+        <Setter Property="Foreground" Value="#DDD8C7"/>
+        <Setter Property="Background" Value="{StaticResource StalkerExactPanelTexture}"/>
+        <Setter Property="Padding" Value="17,13"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Grid ClipToBounds="True">
+                        <Border Margin="6,7,0,0" Background="#A0000000" CornerRadius="2"/>
+                        <Border x:Name="Outer" Background="{TemplateBinding Background}" BorderBrush="#87502A" BorderThickness="3" CornerRadius="2" Effect="{StaticResource StalkerExactPanelShadow}"/>
+                        <Border Margin="4" BorderBrush="#574A33" BorderThickness="1" CornerRadius="1"/>
+                        <Border Margin="8" BorderBrush="#2A2117" BorderThickness="1"/>
+                        <Rectangle Width="138" Height="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,10,0" Fill="{StaticResource StalkerHazardBrush}" Opacity="0.68" IsHitTestVisible="False"/>
+                        <Rectangle Width="82" Height="7" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,7" Fill="{StaticResource StalkerHazardBrush}" Opacity="0.38" IsHitTestVisible="False"/>
+                        <Grid Width="48" Height="48" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6" IsHitTestVisible="False">
+                            <Path Fill="#C66A3418" Data="M0,0 H48 V8 H20 L8,20 V48 H0 Z"/>
+                            <Path Stroke="#C9996B29" StrokeThickness="4" Data="M-2,14 L14,-2 M9,25 L25,9 M20,36 L36,20"/>
+                            <Ellipse Width="22" Height="22" Stroke="#78C83C" StrokeThickness="2" Margin="11"/>
+                            <TextBlock Text="☢" Foreground="#90E457" FontFamily="Segoe UI Symbol" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Outer" Property="BorderBrush" Value="#BA7630"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="StalkerActionButton" TargetType="Button">
+        <Setter Property="Foreground" Value="#E3DDCB"/>
+        <Setter Property="Background" Value="{StaticResource StalkerExactButtonTexture}"/>
+        <Setter Property="BorderBrush" Value="#78502A"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="Padding" Value="11,5"/>
+        <Setter Property="Margin" Value="2"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="Root" ClipToBounds="True">
+                        <Border x:Name="Outer" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1"/>
+                        <Rectangle Width="46" Height="5" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,4,0" Fill="{StaticResource StalkerHazardBrush}" Opacity="0.56"/>
+                        <Border Margin="4" BorderBrush="#372A19" BorderThickness="1"/>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="6,5"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Outer" Property="BorderBrush" Value="#D69A35"/><Setter TargetName="Root" Property="Effect" Value="{StaticResource StalkerAmberGlow}"/></Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="Root" Property="Opacity" Value="0.68"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Root" Property="Opacity" Value="0.38"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="StalkerDangerButton" TargetType="Button" BasedOn="{StaticResource StalkerActionButton}">
+        <Setter Property="BorderBrush" Value="#A33F26"/>
+    </Style>
+
+    <Style x:Key="StalkerTextBox" TargetType="TextBox">
+        <Setter Property="Foreground" Value="#E1DCCB"/>
+        <Setter Property="Background" Value="#E00A0C09"/>
+        <Setter Property="BorderBrush" Value="#695237"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Padding" Value="9,6"/>
+        <Setter Property="CaretBrush" Value="#86D94B"/>
+        <Setter Property="SelectionBrush" Value="#805F8D32"/>
+    </Style>
+
+    <Style x:Key="StalkerComboBox" TargetType="ComboBox">
+        <Setter Property="Foreground" Value="#E1DCCB"/>
+        <Setter Property="Background" Value="#E014160F"/>
+        <Setter Property="BorderBrush" Value="#695237"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Padding" Value="8,5"/>
+    </Style>
+</ResourceDictionary>

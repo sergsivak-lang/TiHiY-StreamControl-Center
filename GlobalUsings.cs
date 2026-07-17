@@ -5,6 +5,7 @@ global using System.Collections.ObjectModel;
 global using System.ComponentModel;
 global using System.IO;
 global using System.Linq;
+global using System.Net.Http;
 global using System.Runtime.CompilerServices;
 global using System.Threading;
 global using System.Threading.Tasks;

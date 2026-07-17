@@ -1,0 +1,135 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <DrawingBrush x:Key="StalkerInnerDarkTexture" Stretch="Fill" TileMode="None">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#F0080A07" Geometry="M0,0 H720 V420 H0 Z"/>
+                <GeometryDrawing Brush="#201A170F" Geometry="M0,0 H720 V30 H0 Z M0,390 H720 V420 H0 Z"/>
+                <GeometryDrawing Brush="#40241410" Geometry="M28,39 C92,3 174,20 200,75 C156,130 73,118 28,39 Z M487,268 C548,214 660,237 708,323 C646,402 538,383 487,268 Z"/>
+                <GeometryDrawing Brush="#2A2117" Geometry="M0,174 H720 V178 H0 Z M359,0 H363 V420 H359 Z"/>
+                <GeometryDrawing Geometry="M31,126 L267,111 M384,61 L672,49 M67,258 L421,239 M199,367 L638,344" Brush="Transparent">
+                    <GeometryDrawing.Pen><Pen Brush="#56706450" Thickness="1.2"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M116,54 L123,197 M574,94 L559,253 M328,214 L339,394" Brush="Transparent">
+                    <GeometryDrawing.Pen><Pen Brush="#5D000000" Thickness="3.5"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DrawingBrush x:Key="StalkerHeaderPlateTexture" Stretch="Fill" TileMode="None">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#201E17" Geometry="M0,0 H1100 V110 H0 Z"/>
+                <GeometryDrawing Brush="#352719" Geometry="M0,0 H1100 V14 H0 Z M0,96 H1100 V110 H0 Z"/>
+                <GeometryDrawing Brush="#6B3518" Geometry="M0,0 H185 L122,110 H0 Z M919,0 H1100 V110 H982 Z"/>
+                <GeometryDrawing Brush="#7D3C18" Geometry="M320,8 C395,-8 488,9 528,41 C478,75 392,72 320,8 Z M662,63 C727,34 837,45 895,88 C824,115 726,108 662,63 Z"/>
+                <GeometryDrawing Geometry="M0,55 H1100" Brush="Transparent"><GeometryDrawing.Pen><Pen Brush="#6D4E341F" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Geometry="M187,41 L397,34 M537,22 L785,16 M622,87 L924,78" Brush="Transparent"><GeometryDrawing.Pen><Pen Brush="#5B87775B" Thickness="1.2"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Brush="#8B76664C" Geometry="M12,12 A5,5 0 1 0 22,12 A5,5 0 1 0 12,12 M1078,12 A5,5 0 1 0 1088,12 A5,5 0 1 0 1078,12 M12,88 A5,5 0 1 0 22,88 A5,5 0 1 0 12,88 M1078,88 A5,5 0 1 0 1088,88 A5,5 0 1 0 1078,88"/>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <Style x:Key="StalkerInnerBorder" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource StalkerInnerDarkTexture}"/>
+        <Setter Property="BorderBrush" Value="#68492B"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="CornerRadius" Value="1"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="StalkerListBox" TargetType="ListBox">
+        <Setter Property="Foreground" Value="#DDD8C7"/>
+        <Setter Property="Background" Value="#EE080A07"/>
+        <Setter Property="BorderBrush" Value="#68492B"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Padding" Value="5"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+    </Style>
+
+    <Style x:Key="StalkerTabControl" TargetType="TabControl">
+        <Setter Property="Background" Value="{StaticResource StalkerInnerDarkTexture}"/>
+        <Setter Property="BorderBrush" Value="#76502C"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Padding" Value="5"/>
+    </Style>
+
+    <Style x:Key="StalkerTabItem" TargetType="TabItem">
+        <Setter Property="Foreground" Value="#CFC7B2"/>
+        <Setter Property="Background" Value="{StaticResource StalkerExactButtonTexture}"/>
+        <Setter Property="BorderBrush" Value="#68492B"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Padding" Value="12,7"/>
+        <Setter Property="Margin" Value="2,2,2,0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabItem">
+                    <Grid ClipToBounds="True">
+                        <Border x:Name="Plate" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1"/>
+                        <Rectangle Width="34" Height="4" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,4,0" Fill="{StaticResource StalkerHazardBrush}" Opacity="0.48"/>
+                        <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8,6"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True"><Setter TargetName="Plate" Property="BorderBrush" Value="#8FD04D"/><Setter Property="Foreground" Value="#E7D69A"/></Trigger>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Plate" Property="BorderBrush" Value="#D69A35"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="StalkerCheckBox" TargetType="CheckBox">
+        <Setter Property="Foreground" Value="#DDD8C7"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Margin" Value="3"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Orientation="Horizontal">
+                        <Grid Width="22" Height="22" Margin="0,0,8,0">
+                            <Border Background="{StaticResource StalkerExactButtonTexture}" BorderBrush="#76512B" BorderThickness="2"/>
+                            <Path x:Name="Check" Data="M4,11 L9,16 L18,5" Stroke="#8FE052" StrokeThickness="3" Visibility="Collapsed"/>
+                        </Grid>
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True"><Setter TargetName="Check" Property="Visibility" Value="Visible"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="StalkerProgressBar" TargetType="ProgressBar">
+        <Setter Property="Background" Value="#090A07"/>
+        <Setter Property="Foreground" Value="#7FCB43"/>
+        <Setter Property="BorderBrush" Value="#6D4D2D"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Height" Value="12"/>
+    </Style>
+
+    <Style x:Key="StalkerSlider" TargetType="Slider">
+        <Setter Property="Foreground" Value="#7FCB43"/>
+        <Setter Property="Background" Value="#090A07"/>
+        <Setter Property="MinHeight" Value="25"/>
+    </Style>
+
+    <Style x:Key="StalkerGroupBox" TargetType="GroupBox">
+        <Setter Property="Foreground" Value="#D69A35"/>
+        <Setter Property="Background" Value="{StaticResource StalkerInnerDarkTexture}"/>
+        <Setter Property="BorderBrush" Value="#71502D"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Padding" Value="10"/>
+        <Setter Property="Margin" Value="4"/>
+    </Style>
+
+    <Style x:Key="StalkerWindowHeaderPanel" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource StalkerHeaderPlateTexture}"/>
+        <Setter Property="BorderBrush" Value="#895027"/>
+        <Setter Property="BorderThickness" Value="3"/>
+        <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="Effect" Value="{StaticResource StalkerExactPanelShadow}"/>
+    </Style>
+</ResourceDictionary>

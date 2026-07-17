@@ -1,0 +1,78 @@
+name: Stalker Theme Validation
+
+on:
+  push:
+    branches: [ feature/stalker-theme-and-chat-fixes ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-stalker:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore
+        run: dotnet restore TiHiY.StreamControlCenter.sln
+
+      - name: Build Release
+        run: dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore
+
+      - name: Publish win-x64
+        run: dotnet publish TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=false --output publish
+
+      - name: Capture real Stalker main window
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path preview | Out-Null
+          $shot = (Join-Path $PWD "preview/TiHiY-StreamControl-Center-Stalker-Theme.png")
+          $exe = (Resolve-Path "publish/TiHiY.StreamControlCenter.exe").Path
+          $workingDirectory = Split-Path $exe
+
+          $startInfo = [Diagnostics.ProcessStartInfo]::new()
+          $startInfo.FileName = $exe
+          $startInfo.WorkingDirectory = $workingDirectory
+          $startInfo.UseShellExecute = $false
+          $startInfo.CreateNoWindow = $true
+          $startInfo.RedirectStandardOutput = $true
+          $startInfo.RedirectStandardError = $true
+          $startInfo.ArgumentList.Add("--ci-screenshot=$shot")
+          $startInfo.ArgumentList.Add("--ci-apply-stalker-theme")
+          $startInfo.ArgumentList.Add("--ci-language=uk-UA")
+
+          $process = [Diagnostics.Process]::new()
+          $process.StartInfo = $startInfo
+          if (-not $process.Start()) { throw "Stalker capture process did not start." }
+          $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+          $stderrTask = $process.StandardError.ReadToEndAsync()
+
+          if (-not $process.WaitForExit(60000)) {
+            $process.Kill($true)
+            $process.WaitForExit()
+            throw "Stalker capture timed out."
+          }
+
+          $stdoutTask.GetAwaiter().GetResult() | Set-Content preview/stalker-stdout.txt -Encoding utf8
+          $stderrTask.GetAwaiter().GetResult() | Set-Content preview/stalker-stderr.txt -Encoding utf8
+          if ($process.ExitCode -ne 0) { throw "Stalker capture exited with code $($process.ExitCode)." }
+          if (-not (Test-Path $shot)) { throw "Stalker screenshot was not created." }
+          if ((Get-Item $shot).Length -lt 25000) { throw "Stalker screenshot is unexpectedly small." }
+
+      - name: Upload Stalker screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TiHiY-Stalker-Theme-Validation
+          path: |
+            preview/**
+            ${{ env.APPDATA }}/TiHiY/StreamControlCenter/Logs/**
+          if-no-files-found: warn

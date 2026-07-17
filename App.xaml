@@ -8,6 +8,16 @@
                 <ResourceDictionary Source="Themes/CyberAmber.xaml"/>
                 <ResourceDictionary Source="Themes/Compatibility.xaml"/>
                 <ResourceDictionary Source="Themes/UkraineReference.xaml"/>
+                <!-- Isolated resources only. ThemeService activates them only when "Сталкер" is selected. -->
+                <ResourceDictionary Source="Themes/StalkerReference.xaml"/>
+                <!-- Full textured artwork pass: metal, rust, scratches, bolts and hazard markings. -->
+                <ResourceDictionary Source="Themes/StalkerTextureOverrides.xaml"/>
+                <!-- Textured inner controls, tabs, lists, selectors and industrial header plates. -->
+                <ResourceDictionary Source="Themes/StalkerTextureControls.xaml"/>
+                <!-- Logs, tables, trees, scrollbars, selectors and service-window controls. -->
+                <ResourceDictionary Source="Themes/StalkerTextureExtended.xaml"/>
+                <!-- Approved illustrated artwork: warning plate, gas mask, radiation signs and rust panels. -->
+                <ResourceDictionary Source="Themes/StalkerArtworkPass.xaml"/>
                 <ResourceDictionary Source="Localization/Strings.uk-UA.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

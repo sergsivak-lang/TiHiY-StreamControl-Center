@@ -12,6 +12,8 @@ public sealed class ChatMessage
     public string Foreground { get; set; } = "#EDF7FF";
     public string Background { get; set; } = "Transparent";
     public bool IsHighlighted { get; set; }
+    public List<ChatEmote> Emotes { get; set; } = new();
+    public bool HasEmotes => Emotes.Count > 0;
     public string DisplayTime => Time.ToString("HH:mm:ss");
     public string PlatformIconPath => Platform.Equals("TWITCH", StringComparison.OrdinalIgnoreCase)
         ? "/TiHiY.StreamControlCenter;component/Assets/Platforms/twitch.png"
