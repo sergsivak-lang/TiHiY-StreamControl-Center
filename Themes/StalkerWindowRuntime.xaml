@@ -3,34 +3,64 @@
     <DrawingBrush x:Key="WindowGradient" Viewbox="0,0,1000,500" ViewboxUnits="Absolute" Stretch="Fill">
         <DrawingBrush.Drawing>
             <DrawingGroup>
+                <!-- smoky Zone sky -->
                 <GeometryDrawing Geometry="M0,0 H1000 V500 H0 Z">
                     <GeometryDrawing.Brush>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <GradientStop Color="#222116" Offset="0"/>
-                            <GradientStop Color="#11130D" Offset="0.23"/>
-                            <GradientStop Color="#090B07" Offset="0.58"/>
-                            <GradientStop Color="#060705" Offset="1"/>
+                            <GradientStop Color="#27261A" Offset="0"/>
+                            <GradientStop Color="#17180F" Offset="0.18"/>
+                            <GradientStop Color="#0B0D08" Offset="0.48"/>
+                            <GradientStop Color="#050604" Offset="1"/>
                         </LinearGradientBrush>
                     </GeometryDrawing.Brush>
                 </GeometryDrawing>
-                <GeometryDrawing Brush="#29271A" Geometry="M0,112 L28,112 L28,86 L43,86 L43,112 L76,112 L76,61 L87,61 L87,112 L122,112 L122,92 L139,92 L139,112 L178,112 L178,68 L188,68 L188,112 L230,112 L230,45 L242,45 L242,112 L281,112 L281,83 L296,83 L296,112 L337,112 L337,72 L348,72 L348,112 L390,112 L390,36 L402,36 L402,112 L447,112 L447,89 L463,89 L463,112 L505,112 L505,56 L517,56 L517,112 L557,112 L557,78 L573,78 L573,112 L616,112 L616,29 L628,29 L628,112 L671,112 L671,66 L684,66 L684,112 L731,112 L731,49 L743,49 L743,112 L786,112 L786,82 L801,82 L801,112 L846,112 L846,57 L858,57 L858,112 L902,112 L902,71 L916,71 L916,112 L1000,112 V138 H0 Z"/>
-                <GeometryDrawing Geometry="M87,61 V31 M82,31 H92 M236,45 V17 M231,17 H241 M396,36 V10 M391,10 H401 M622,29 V6 M617,6 H627 M737,49 V21 M732,21 H742 M852,57 V26 M847,26 H857"><GeometryDrawing.Pen><Pen Brush="#665C3C" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
-                <GeometryDrawing Brush="#171910" Geometry="M0,130 C95,116 169,142 258,126 C347,111 432,143 523,125 C617,107 701,145 794,124 C876,107 938,129 1000,116 V156 H0 Z"/>
-                <GeometryDrawing Geometry="M60,92 L147,20 M162,104 L222,41 M690,94 L783,15 M805,103 L870,45"><GeometryDrawing.Pen><Pen Brush="#9B7B33" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
-                <GeometryDrawing Geometry="M0,0 H1000 V500 H0 Z">
+                <GeometryDrawing Geometry="M0,0 H1000 V280 H0 Z">
                     <GeometryDrawing.Brush>
-                        <RadialGradientBrush Center="0.5,0.28" GradientOrigin="0.5,0.2" RadiusX="0.78" RadiusY="0.74">
-                            <GradientStop Color="#001D1E13" Offset="0"/>
-                            <GradientStop Color="#5A090A06" Offset="0.55"/>
-                            <GradientStop Color="#C8040503" Offset="1"/>
+                        <RadialGradientBrush Center="0.48,0.18" GradientOrigin="0.43,0.12" RadiusX="0.66" RadiusY="0.62">
+                            <GradientStop Color="#4A4330" Offset="0"/>
+                            <GradientStop Color="#1A1B12" Offset="0.48"/>
+                            <GradientStop Color="#0010120B" Offset="1"/>
                         </RadialGradientBrush>
                     </GeometryDrawing.Brush>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M5,5 H995 V495 H5 Z"><GeometryDrawing.Pen><Pen Brush="#887546" Thickness="3"/></GeometryDrawing.Pen></GeometryDrawing>
-                <GeometryDrawing Geometry="M13,13 H987 V487 H13 Z"><GeometryDrawing.Pen><Pen Brush="#302E21" Thickness="6"/></GeometryDrawing.Pen></GeometryDrawing>
-                <GeometryDrawing Geometry="M20,20 H980 V480 H20 Z"><GeometryDrawing.Pen><Pen Brush="#9B8550" Thickness="1.4"/></GeometryDrawing.Pen></GeometryDrawing>
-                <GeometryDrawing Geometry="M31,36 L190,29 M236,57 L408,50 M574,35 L748,30 M805,62 L967,55 M48,457 L238,463 M681,461 L952,468 M115,170 L109,411 M336,153 L347,430 M608,165 L599,421 M876,147 L886,431"><GeometryDrawing.Pen><Pen Brush="#776A45" Thickness="1"/></GeometryDrawing.Pen></GeometryDrawing>
-                <GeometryDrawing Brush="#15160F" Geometry="M25,25 A7,7 0 1 1 11,25 A7,7 0 1 1 25,25 M989,25 A7,7 0 1 1 975,25 A7,7 0 1 1 989,25 M25,475 A7,7 0 1 1 11,475 A7,7 0 1 1 25,475 M989,475 A7,7 0 1 1 975,475 A7,7 0 1 1 989,475"/>
+
+                <!-- distant Pripyat industrial skyline -->
+                <GeometryDrawing Brush="#29291C" Geometry="M0,118 L24,118 L24,92 L40,92 L40,118 L72,118 L72,64 L84,64 L84,118 L126,118 L126,96 L142,96 L142,118 L184,118 L184,71 L195,71 L195,118 L226,118 L226,52 L239,52 L239,118 L279,118 L279,83 L295,83 L295,118 L338,118 L338,74 L349,74 L349,118 L391,118 L391,40 L404,40 L404,118 L448,118 L448,91 L463,91 L463,118 L507,118 L507,58 L520,58 L520,118 L559,118 L559,79 L575,79 L575,118 L619,118 L619,34 L632,34 L632,118 L674,118 L674,69 L688,69 L688,118 L734,118 L734,51 L747,51 L747,118 L790,118 L790,84 L805,84 L805,118 L849,118 L849,60 L862,60 L862,118 L905,118 L905,74 L919,74 L919,118 L1000,118 V152 H0 Z"/>
+                <GeometryDrawing Geometry="M84,64 V29 M79,29 H89 M232,52 V18 M227,18 H237 M397,40 V10 M392,10 H402 M625,34 V6 M620,6 H630 M740,51 V21 M735,21 H745 M855,60 V25 M850,25 H860"><GeometryDrawing.Pen><Pen Brush="#6D623E" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
+
+                <!-- Ferris wheel silhouette -->
+                <GeometryDrawing Geometry="M876,108 A41,41 0 1 1 794,108 A41,41 0 1 1 876,108 M835,67 V149 M794,108 H876 M806,79 L864,137 M806,137 L864,79 M835,149 L813,181 M835,149 L857,181">
+                    <GeometryDrawing.Pen><Pen Brush="#3A3A29" Thickness="3"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+
+                <!-- low fog and terrain -->
+                <GeometryDrawing Brush="#171910" Geometry="M0,135 C88,116 171,145 258,128 C351,110 435,145 526,126 C616,108 705,146 796,125 C879,107 943,130 1000,117 V175 H0 Z"/>
+                <GeometryDrawing Brush="#0A0C08" Geometry="M0,166 C116,150 196,181 301,164 C411,146 515,182 624,161 C736,140 842,181 1000,154 V500 H0 Z"/>
+
+                <!-- sparse scratches and structural lines -->
+                <GeometryDrawing Geometry="M42,44 L211,34 M273,72 L446,61 M553,47 L739,37 M801,76 L966,64 M104,184 L96,431 M338,166 L348,433 M611,176 L601,427 M878,161 L887,430">
+                    <GeometryDrawing.Pen><Pen Brush="#655C3D" Thickness="1"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M54,101 L151,20 M168,112 L237,43 M691,103 L786,18 M810,112 L878,47">
+                    <GeometryDrawing.Pen><Pen Brush="#9D7D34" Thickness="2"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+
+                <!-- vignette -->
+                <GeometryDrawing Geometry="M0,0 H1000 V500 H0 Z">
+                    <GeometryDrawing.Brush>
+                        <RadialGradientBrush Center="0.5,0.34" GradientOrigin="0.5,0.24" RadiusX="0.76" RadiusY="0.78">
+                            <GradientStop Color="#001D1E13" Offset="0"/>
+                            <GradientStop Color="#45090A06" Offset="0.62"/>
+                            <GradientStop Color="#D8040503" Offset="1"/>
+                        </RadialGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+
+                <!-- compact double metal frame, no oversized empty rail -->
+                <GeometryDrawing Geometry="M4,4 H996 V496 H4 Z"><GeometryDrawing.Pen><Pen Brush="#8C7848" Thickness="3"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Geometry="M11,11 H989 V489 H11 Z"><GeometryDrawing.Pen><Pen Brush="#302E21" Thickness="5"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Geometry="M18,18 H982 V482 H18 Z"><GeometryDrawing.Pen><Pen Brush="#A18A51" Thickness="1.4"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Brush="#15160F" Geometry="M23,23 A7,7 0 1 1 9,23 A7,7 0 1 1 23,23 M991,23 A7,7 0 1 1 977,23 A7,7 0 1 1 991,23 M23,477 A7,7 0 1 1 9,477 A7,7 0 1 1 23,477 M991,477 A7,7 0 1 1 977,477 A7,7 0 1 1 991,477"/>
             </DrawingGroup>
         </DrawingBrush.Drawing>
     </DrawingBrush>
