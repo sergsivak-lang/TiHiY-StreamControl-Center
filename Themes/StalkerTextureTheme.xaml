@@ -1,0 +1,163 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Real vector textures: layered metal, corrosion, scratches, bolts and hazard markings. -->
+    <DrawingBrush x:Key="WindowGradient" Stretch="Fill" TileMode="None">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#090A07" Geometry="M0,0 H1 V1 H0 Z"/>
+                <GeometryDrawing Geometry="M0.008,0.008 H0.992 V0.992 H0.008 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#28271C" Offset="0"/>
+                            <GradientStop Color="#11120D" Offset="0.34"/>
+                            <GradientStop Color="#1C1A12" Offset="0.68"/>
+                            <GradientStop Color="#090A07" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#8D7840" Thickness="0.003"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#442818" Geometry="M0.04,0.06 C0.18,0.01 0.24,0.11 0.34,0.07 C0.43,0.03 0.51,0.10 0.57,0.05 L0.57,0.12 C0.42,0.16 0.25,0.11 0.04,0.16 Z"/>
+                <GeometryDrawing Brush="#342114" Geometry="M0.68,0.78 C0.79,0.70 0.92,0.78 0.98,0.71 L0.98,0.93 C0.86,0.89 0.77,0.94 0.68,0.88 Z"/>
+                <GeometryDrawing Geometry="M0.02,0.18 H0.98 V0.215 H0.02 Z">
+                    <GeometryDrawing.Brush>
+                        <DrawingBrush TileMode="Tile" Viewport="0,0,0.055,1" ViewportUnits="RelativeToBoundingBox">
+                            <DrawingBrush.Drawing>
+                                <DrawingGroup>
+                                    <GeometryDrawing Brush="#B58417" Geometry="M0,0 H0.5 L0.18,1 H0 Z"/>
+                                    <GeometryDrawing Brush="#17140B" Geometry="M0.5,0 H1 V1 H0.18 Z"/>
+                                </DrawingGroup>
+                            </DrawingBrush.Drawing>
+                        </DrawingBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M0.015,0.015 H0.985 V0.985 H0.015 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#2D2D20" Thickness="0.006"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M0.022,0.022 H0.978 V0.978 H0.022 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#A18A4B" Thickness="0.0015"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DrawingBrush x:Key="PanelGradient" TileMode="Tile" Viewport="0,0,320,220" ViewportUnits="Absolute" Stretch="Fill">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#181A12" Geometry="M0,0 H320 V220 H0 Z"/>
+                <GeometryDrawing Brush="#242318" Geometry="M4,4 H316 V216 H4 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#74643A" Thickness="2"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#15160F" Geometry="M10,10 H310 V210 H10 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#353526" Thickness="1"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#4C2D19" Geometry="M30,18 C85,2 120,30 178,12 C220,0 252,27 298,15 L298,38 C245,48 206,25 166,39 C110,54 70,31 30,45 Z"/>
+                <GeometryDrawing Geometry="M18,64 L290,58 M28,154 L280,162 M56,32 L46,188 M238,28 L250,194">
+                    <GeometryDrawing.Pen><Pen Brush="#96885D" Thickness="0.7" DashStyle="Dash"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DrawingBrush x:Key="HeaderBackground" Stretch="Fill">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#252419" Geometry="M0,0 H1 V1 H0 Z"/>
+                <GeometryDrawing Brush="#15160F" Geometry="M0.006,0.08 H0.994 V0.92 H0.006 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#79683A" Thickness="0.006"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#5A351B" Geometry="M0.02,0.12 C0.14,0.02 0.25,0.19 0.38,0.09 C0.52,0.00 0.67,0.17 0.82,0.07 C0.89,0.03 0.95,0.11 0.98,0.08 L0.98,0.25 C0.78,0.30 0.58,0.20 0.38,0.29 C0.22,0.36 0.12,0.27 0.02,0.32 Z"/>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DrawingBrush x:Key="PanelBackground" Stretch="Fill">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#191A12" Geometry="M0,0 H1 V1 H0 Z"/>
+                <GeometryDrawing Brush="#11130D" Geometry="M0.018,0.025 H0.982 V0.975 H0.018 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#6D6038" Thickness="0.006"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M0.04,0.06 H0.96 M0.04,0.94 H0.96">
+                    <GeometryDrawing.Pen><Pen Brush="#2F3021" Thickness="0.004"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DrawingBrush x:Key="ModuleBackground" Stretch="Fill">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#222218" Geometry="M0,0 H1 V1 H0 Z"/>
+                <GeometryDrawing Brush="#15170F" Geometry="M0.025,0.08 H0.975 V0.92 H0.025 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#817142" Thickness="0.012"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#503019" Geometry="M0.05,0.11 C0.24,0.02 0.42,0.18 0.60,0.08 C0.75,0 0.88,0.12 0.95,0.07 L0.95,0.22 C0.77,0.28 0.57,0.18 0.40,0.27 C0.24,0.34 0.13,0.25 0.05,0.30 Z"/>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DrawingBrush x:Key="BlueButtonBackground" Stretch="Fill">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#343326" Geometry="M0,0 H1 V1 H0 Z"/>
+                <GeometryDrawing Brush="#1A1C13" Geometry="M0.025,0.08 H0.975 V0.92 H0.025 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#8C7A45" Thickness="0.012"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#78501E" Geometry="M0.03,0.08 H0.97 V0.16 H0.03 Z"/>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DrawingBrush x:Key="AmberButtonBackground" Stretch="Fill">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#44321A" Geometry="M0,0 H1 V1 H0 Z"/>
+                <GeometryDrawing Brush="#20180D" Geometry="M0.025,0.08 H0.975 V0.92 H0.025 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#C08A24" Thickness="0.014"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#9B651E" Geometry="M0.04,0.10 H0.96 V0.18 H0.04 Z"/>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DrawingBrush x:Key="RedButtonBackground" Stretch="Fill">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#44251E" Geometry="M0,0 H1 V1 H0 Z"/>
+                <GeometryDrawing Brush="#23100D" Geometry="M0.025,0.08 H0.975 V0.92 H0.025 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#A64D35" Thickness="0.014"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#7A2E23" Geometry="M0.04,0.10 H0.96 V0.18 H0.04 Z"/>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DrawingBrush x:Key="PurpleButtonBackground" Stretch="Fill">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#302A25" Geometry="M0,0 H1 V1 H0 Z"/>
+                <GeometryDrawing Brush="#191612" Geometry="M0.025,0.08 H0.975 V0.92 H0.025 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#75634A" Thickness="0.014"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <SolidColorBrush x:Key="PanelDeep" Color="#090B07"/>
+    <SolidColorBrush x:Key="CyanSoft" Color="#798B59"/>
+    <SolidColorBrush x:Key="AmberHot" Color="#D67B24"/>
+
+    <DropShadowEffect x:Key="CyanGlow" Color="#88B84E" BlurRadius="12" ShadowDepth="0" Opacity="0.35"/>
+    <DropShadowEffect x:Key="AmberGlow" Color="#D79425" BlurRadius="16" ShadowDepth="0" Opacity="0.40"/>
+    <DropShadowEffect x:Key="SoftShadow" Color="#000000" BlurRadius="18" ShadowDepth="5" Opacity="0.78"/>
+
+    <Style x:Key="StalkerPanelBorder" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource PanelBackground}"/>
+        <Setter Property="BorderBrush" Value="#8A7642"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="Padding" Value="13"/>
+        <Setter Property="Effect" Value="{DynamicResource SoftShadow}"/>
+    </Style>
+</ResourceDictionary>
