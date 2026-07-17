@@ -53,6 +53,10 @@ public sealed class ChatService
         message.Time = incoming.Time;
         message.ExternalId = incoming.ExternalId;
         message.AuthorId = incoming.AuthorId;
+        message.Emotes = incoming.Emotes
+            .OrderBy(x => x.Start)
+            .ThenByDescending(x => x.Length)
+            .ToList();
         Messages.Add(message);
         while (Messages.Count > 300) Messages.RemoveAt(0);
         _messagesSinceLastNotice++;
