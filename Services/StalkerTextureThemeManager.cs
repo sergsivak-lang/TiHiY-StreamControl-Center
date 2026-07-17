@@ -3,10 +3,10 @@ namespace TiHiY.StreamControlCenter.Services;
 public static class StalkerTextureThemeManager
 {
     private static readonly Uri TextureSourceUri = new(
-        "pack://application:,,,/TiHiY.StreamControlCenter;component/Themes/StalkerTextureTheme.xaml",
+        "pack://application:,,,/TiHiY.StreamControlCenter;component/Themes/StalkerTextureRuntime.xaml",
         UriKind.Absolute);
     private static readonly Uri WindowSkinSourceUri = new(
-        "pack://application:,,,/TiHiY.StreamControlCenter;component/Themes/StalkerWindowSkin.xaml",
+        "pack://application:,,,/TiHiY.StreamControlCenter;component/Themes/StalkerWindowRuntime.xaml",
         UriKind.Absolute);
     private static readonly Uri ControlSourceUri = new(
         "pack://application:,,,/TiHiY.StreamControlCenter;component/Themes/StalkerControlOverrides.xaml",
@@ -35,9 +35,6 @@ public static class StalkerTextureThemeManager
         Add(resources, ref _windowSkinDictionary, WindowSkinSourceUri);
         Add(resources, ref _controlDictionary, ControlSourceUri);
 
-        // ThemeService stores these four semantic brushes directly in the primary
-        // application dictionary. Primary resources win over merged dictionaries,
-        // therefore the textured variants must be installed there as well.
         resources["WindowGradient"] = _windowSkinDictionary!["WindowGradient"];
         resources["PanelGradient"] = _textureDictionary!["PanelGradient"];
         resources["ButtonGradient"] = _textureDictionary["BlueButtonBackground"];
