@@ -15,7 +15,6 @@
                         <Border Margin="11" BorderBrush="#3D3926" BorderThickness="2"/>
                         <ContentPresenter Margin="13"/>
 
-                        <!-- Cover only the legacy brand block while preserving window controls on the right. -->
                         <Border Width="620" Height="43" Margin="22,102,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                                 Background="#FB17180F" BorderBrush="#625837" BorderThickness="0,1,1,1" IsHitTestVisible="False">
                             <Grid Margin="14,4,10,4">
@@ -71,13 +70,37 @@
                             </Border>
                         </Grid>
 
-                        <Rectangle Margin="15" IsHitTestVisible="False" Opacity="0.035">
+                        <Border Height="26" Margin="31,0,31,25" VerticalAlignment="Bottom" Background="#F10A0D08" BorderBrush="#756840" BorderThickness="1" IsHitTestVisible="False">
+                            <Grid Margin="10,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.15*"/><ColumnDefinition Width="1.25*"/><ColumnDefinition Width="1.15*"/><ColumnDefinition Width="1.1*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Ellipse Width="7" Height="7" Fill="#79A553" Stroke="#A9D17B" StrokeThickness="1"/>
+                                    <TextBlock Text="  PDA LINK: STABLE" FontSize="9.5" FontWeight="Bold" Foreground="#AFC792"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Ellipse Width="7" Height="7" Fill="#79A553" Stroke="#A9D17B" StrokeThickness="1"/>
+                                    <TextBlock Text="  OBS CORE: READY" FontSize="9.5" FontWeight="Bold" Foreground="#AFC792"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Ellipse Width="7" Height="7" Fill="#C18B2A" Stroke="#E0B04A" StrokeThickness="1"/>
+                                    <TextBlock Text="  ALERT BUS: ARMED" FontSize="9.5" FontWeight="Bold" Foreground="#C7B77D"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Ellipse Width="7" Height="7" Fill="#8F4434" Stroke="#BD6A53" StrokeThickness="1"/>
+                                    <TextBlock Text="  ANOMALY SCAN: IDLE" FontSize="9.5" FontWeight="Bold" Foreground="#B9A17F"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <Rectangle Margin="15" IsHitTestVisible="False" Opacity="0.02">
                             <Rectangle.Fill>
-                                <DrawingBrush TileMode="Tile" Viewport="0,0,1,6" ViewportUnits="Absolute">
+                                <DrawingBrush TileMode="Tile" Viewport="0,0,1,7" ViewportUnits="Absolute">
                                     <DrawingBrush.Drawing>
                                         <DrawingGroup>
-                                            <GeometryDrawing Brush="#00000000" Geometry="M0,0 H1 V5 H0 Z"/>
-                                            <GeometryDrawing Brush="#89966F" Geometry="M0,5 H1 V6 H0 Z"/>
+                                            <GeometryDrawing Brush="#00000000" Geometry="M0,0 H1 V6 H0 Z"/>
+                                            <GeometryDrawing Brush="#89966F" Geometry="M0,6 H1 V7 H0 Z"/>
                                         </DrawingGroup>
                                     </DrawingBrush.Drawing>
                                 </DrawingBrush>
