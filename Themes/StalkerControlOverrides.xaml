@@ -34,10 +34,10 @@
 
     <Style x:Key="StatusPill" TargetType="Border">
         <Setter Property="Background" Value="#F40B0D08"/>
-        <Setter Property="BorderBrush" Value="#7C6A3E"/>
+        <Setter Property="BorderBrush" Value="#8B7542"/>
         <Setter Property="BorderThickness" Value="2"/>
         <Setter Property="CornerRadius" Value="1"/>
-        <Setter Property="Padding" Value="12,7"/>
+        <Setter Property="Padding" Value="13,8"/>
         <Setter Property="Margin" Value="0,0,8,0"/>
         <Setter Property="Effect" Value="{DynamicResource SoftShadow}"/>
     </Style>
@@ -52,27 +52,30 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ContentControl">
                     <Grid SnapsToDevicePixels="True">
-                        <Border Margin="5,6,0,0" Background="#C0000000"/>
-                        <Border Background="#171810" BorderBrush="#26271C" BorderThickness="6" CornerRadius="1"/>
+                        <Border Margin="6,7,0,0" Background="#D0000000"/>
+                        <Border Background="#11120C" BorderBrush="#25261B" BorderThickness="7" CornerRadius="1"/>
                         <Border Margin="4" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2" CornerRadius="1"/>
-                        <Border Margin="8" Background="#E8070905" BorderBrush="#4A432D" BorderThickness="1" Padding="{TemplateBinding Padding}">
+                        <Border Margin="8" Background="#EC070905" BorderBrush="#4A432D" BorderThickness="1" Padding="{TemplateBinding Padding}">
                             <Grid>
-                                <Rectangle Height="5" VerticalAlignment="Top" Margin="-2,-2,-2,0">
+                                <Rectangle Height="6" VerticalAlignment="Top" Margin="-2,-2,-2,0">
                                     <Rectangle.Fill>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="#8E6821" Offset="0"/>
-                                            <GradientStop Color="#2D2A1C" Offset="0.18"/>
-                                            <GradientStop Color="#6C572F" Offset="0.55"/>
+                                            <GradientStop Color="#A77A26" Offset="0"/>
+                                            <GradientStop Color="#2B2A1C" Offset="0.15"/>
+                                            <GradientStop Color="#78613A" Offset="0.48"/>
                                             <GradientStop Color="#26271C" Offset="1"/>
                                         </LinearGradientBrush>
                                     </Rectangle.Fill>
                                 </Rectangle>
-                                <Rectangle Margin="2,7,2,2" Stroke="#27291E" StrokeThickness="1"/>
-                                <ContentPresenter Margin="3,8,3,3"/>
-                                <Ellipse Width="7" Height="7" Fill="#15160F" Stroke="#A18B51" StrokeThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-6,-6,0,0"/>
-                                <Ellipse Width="7" Height="7" Fill="#15160F" Stroke="#A18B51" StrokeThickness="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-6,-6,0"/>
-                                <Ellipse Width="7" Height="7" Fill="#15160F" Stroke="#A18B51" StrokeThickness="1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-6,0,0,-6"/>
-                                <Ellipse Width="7" Height="7" Fill="#15160F" Stroke="#A18B51" StrokeThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-6,-6"/>
+                                <Rectangle Width="4" HorizontalAlignment="Left" Margin="-1,7,0,3" Fill="#493C23" Opacity="0.8"/>
+                                <Rectangle Width="4" HorizontalAlignment="Right" Margin="0,7,-1,3" Fill="#211F16" Opacity="0.9"/>
+                                <Rectangle Height="3" VerticalAlignment="Bottom" Margin="1,0,1,-1" Fill="#5A4A2C" Opacity="0.75"/>
+                                <Rectangle Margin="3,8,3,3" Stroke="#2B2D20" StrokeThickness="1"/>
+                                <ContentPresenter Margin="4,9,4,4"/>
+                                <Ellipse Width="8" Height="8" Fill="#15160F" Stroke="#A18B51" StrokeThickness="1.2" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-6,-6,0,0"/>
+                                <Ellipse Width="8" Height="8" Fill="#15160F" Stroke="#A18B51" StrokeThickness="1.2" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-6,-6,0"/>
+                                <Ellipse Width="8" Height="8" Fill="#15160F" Stroke="#A18B51" StrokeThickness="1.2" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-6,0,0,-6"/>
+                                <Ellipse Width="8" Height="8" Fill="#15160F" Stroke="#A18B51" StrokeThickness="1.2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-6,-6"/>
                             </Grid>
                         </Border>
                     </Grid>
@@ -95,10 +98,12 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Grid SnapsToDevicePixels="True">
-                        <Border Margin="3,4,0,0" Background="#C0000000"/>
+                        <Border Margin="4,5,0,0" Background="#C0000000"/>
                         <Border x:Name="Outer" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"/>
                         <Border Margin="4" BorderBrush="#6D6039" BorderThickness="1"/>
                         <Rectangle Height="2" Fill="#B0CE9836" VerticalAlignment="Top" Margin="10,3,10,0"/>
+                        <Ellipse Width="5" Height="5" Fill="#10110B" Stroke="#9C8548" StrokeThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,6,0,0"/>
+                        <Ellipse Width="5" Height="5" Fill="#10110B" Stroke="#9C8548" StrokeThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,6,6"/>
                         <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}"/>
                     </Grid>
                     <ControlTemplate.Triggers>
