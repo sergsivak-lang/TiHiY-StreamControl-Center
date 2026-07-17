@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:models="clr-namespace:TiHiY.StreamControlCenter.Models"
+        xmlns:controls="clr-namespace:TiHiY.StreamControlCenter.Controls"
         Title="TiHiY Local Chat Overlay" Width="620" Height="420" MinWidth="360" MinHeight="220"
         WindowStyle="None" ResizeMode="CanResizeWithGrip" AllowsTransparency="True"
         Background="Transparent" Topmost="True" ShowInTaskbar="False"
@@ -79,22 +80,11 @@
                                 <Border Width="24" Height="22" CornerRadius="4" Background="{Binding PlatformColor}" VerticalAlignment="Top">
                                     <Image Source="{Binding PlatformIconPath}" Stretch="Uniform" Margin="2"/>
                                 </Border>
-                                <TextBlock Grid.Column="1" Margin="6,0,0,0" TextWrapping="Wrap" LineStackingStrategy="BlockLineHeight">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="{DynamicResource LocalOverlayTextBrush}"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
-                                                    <Setter Property="Foreground" Value="#FFD329"/>
-                                                    <Setter Property="FontWeight" Value="Bold"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                    <Run Text="{Binding User}" Foreground="{DynamicResource LocalOverlayUserBrush}" FontWeight="Bold"/>
-                                    <Run Text=": "/>
-                                    <Run Text="{Binding Text}"/>
-                                </TextBlock>
+                                <controls:RichChatTextBlock Grid.Column="1" Margin="6,0,0,0"
+                                                            Message="{Binding}" IncludeUser="True"
+                                                            UserBrush="{DynamicResource LocalOverlayUserBrush}"
+                                                            MessageBrush="{DynamicResource LocalOverlayTextBrush}"
+                                                            HighlightBrush="#FFD329" EmoteSize="24"/>
                             </Grid>
                         </Border>
                     </DataTemplate>
