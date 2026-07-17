@@ -9,11 +9,6 @@ using TiHiY.StreamControlCenter.Models;
 
 namespace TiHiY.StreamControlCenter.Services;
 
-/// <summary>
-/// Isolated runtime integration for the optional Stalker theme and rich chat.
-/// The Ukraine layout remains untouched and all local values are restored when
-/// another theme is selected.
-/// </summary>
 internal static class StalkerChatRuntime
 {
     private static readonly HttpClient Http = new();
@@ -34,7 +29,6 @@ internal static class StalkerChatRuntime
             await Task.Delay(100).ConfigureAwait(false);
             var application = Application.Current;
             if (application is null) continue;
-
             try
             {
                 await application.Dispatcher.InvokeAsync(() =>
@@ -44,14 +38,12 @@ internal static class StalkerChatRuntime
                     App.Services.Twitch.MessageReceived += Twitch_MessageReceived;
                     App.Services.Twitch.StatusChanged += (_, _) => _ = RefreshTwitchEmotesAsync();
                     App.Services.Theme.ThemeChanged += (_, _) => ApplyThemeToAllWindows();
-
                     _windowTimer = new DispatcherTimer(DispatcherPriority.Background, application.Dispatcher)
                     {
                         Interval = TimeSpan.FromMilliseconds(600)
                     };
                     _windowTimer.Tick += (_, _) => ApplyThemeToAllWindows();
                     _windowTimer.Start();
-
                     ApplyThemeToAllWindows();
                     _ = RefreshTwitchEmotesAsync();
                 });
@@ -59,25 +51,20 @@ internal static class StalkerChatRuntime
             }
             catch
             {
-                // AppServices can still be under construction. Retry silently.
+                // AppServices can still be under construction.
             }
         }
     }
 
     private static void Twitch_MessageReceived(object? sender, ChatMessage message)
     {
-        if (!message.Platform.Equals("TWITCH", StringComparison.OrdinalIgnoreCase) ||
-            string.IsNullOrWhiteSpace(message.Text))
-            return;
-
+        if (!message.Platform.Equals("TWITCH", StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(message.Text)) return;
         var found = new List<ChatEmote>();
         foreach (Match match in Regex.Matches(message.Text, @"\S+", RegexOptions.CultureInvariant))
         {
             EmoteDefinition? definition;
-            lock (TwitchEmotes)
-                TwitchEmotes.TryGetValue(match.Value, out definition);
+            lock (TwitchEmotes) TwitchEmotes.TryGetValue(match.Value, out definition);
             if (definition is null) continue;
-
             found.Add(new ChatEmote
             {
                 Platform = "TWITCH",
@@ -88,9 +75,7 @@ internal static class StalkerChatRuntime
                 ImageUrl = definition.Url
             });
         }
-
-        if (found.Count > 0)
-            message.Emotes = found;
+        if (found.Count > 0) message.Emotes = found;
     }
 
     private static async Task RefreshTwitchEmotesAsync()
@@ -102,13 +87,11 @@ internal static class StalkerChatRuntime
             var clientId = services.Settings.Value.TwitchClientId?.Trim() ?? string.Empty;
             var rawToken = services.Credentials.LoadSecret("TWITCH_TOKEN");
             if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(rawToken)) return;
-
             var token = JsonSerializer.Deserialize<OAuthToken>(rawToken);
             if (token is null || string.IsNullOrWhiteSpace(token.AccessToken)) return;
 
             var collected = new Dictionary<string, EmoteDefinition>(StringComparer.Ordinal);
             await LoadEmoteEndpointAsync("chat/emotes/global", clientId, token.AccessToken, collected).ConfigureAwait(false);
-
             var broadcasterId = services.Settings.Value.TwitchBroadcasterId?.Trim() ?? string.Empty;
             if (!string.IsNullOrWhiteSpace(broadcasterId))
                 await LoadEmoteEndpointAsync($"chat/emotes?broadcaster_id={Uri.EscapeDataString(broadcasterId)}", clientId, token.AccessToken, collected).ConfigureAwait(false);
@@ -137,17 +120,14 @@ internal static class StalkerChatRuntime
         request.Headers.Add("Client-Id", clientId);
         using var response = await Http.SendAsync(request).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode) return;
-
         var root = JsonNode.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false))?.AsObject();
         if (root?["data"] is not JsonArray data) return;
         var template = root["template"]?.GetValue<string>() ?? string.Empty;
-
         foreach (var item in data.OfType<JsonObject>())
         {
             var id = item["id"]?.GetValue<string>() ?? string.Empty;
             var name = item["name"]?.GetValue<string>() ?? string.Empty;
             if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(name)) continue;
-
             var format = ReadFirst(item["format"] as JsonArray, "static");
             var theme = ReadFirst(item["theme_mode"] as JsonArray, "dark");
             var scale = SelectScale(item["scale"] as JsonArray);
@@ -176,7 +156,6 @@ internal static class StalkerChatRuntime
         var application = Application.Current;
         if (application is null || App.Services is null) return;
         var stalker = App.Services.Theme.CurrentTheme.Equals("Сталкер", StringComparison.OrdinalIgnoreCase);
-
         foreach (Window window in application.Windows)
         {
             PrepareWindow(window);
@@ -237,12 +216,12 @@ internal static class StalkerChatRuntime
     private static void ApplyWindowTheme(Window window, bool stalker)
     {
         if (!window.IsLoaded) return;
+        var windowBrush = window.TryFindResource("StalkerWindowBrush") as Brush;
         if (stalker)
         {
             Remember(window);
-            if (window.TryFindResource("StalkerWindowBrush") is Brush windowBrush)
-                window.Background = windowBrush;
-            if (FindVisualChild<Border>(window) is { } rootBorder)
+            if (windowBrush is not null) window.Background = windowBrush;
+            if (windowBrush is not null && FindVisualChild<Border>(window) is { } rootBorder)
             {
                 Remember(rootBorder);
                 rootBorder.Background = windowBrush;
@@ -253,14 +232,12 @@ internal static class StalkerChatRuntime
             Restore(window);
             if (FindVisualChild<Border>(window) is { } rootBorder) Restore(rootBorder);
         }
-
         ApplyElementTheme(window, stalker);
     }
 
     private static void ApplyElementTheme(DependencyObject root, bool stalker)
     {
-        var count = VisualTreeHelper.GetChildrenCount(root);
-        for (var index = 0; index < count; index++)
+        for (var index = 0; index < VisualTreeHelper.GetChildrenCount(root); index++)
         {
             var child = VisualTreeHelper.GetChild(root, index);
             if (child is FrameworkElement element)
@@ -283,7 +260,6 @@ internal static class StalkerChatRuntime
             ContentControl control when IsDashboardPanel(control) => "StalkerHudPanel",
             _ => null
         };
-
         if (styleKey is not null && element.TryFindResource(styleKey) is Style)
         {
             Remember(element);
@@ -292,8 +268,7 @@ internal static class StalkerChatRuntime
     }
 
     private static bool IsDashboardPanel(ContentControl control) =>
-        control.Name.EndsWith("BlockPanel", StringComparison.Ordinal) ||
-        control.Name is "SystemStatusBlockPanel" or "SystemMonitorPanel";
+        control.Name.EndsWith("BlockPanel", StringComparison.Ordinal) || control.Name is "SystemStatusBlockPanel" or "SystemMonitorPanel";
 
     private static bool IsDangerButton(Button button) =>
         button.Name.Contains("Close", StringComparison.OrdinalIgnoreCase) || button.Content?.ToString() == "×";
