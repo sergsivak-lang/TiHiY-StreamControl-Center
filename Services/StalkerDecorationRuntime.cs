@@ -7,6 +7,7 @@ internal static class StalkerDecorationRuntime
     private const string CenterBlockKey = "UkraineCenterBlock";
     private static readonly ConditionalWeakTable<Image, ImageState> ImageStates = new();
     private static readonly ConditionalWeakTable<Grid, CenterHostState> CenterStates = new();
+    private static readonly ConditionalWeakTable<Grid, FrameworkElement> HeaderStates = new();
     private static DispatcherTimer? _timer;
 
     [ModuleInitializer]
@@ -64,8 +65,16 @@ internal static class StalkerDecorationRuntime
                 }
             }
 
-            if (stalker) ReplaceCenterHost(window);
-            else RestoreCenterHost(window);
+            if (stalker)
+            {
+                ReplaceCenterHost(window);
+                EnsureHeaderArtwork(window);
+            }
+            else
+            {
+                RestoreCenterHost(window);
+                RestoreHeaderArtwork(window);
+            }
         }
     }
 
@@ -81,7 +90,7 @@ internal static class StalkerDecorationRuntime
         var originalVisibility = originalChildren.ToDictionary(x => x, x => x.Visibility);
         foreach (var child in originalChildren) child.Visibility = Visibility.Hidden;
 
-        var overlay = BuildOverlay();
+        var overlay = BuildCenterOverlay(window);
         Panel.SetZIndex(overlay, 1000);
         host.Children.Add(overlay);
         CenterStates.Add(host, new CenterHostState(originalVisibility, overlay));
@@ -91,7 +100,6 @@ internal static class StalkerDecorationRuntime
     {
         var host = FindCenterHost(window);
         if (host is null || !CenterStates.TryGetValue(host, out var state)) return;
-
         host.Children.Remove(state.Overlay);
         foreach (var pair in state.Visibility) pair.Key.Visibility = pair.Value;
         CenterStates.Remove(host);
@@ -99,42 +107,52 @@ internal static class StalkerDecorationRuntime
 
     private static Grid? FindCenterHost(Window window)
     {
-        // MainWindowVisualTuner creates this exact direct host after detaching the
-        // original footer ContentControl into the freeform Canvas.
         var runtimeHost = FindVisualChildren<Grid>(window)
             .FirstOrDefault(grid => string.Equals(grid.Tag?.ToString(), CenterBlockKey, StringComparison.Ordinal));
         if (runtimeHost is not null) return runtimeHost;
 
-        // Fallback before the freeform dashboard is built.
         if (window.FindName("FooterBlocksGrid") is Grid footer)
         {
             var center = footer.Children.OfType<ContentControl>()
                 .FirstOrDefault(control => Grid.GetColumn(control) == 2 && string.IsNullOrWhiteSpace(control.Name));
             if (center is not null)
-            {
-                return new Grid
-                {
-                    Tag = CenterBlockKey,
-                    Visibility = Visibility.Collapsed
-                };
-            }
+                return new Grid { Tag = CenterBlockKey, Visibility = Visibility.Collapsed };
         }
-
         return null;
     }
 
-    private static FrameworkElement BuildOverlay()
+    private static FrameworkElement BuildCenterOverlay(FrameworkElement resourceOwner)
     {
-        var frame = new Border
+        var panelBrush = resourceOwner.TryFindResource("StalkerExactPanelTexture") as Brush ?? CreateFallbackMetalBrush();
+        var hazardBrush = resourceOwner.TryFindResource("StalkerHazardBrush") as Brush;
+
+        var root = new Grid { ClipToBounds = true };
+        root.Children.Add(new Border
         {
-            CornerRadius = new CornerRadius(4),
-            BorderThickness = new Thickness(2),
-            BorderBrush = new SolidColorBrush(Color.FromRgb(151, 88, 28)),
-            Background = CreateZoneBrush(),
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Stretch,
-            SnapsToDevicePixels = true
-        };
+            Background = panelBrush,
+            BorderBrush = new SolidColorBrush(Color.FromRgb(142, 79, 32)),
+            BorderThickness = new Thickness(3),
+            CornerRadius = new CornerRadius(2)
+        });
+        root.Children.Add(new Border
+        {
+            Margin = new Thickness(5),
+            BorderBrush = new SolidColorBrush(Color.FromRgb(78, 67, 45)),
+            BorderThickness = new Thickness(1)
+        });
+        if (hazardBrush is not null)
+        {
+            root.Children.Add(new Rectangle
+            {
+                Fill = hazardBrush,
+                Height = 8,
+                Width = 96,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(0, 7, 8, 0),
+                Opacity = 0.65
+            });
+        }
 
         var content = new StackPanel
         {
@@ -145,16 +163,16 @@ internal static class StalkerDecorationRuntime
         {
             Text = "☢",
             FontFamily = new FontFamily("Segoe UI Symbol"),
-            FontSize = 52,
+            FontSize = 54,
             FontWeight = FontWeights.Bold,
-            Foreground = new SolidColorBrush(Color.FromRgb(121, 206, 57)),
+            Foreground = new SolidColorBrush(Color.FromRgb(126, 212, 67)),
             HorizontalAlignment = HorizontalAlignment.Center,
             Effect = new System.Windows.Media.Effects.DropShadowEffect
             {
                 Color = Color.FromRgb(87, 190, 43),
-                BlurRadius = 14,
+                BlurRadius = 16,
                 ShadowDepth = 0,
-                Opacity = 0.75
+                Opacity = 0.82
             }
         });
         content.Children.Add(new TextBlock
@@ -164,31 +182,95 @@ internal static class StalkerDecorationRuntime
             FontWeight = FontWeights.Black,
             Foreground = new SolidColorBrush(Color.FromRgb(222, 158, 52)),
             HorizontalAlignment = HorizontalAlignment.Center,
-            Margin = new Thickness(0, -4, 0, 0)
+            Margin = new Thickness(0, -5, 0, 0)
         });
         content.Children.Add(new TextBlock
         {
             Text = "ТИХО. НЕБЕЗПЕКА ПОРУЧ.",
             FontSize = 10,
             FontWeight = FontWeights.SemiBold,
-            Foreground = new SolidColorBrush(Color.FromRgb(159, 153, 131)),
+            Foreground = new SolidColorBrush(Color.FromRgb(166, 158, 137)),
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 3, 0, 0)
         });
-        frame.Child = content;
-        return frame;
+        root.Children.Add(content);
+        return root;
     }
 
-    private static Brush CreateZoneBrush()
+    private static void EnsureHeaderArtwork(Window window)
+    {
+        if (window.FindName("DesignSurface") is not Grid surface) return;
+        var header = surface.Children.OfType<Grid>().FirstOrDefault(grid => Grid.GetRow(grid) == 0);
+        if (header is null || HeaderStates.TryGetValue(header, out _)) return;
+
+        var headerBrush = window.TryFindResource("StalkerHeaderPlateTexture") as Brush ?? CreateFallbackMetalBrush();
+        var artwork = new Grid { IsHitTestVisible = false, ClipToBounds = true };
+        Panel.SetZIndex(artwork, -50);
+        artwork.Children.Add(new Border
+        {
+            Background = headerBrush,
+            BorderBrush = new SolidColorBrush(Color.FromRgb(128, 72, 31)),
+            BorderThickness = new Thickness(0, 0, 0, 2)
+        });
+
+        var emblem = new Grid
+        {
+            Width = 118,
+            Height = 76,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(5, 0, 0, 0)
+        };
+        emblem.Children.Add(new Path
+        {
+            Data = Geometry.Parse("M8,68 L59,8 L110,68 Z"),
+            Fill = new SolidColorBrush(Color.FromArgb(205, 29, 31, 22)),
+            Stroke = new SolidColorBrush(Color.FromRgb(203, 147, 42)),
+            StrokeThickness = 3
+        });
+        emblem.Children.Add(new TextBlock
+        {
+            Text = "☢",
+            FontFamily = new FontFamily("Segoe UI Symbol"),
+            FontSize = 38,
+            FontWeight = FontWeights.Bold,
+            Foreground = new SolidColorBrush(Color.FromRgb(128, 214, 70)),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(0, 12, 0, 0),
+            Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = Color.FromRgb(79, 185, 42),
+                BlurRadius = 11,
+                ShadowDepth = 0,
+                Opacity = 0.7
+            }
+        });
+        artwork.Children.Add(emblem);
+        header.Children.Insert(0, artwork);
+        HeaderStates.Add(header, artwork);
+    }
+
+    private static void RestoreHeaderArtwork(Window window)
+    {
+        if (window.FindName("DesignSurface") is not Grid surface) return;
+        var header = surface.Children.OfType<Grid>().FirstOrDefault(grid => Grid.GetRow(grid) == 0);
+        if (header is null || !HeaderStates.TryGetValue(header, out var artwork)) return;
+        header.Children.Remove(artwork);
+        HeaderStates.Remove(header);
+    }
+
+    private static Brush CreateFallbackMetalBrush()
     {
         var group = new DrawingGroup();
         group.Children.Add(new GeometryDrawing(
-            new LinearGradientBrush(Color.FromRgb(26, 25, 18), Color.FromRgb(7, 9, 6), 90),
+            new LinearGradientBrush(Color.FromRgb(31, 29, 22), Color.FromRgb(8, 10, 7), 90),
             null,
             new RectangleGeometry(new Rect(0, 0, 1, 1))));
-        var linePen = new Pen(new SolidColorBrush(Color.FromArgb(80, 112, 91, 45)), 0.012);
-        for (var offset = -1.0; offset < 2.0; offset += 0.18)
-            group.Children.Add(new GeometryDrawing(null, linePen, new LineGeometry(new Point(offset, 1), new Point(offset + 1, 0))));
+        group.Children.Add(new GeometryDrawing(
+            new SolidColorBrush(Color.FromArgb(80, 120, 56, 20)),
+            null,
+            new EllipseGeometry(new Point(0.22, 0.28), 0.18, 0.12)));
         var brush = new DrawingBrush(group) { Stretch = Stretch.Fill };
         brush.Freeze();
         return brush;
