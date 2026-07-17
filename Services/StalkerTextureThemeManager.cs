@@ -76,7 +76,6 @@ public static class StalkerTextureThemeManager
             var settings = TiHiY.StreamControlCenter.App.Services?.Settings.Value;
             if (settings is null) return;
 
-            // Approved STALKER sketch: system ≈35%, center art ≈29%, monitor ≈36%.
             settings.FooterSystemColumnWeight = 0.35;
             settings.FooterEventsColumnWeight = 0.29;
             settings.FooterMonitorColumnWeight = 0.36;
@@ -86,6 +85,32 @@ public static class StalkerTextureThemeManager
         catch
         {
             // Theme application must never prevent startup.
+        }
+    }
+
+    private static void ApplyApprovedMainWindowLayout(TiHiY.StreamControlCenter.MainWindow main)
+    {
+        try
+        {
+            if (main.FindName("FooterSystemColumn") is ColumnDefinition system)
+                system.Width = new GridLength(0.35, GridUnitType.Star);
+            if (main.FindName("FooterEventsColumn") is ColumnDefinition center)
+                center.Width = new GridLength(0.29, GridUnitType.Star);
+            if (main.FindName("FooterMonitorColumn") is ColumnDefinition monitor)
+                monitor.Width = new GridLength(0.36, GridUnitType.Star);
+
+            if (main.FindName("TopLeftColumn") is ColumnDefinition left)
+                left.Width = new GridLength(1.03, GridUnitType.Star);
+            if (main.FindName("TopRightColumn") is ColumnDefinition right)
+                right.Width = new GridLength(1.0, GridUnitType.Star);
+            if (main.FindName("MainTopRow") is RowDefinition top)
+                top.Height = new GridLength(1.14, GridUnitType.Star);
+            if (main.FindName("MainBottomRow") is RowDefinition bottom)
+                bottom.Height = new GridLength(1.0, GridUnitType.Star);
+        }
+        catch
+        {
+            // Layout correction is visual only and must not interrupt the app.
         }
     }
 
@@ -102,10 +127,15 @@ public static class StalkerTextureThemeManager
 
         foreach (Window window in app.Windows)
         {
-            if (window is TiHiY.StreamControlCenter.MainWindow)
+            if (window is TiHiY.StreamControlCenter.MainWindow main)
             {
                 if (PreviousWindowStyles.TryGetValue(window, out var previous))
                     window.Style = previous;
+
+                ApplyApprovedMainWindowLayout(main);
+                main.Dispatcher.BeginInvoke(
+                    new Action(() => ApplyApprovedMainWindowLayout(main)),
+                    System.Windows.Threading.DispatcherPriority.Loaded);
                 continue;
             }
 
