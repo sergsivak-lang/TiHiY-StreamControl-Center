@@ -1,82 +1,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Style TargetType="Window">
-        <Setter Property="Background" Value="{DynamicResource WindowGradient}"/>
-        <Setter Property="Foreground" Value="#E6E2D4"/>
-        <Setter Property="FontFamily" Value="Bahnschrift, Segoe UI Semibold, Segoe UI"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="UseLayoutRounding" Value="True"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Window">
-                    <Grid Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
-                        <Border Margin="3" BorderBrush="#171810" BorderThickness="8"/>
-                        <Border Margin="7" BorderBrush="#9B8548" BorderThickness="2"/>
-                        <Border Margin="11" BorderBrush="#3D3926" BorderThickness="2"/>
-                        <ContentPresenter Margin="13"/>
-
-                        <Grid Height="91" Margin="22,19,22,0" VerticalAlignment="Top" IsHitTestVisible="False">
-                            <Border Background="#F017180F" BorderBrush="#9D8748" BorderThickness="2" CornerRadius="2">
-                                <Grid>
-                                    <Rectangle Margin="6" Stroke="#4B472F" StrokeThickness="1"/>
-                                    <Rectangle Height="9" VerticalAlignment="Top" Margin="11,8,11,0">
-                                        <Rectangle.Fill>
-                                            <DrawingBrush TileMode="Tile" Viewport="0,0,34,9" ViewportUnits="Absolute">
-                                                <DrawingBrush.Drawing>
-                                                    <DrawingGroup>
-                                                        <GeometryDrawing Brush="#C39124" Geometry="M0,0 H20 L12,9 H0 Z"/>
-                                                        <GeometryDrawing Brush="#15150D" Geometry="M20,0 H34 V9 H12 Z"/>
-                                                    </DrawingGroup>
-                                                </DrawingBrush.Drawing>
-                                            </DrawingBrush>
-                                        </Rectangle.Fill>
-                                    </Rectangle>
-                                    <StackPanel Margin="24,21,245,8" VerticalAlignment="Center">
-                                        <TextBlock Text="S.T.A.L.K.E.R." FontFamily="Bahnschrift Condensed, Impact" FontSize="32" FontWeight="Black" Foreground="#D4C78E">
-                                            <TextBlock.Effect><DropShadowEffect Color="#000000" BlurRadius="2" ShadowDepth="3" Opacity="0.95"/></TextBlock.Effect>
-                                        </TextBlock>
-                                        <TextBlock Text="TiHiY STREAM CONTROL CENTER  //  ZONE OPERATIONS TERMINAL" FontSize="10.5" FontWeight="Bold" Foreground="#9E9A78"/>
-                                    </StackPanel>
-                                    <Border Width="204" Height="47" HorizontalAlignment="Right" Margin="0,24,22,8" Background="#F00A0C08" BorderBrush="#827141" BorderThickness="2">
-                                        <Grid Margin="8,4">
-                                            <Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                            <Grid Width="34" Height="34">
-                                                <Ellipse Fill="#14160D" Stroke="#C99B2F" StrokeThickness="2"/>
-                                                <TextBlock Text="☢" FontFamily="Segoe UI Symbol" FontSize="23" Foreground="#D5A52B" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Grid>
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="ZONE STATUS" FontSize="9" Foreground="#8E8A6D" FontWeight="Bold"/>
-                                                <TextBlock Text="CONTROLLED  •  0.18 μSv/h" FontSize="11" Foreground="#AFC36E" FontWeight="Bold"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                    <Ellipse Width="8" Height="8" Fill="#11120B" Stroke="#B49A52" StrokeThickness="1.5" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"/>
-                                    <Ellipse Width="8" Height="8" Fill="#11120B" Stroke="#B49A52" StrokeThickness="1.5" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"/>
-                                    <Ellipse Width="8" Height="8" Fill="#11120B" Stroke="#B49A52" StrokeThickness="1.5" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10"/>
-                                    <Ellipse Width="8" Height="8" Fill="#11120B" Stroke="#B49A52" StrokeThickness="1.5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
-                                </Grid>
-                            </Border>
-                        </Grid>
-
-                        <Rectangle Margin="15" IsHitTestVisible="False" Opacity="0.08">
-                            <Rectangle.Fill>
-                                <DrawingBrush TileMode="Tile" Viewport="0,0,1,5" ViewportUnits="Absolute">
-                                    <DrawingBrush.Drawing>
-                                        <DrawingGroup>
-                                            <GeometryDrawing Brush="#00000000" Geometry="M0,0 H1 V4 H0 Z"/>
-                                            <GeometryDrawing Brush="#89966F" Geometry="M0,4 H1 V5 H0 Z"/>
-                                        </DrawingGroup>
-                                    </DrawingBrush.Drawing>
-                                </DrawingBrush>
-                            </Rectangle.Fill>
-                        </Rectangle>
-                        <Border Margin="13" BorderBrush="#90000000" BorderThickness="16" IsHitTestVisible="False"/>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+    <!-- Deliberately no implicit Window style here. MainWindow owns the approved frame. -->
 
     <Style x:Key="PanelBorder" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource PanelBackground}"/>
@@ -89,25 +14,24 @@
     </Style>
 
     <Style x:Key="CyberInnerBorder" TargetType="Border">
-        <Setter Property="Background" Value="#E8080A06"/>
-        <Setter Property="BorderBrush" Value="#5D5432"/>
+        <Setter Property="Background" Value="#F0080A06"/>
+        <Setter Property="BorderBrush" Value="#665A36"/>
         <Setter Property="BorderThickness" Value="2"/>
         <Setter Property="CornerRadius" Value="1"/>
         <Setter Property="Padding" Value="8"/>
     </Style>
 
     <Style x:Key="StatusChip" TargetType="Border">
-        <Setter Property="Background" Value="#EF15170F"/>
+        <Setter Property="Background" Value="#F015170F"/>
         <Setter Property="BorderBrush" Value="#79683A"/>
         <Setter Property="BorderThickness" Value="2"/>
         <Setter Property="CornerRadius" Value="1"/>
         <Setter Property="Padding" Value="11,7"/>
         <Setter Property="Margin" Value="0,0,8,0"/>
-        <Setter Property="Effect" Value="{DynamicResource SoftShadow}"/>
     </Style>
 
     <Style x:Key="StatusPill" TargetType="Border">
-        <Setter Property="Background" Value="#F00B0D08"/>
+        <Setter Property="Background" Value="#F20B0D08"/>
         <Setter Property="BorderBrush" Value="#75663C"/>
         <Setter Property="BorderThickness" Value="2"/>
         <Setter Property="CornerRadius" Value="1"/>
@@ -118,18 +42,23 @@
     <Style x:Key="HudPanel" TargetType="ContentControl">
         <Setter Property="Foreground" Value="#E2DEC9"/>
         <Setter Property="Background" Value="{DynamicResource PanelGradient}"/>
-        <Setter Property="BorderBrush" Value="#877440"/>
+        <Setter Property="BorderBrush" Value="#887540"/>
         <Setter Property="BorderThickness" Value="2"/>
         <Setter Property="Padding" Value="12"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ContentControl">
-                    <Grid>
-                        <Border Margin="3,4,0,0" Background="#A0000000"/>
-                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1" Padding="{TemplateBinding Padding}">
+                    <Grid SnapsToDevicePixels="True">
+                        <Border Margin="4,5,0,0" Background="#B0000000"/>
+                        <Border Background="{TemplateBinding Background}" BorderBrush="#302D20" BorderThickness="6" CornerRadius="1"/>
+                        <Border Margin="4" Background="Transparent" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2" CornerRadius="1"/>
+                        <Border Margin="8" Background="#B5070905" BorderBrush="#413C28" BorderThickness="1" Padding="{TemplateBinding Padding}">
                             <Grid>
-                                <Rectangle Margin="3" Stroke="#403B27" StrokeThickness="1"/>
-                                <ContentPresenter Margin="3"/>
+                                <ContentPresenter Margin="1"/>
+                                <Ellipse Width="6" Height="6" Fill="#17170F" Stroke="#9A8550" StrokeThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-6,-6,0,0"/>
+                                <Ellipse Width="6" Height="6" Fill="#17170F" Stroke="#9A8550" StrokeThickness="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-6,-6,0"/>
+                                <Ellipse Width="6" Height="6" Fill="#17170F" Stroke="#9A8550" StrokeThickness="1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-6,0,0,-6"/>
+                                <Ellipse Width="6" Height="6" Fill="#17170F" Stroke="#9A8550" StrokeThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-6,-6"/>
                             </Grid>
                         </Border>
                     </Grid>
@@ -152,19 +81,14 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Grid SnapsToDevicePixels="True">
-                        <Border x:Name="Shadow" Margin="3,4,0,0" Background="#B0000000" CornerRadius="1"/>
-                        <Border x:Name="Outer" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1"/>
-                        <Border x:Name="Inner" Margin="5" BorderBrush="#675B36" BorderThickness="1"/>
+                        <Border Margin="3,4,0,0" Background="#B0000000"/>
+                        <Border x:Name="Outer" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"/>
+                        <Border Margin="5" BorderBrush="#675B36" BorderThickness="1"/>
                         <Rectangle Height="2" Fill="#A0C69535" VerticalAlignment="Top" Margin="11,3,11,0"/>
-                        <Ellipse Width="5" Height="5" Fill="#17170F" Stroke="#A08C50" StrokeThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,6,0,0"/>
-                        <Ellipse Width="5" Height="5" Fill="#17170F" Stroke="#A08C50" StrokeThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,6,6"/>
                         <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}"/>
                     </Grid>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Outer" Property="BorderBrush" Value="#D49A2E"/>
-                            <Setter TargetName="Outer" Property="Effect" Value="{DynamicResource AmberGlow}"/>
-                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Outer" Property="BorderBrush" Value="#D49A2E"/></Trigger>
                         <Trigger Property="IsPressed" Value="True"><Setter TargetName="Outer" Property="Margin" Value="2,3,0,0"/></Trigger>
                         <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Outer" Property="Opacity" Value="0.38"/></Trigger>
                     </ControlTemplate.Triggers>
@@ -173,19 +97,10 @@
         </Setter>
     </Style>
 
-    <Style x:Key="PrimaryActionButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="MinHeight" Value="40"/><Setter Property="BorderBrush" Value="#9A8244"/><Setter Property="HorizontalAlignment" Value="Stretch"/>
-    </Style>
-    <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Background" Value="{DynamicResource RedButtonBackground}"/><Setter Property="BorderBrush" Value="#A14C38"/>
-    </Style>
-    <Style x:Key="WindowButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Width" Value="34"/><Setter Property="Height" Value="28"/><Setter Property="MinWidth" Value="34"/><Setter Property="MinHeight" Value="28"/><Setter Property="Padding" Value="0"/>
-    </Style>
-    <Style x:Key="ModuleAmberButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Width" Value="140"/><Setter Property="Height" Value="40"/><Setter Property="Background" Value="{DynamicResource AmberButtonBackground}"/><Setter Property="BorderBrush" Value="#BE8425"/><Setter Property="FontSize" Value="9.6"/>
-    </Style>
-
+    <Style x:Key="PrimaryActionButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="MinHeight" Value="40"/><Setter Property="BorderBrush" Value="#9A8244"/><Setter Property="HorizontalAlignment" Value="Stretch"/></Style>
+    <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Background" Value="{DynamicResource RedButtonBackground}"/><Setter Property="BorderBrush" Value="#A14C38"/></Style>
+    <Style x:Key="WindowButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Width" Value="34"/><Setter Property="Height" Value="28"/><Setter Property="MinWidth" Value="34"/><Setter Property="MinHeight" Value="28"/><Setter Property="Padding" Value="0"/></Style>
+    <Style x:Key="ModuleAmberButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Width" Value="140"/><Setter Property="Height" Value="40"/><Setter Property="Background" Value="{DynamicResource AmberButtonBackground}"/><Setter Property="BorderBrush" Value="#BE8425"/><Setter Property="FontSize" Value="9.6"/></Style>
     <Style x:Key="AmberButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Background" Value="{DynamicResource AmberButtonBackground}"/><Setter Property="BorderBrush" Value="#C78B26"/></Style>
     <Style x:Key="BlueButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="BorderBrush" Value="#768650"/></Style>
     <Style x:Key="RedButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Background" Value="{DynamicResource RedButtonBackground}"/><Setter Property="BorderBrush" Value="#A9533A"/></Style>
@@ -196,8 +111,8 @@
     <Style x:Key="AmberModuleButton" TargetType="Button" BasedOn="{StaticResource ModuleButton}"><Setter Property="Background" Value="{DynamicResource AmberButtonBackground}"/><Setter Property="BorderBrush" Value="#B97B22"/></Style>
 
     <Style TargetType="TextBox"><Setter Property="Foreground" Value="#D8DFC1"/><Setter Property="Background" Value="#F0080A06"/><Setter Property="BorderBrush" Value="#71623B"/><Setter Property="BorderThickness" Value="2"/><Setter Property="CaretBrush" Value="#B9D36D"/><Setter Property="Padding" Value="9,7"/></Style>
-    <Style TargetType="ComboBox"><Setter Property="Foreground" Value="#E6E2D4"/><Setter Property="Background" Value="#1A1B12"/><Setter Property="BorderBrush" Value="#7B6A3F"/><Setter Property="BorderThickness" Value="2"/><Setter Property="Padding" Value="8,6"/></Style>
-    <Style TargetType="ProgressBar"><Setter Property="Background" Value="#080A06"/><Setter Property="BorderBrush" Value="#5E5739"/><Setter Property="BorderThickness" Value="2"/><Setter Property="Height" Value="13"/></Style>
+    <Style TargetType="ComboBox"><Setter Property="Foreground" Value="#E6E2D4"/><Setter Property="Background" Value="#1A1B12"/><Setter Property="BorderBrush" Value="#7B6A3F"/><Setter Property="BorderThickness" Value="2"/></Style>
+    <Style TargetType="ProgressBar"><Setter Property="Background" Value="#080A06"/><Setter Property="Foreground" Value="#50B95B"/><Setter Property="BorderBrush" Value="#5E5739"/><Setter Property="BorderThickness" Value="2"/><Setter Property="Height" Value="13"/></Style>
     <Style TargetType="ScrollBar"><Setter Property="Background" Value="#12140D"/><Setter Property="Foreground" Value="#8FA35D"/><Setter Property="Width" Value="15"/></Style>
     <Style TargetType="ListBoxItem"><Setter Property="Foreground" Value="#D9DDC9"/><Setter Property="Background" Value="Transparent"/><Setter Property="Padding" Value="6,4"/><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#55342A18"/></Trigger><Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="#80523B1B"/></Trigger></Style.Triggers></Style>
 </ResourceDictionary>
