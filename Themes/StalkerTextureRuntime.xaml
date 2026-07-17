@@ -21,7 +21,7 @@
                 <GeometryDrawing Brush="#3E2918" Geometry="M30,35 C145,2 235,66 360,28 C475,-8 585,55 710,24 C815,-2 905,41 970,23 L970,72 C860,97 752,55 645,88 C520,126 410,64 294,104 C178,143 91,87 30,112 Z"/>
                 <GeometryDrawing Brush="#192113" Geometry="M36,305 C190,267 330,335 470,294 C615,252 760,329 964,284 L964,360 C814,396 675,343 535,384 C375,430 210,360 36,411 Z"/>
                 <GeometryDrawing Geometry="M42,142 L950,118 M75,492 L920,528 M126,52 L94,566 M838,44 L888,570 M390,38 L355,585 M690,61 L725,570">
-                    <GeometryDrawing.Pen><Pen Brush="#675F42" Thickness="1.4" DashStyle="Dash"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#675F42" Thickness="1.4"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <GeometryDrawing Geometry="M28,172 H972 M28,438 H972">
                     <GeometryDrawing.Pen><Pen Brush="#8E793D" Thickness="3"/></GeometryDrawing.Pen>
