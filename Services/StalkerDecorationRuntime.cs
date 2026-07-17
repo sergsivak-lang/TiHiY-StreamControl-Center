@@ -112,7 +112,9 @@ internal static class StalkerDecorationRuntime
     private static Grid? FindCenterGrid(Window window)
     {
         var title = FindVisualChildren<TextBlock>(window)
-            .FirstOrDefault(text => string.Equals(text.Text, "СЛАВА УКРАЇНІ!", StringComparison.Ordinal));
+            .FirstOrDefault(text => (text.Text ?? string.Empty)
+                .Trim()
+                .StartsWith("СЛАВА УКРАЇНІ", StringComparison.OrdinalIgnoreCase));
         if (title is null) return null;
 
         DependencyObject? current = title;
@@ -121,7 +123,9 @@ internal static class StalkerDecorationRuntime
             current = VisualTreeHelper.GetParent(current);
             if (current is Grid grid &&
                 FindVisualChildren<TextBlock>(grid)
-                    .Any(text => string.Equals(text.Text, "ГЕРОЯМ СЛАВА!", StringComparison.Ordinal)))
+                    .Any(text => (text.Text ?? string.Empty)
+                        .Trim()
+                        .StartsWith("ГЕРОЯМ СЛАВА", StringComparison.OrdinalIgnoreCase)))
                 return grid;
         }
 
