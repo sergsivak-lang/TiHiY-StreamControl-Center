@@ -1,0 +1,7 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Raster-backed resource keys for the accepted STALKER sketch. The actual image files live in Assets/Themes/StalkerApproved. -->
+    <BitmapImage x:Key="StalkerApprovedHeaderImage" UriSource="/TiHiY.StreamControlCenter;component/Assets/Themes/StalkerApproved/header.jpg" CacheOption="OnLoad"/>
+    <BitmapImage x:Key="StalkerApprovedPanelImage" UriSource="/TiHiY.StreamControlCenter;component/Assets/Themes/StalkerApproved/panel-frame.jpg" CacheOption="OnLoad"/>
+    <ImageBrush x:Key="StalkerApprovedHeaderRasterBrush" ImageSource="{StaticResource StalkerApprovedHeaderImage}" Stretch="Fill"/>
+    <ImageBrush x:Key="StalkerApprovedPanelRasterBrush" ImageSource="{StaticResource StalkerApprovedPanelImage}" Stretch="Fill"/>
+</ResourceDictionary>
