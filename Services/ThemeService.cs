@@ -141,7 +141,7 @@ public sealed class ThemeService
         "Драйв" => "drive.png",
         "Неон" => "neon.png",
         "Військова" => "military_tactical.png",
-        "Україна" => "Ukraine/ukraine-main-background-premium.png",
+        "Україна" => null,
         "Синтвейв" => "synthwave.png",
         "Кіберпанк" => "cyberpunk.png",
         "Сталкер" => "stalker_zone.png",
@@ -150,39 +150,39 @@ public sealed class ThemeService
 
     private static string? ThemePanelTextureFile(string themeName) => themeName switch
     {
-        "Україна" => "Ukraine/ukraine-panel-premium.png",
+        "Україна" => null,
         _ => ThemeTextureFile(themeName)
     };
 
     private static string? ThemeSymbolFile(string themeName) => themeName switch
     {
         "Військова" => "military_symbol.png",
-        "Україна" => "Ukraine/ukraine-trident.png",
+        "Україна" => "UkraineExact/header-emblem.png",
         "Сталкер" => "stalker_symbol.png",
         _ => null
     };
 
     private static string? ThemeOrnamentFile(string themeName) => themeName switch
     {
-        "Україна" => "Ukraine/ukraine-header-premium.png",
+        "Україна" => "UkraineExact/header-wheat.png",
         _ => null
     };
 
     private static string? ThemeCornerFile(string themeName) => themeName switch
     {
-        "Україна" => "Ukraine/ukraine-corner-premium.png",
+        "Україна" => "UkraineExact/panel-corner.png",
         _ => null
     };
 
     private static string? ThemeWheatFile(string themeName) => themeName switch
     {
-        "Україна" => "Ukraine/ukraine-wheat.png",
+        "Україна" => "UkraineExact/small-wheat.png",
         _ => null
     };
 
     private static string? ThemeMapFile(string themeName) => themeName switch
     {
-        "Україна" => "Ukraine/ukraine-map.png",
+        "Україна" => "UkraineExact/header-map.png",
         _ => null
     };
 
@@ -199,12 +199,11 @@ public sealed class ThemeService
 
         if (theme.Name == "Україна")
         {
-            // The approved Ukraine concept is a composed full-window background,
-            // not a repeated texture. Panels use a separate subtle seamless texture.
-            SetTextureBrush(resources, "WindowGradient", windowTexture,
-                opacity: 1.0, tile: false, fallback: theme.Palette.Bg0);
-            SetTextureBrush(resources, "PanelGradient", panelTexture!,
-                opacity: 0.34, tile: true, fallback: theme.Palette.Panel);
+            // The exact Ukraine UI is built from real WPF controls and dedicated
+            // ornament assets. Keep the surfaces as gradients instead of painting
+            // a screenshot or a full-window texture behind the functional controls.
+            SetGradient(resources, "WindowGradient", theme.Palette.Bg0, theme.Palette.WindowMid, theme.Palette.Bg1);
+            SetGradient(resources, "PanelGradient", theme.Palette.PanelTop, theme.Palette.Panel, theme.Palette.PanelBottom);
             return;
         }
 
@@ -232,7 +231,7 @@ public sealed class ThemeService
         SetImageResource(resources, "ThemeCornerImage", ThemeCornerFile(themeName));
         SetImageResource(resources, "ThemeWheatImage", ThemeWheatFile(themeName));
         SetImageResource(resources, "ThemeMapImage", ThemeMapFile(themeName));
-        FindDictionary(resources, "ThemePremiumAccentOpacity")["ThemePremiumAccentOpacity"] = themeName == "Україна" ? 0.72d : 0d;
+        FindDictionary(resources, "ThemePremiumAccentOpacity")["ThemePremiumAccentOpacity"] = themeName == "Україна" ? 1.0d : 0d;
     }
 
     private static ImageSource CreateTransparentImage()

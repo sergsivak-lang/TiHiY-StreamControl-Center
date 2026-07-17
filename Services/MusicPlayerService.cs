@@ -3,6 +3,13 @@ using TiHiY.StreamControlCenter.Models;
 
 namespace TiHiY.StreamControlCenter.Services;
 
+public enum MusicRepeatMode
+{
+    Off,
+    Track,
+    Playlist
+}
+
 public sealed class MusicPlayerService : IDisposable
 {
     private readonly MediaPlayer _player = new();
@@ -17,6 +24,7 @@ public sealed class MusicPlayerService : IDisposable
     public TimeSpan Duration => _player.NaturalDuration.HasTimeSpan ? _player.NaturalDuration.TimeSpan : TimeSpan.Zero;
     public double Volume { get => _player.Volume; set => _player.Volume = Math.Clamp(value, 0, 1); }
     public bool IsMuted { get => _player.IsMuted; set => _player.IsMuted = value; }
+    public MusicRepeatMode RepeatMode { get; set; } = MusicRepeatMode.Playlist;
 
     public event EventHandler? TrackChanged;
     public event EventHandler? PositionChanged;
@@ -24,7 +32,7 @@ public sealed class MusicPlayerService : IDisposable
 
     public MusicPlayerService()
     {
-        _player.MediaEnded += (_, _) => Next();
+        _player.MediaEnded += (_, _) => HandleMediaEnded();
         _player.MediaFailed += (_, e) => PlaybackError?.Invoke(this, e.ErrorException?.Message ?? "Помилка відтворення");
         _player.MediaOpened += (_, _) => TrackChanged?.Invoke(this, EventArgs.Empty);
         _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
@@ -42,6 +50,7 @@ public sealed class MusicPlayerService : IDisposable
             Playlist.Add(TrackItem.FromPath(file));
         }
     }
+
     public void Play(int index)
     {
         if (index < 0 || index >= Playlist.Count) return;
@@ -51,15 +60,45 @@ public sealed class MusicPlayerService : IDisposable
         _isPaused = false;
         TrackChanged?.Invoke(this, EventArgs.Empty);
     }
+
     public void PlayOrPause()
     {
-        if (_player.Source is null) { if (Playlist.Count > 0) Play(_currentIndex >= 0 ? _currentIndex : 0); return; }
-        if (_isPaused) { _player.Play(); _isPaused = false; } else { _player.Pause(); _isPaused = true; }
+        if (_player.Source is null)
+        {
+            if (Playlist.Count > 0) Play(_currentIndex >= 0 ? _currentIndex : 0);
+            return;
+        }
+
+        if (_isPaused)
+        {
+            _player.Play();
+            _isPaused = false;
+        }
+        else
+        {
+            _player.Pause();
+            _isPaused = true;
+        }
         TrackChanged?.Invoke(this, EventArgs.Empty);
     }
-    public void Next() { if (Playlist.Count > 0) Play((_currentIndex + 1 + Playlist.Count) % Playlist.Count); }
-    public void Previous() { if (Playlist.Count > 0) Play((_currentIndex - 1 + Playlist.Count) % Playlist.Count); }
-    public void Stop() { _player.Stop(); _isPaused = false; TrackChanged?.Invoke(this, EventArgs.Empty); }
+
+    public void Next()
+    {
+        if (Playlist.Count > 0) Play((_currentIndex + 1 + Playlist.Count) % Playlist.Count);
+    }
+
+    public void Previous()
+    {
+        if (Playlist.Count > 0) Play((_currentIndex - 1 + Playlist.Count) % Playlist.Count);
+    }
+
+    public void Stop()
+    {
+        _player.Stop();
+        _isPaused = true;
+        TrackChanged?.Invoke(this, EventArgs.Empty);
+    }
+
     public void Remove(TrackItem? item)
     {
         if (item is null) return;
@@ -69,5 +108,41 @@ public sealed class MusicPlayerService : IDisposable
         Playlist.RemoveAt(index);
         if (_currentIndex >= Playlist.Count) _currentIndex = Playlist.Count - 1;
     }
-    public void Dispose() { _timer.Stop(); _player.Close(); }
+
+    public static MusicRepeatMode ParseRepeatMode(string? value) =>
+        Enum.TryParse<MusicRepeatMode>(value, true, out var mode) ? mode : MusicRepeatMode.Playlist;
+
+    private void HandleMediaEnded()
+    {
+        if (Playlist.Count == 0)
+        {
+            Stop();
+            return;
+        }
+
+        switch (RepeatMode)
+        {
+            case MusicRepeatMode.Track:
+                if (_currentIndex >= 0)
+                    Play(_currentIndex);
+                break;
+
+            case MusicRepeatMode.Off:
+                if (_currentIndex >= 0 && _currentIndex + 1 < Playlist.Count)
+                    Play(_currentIndex + 1);
+                else
+                    Stop();
+                break;
+
+            default:
+                Next();
+                break;
+        }
+    }
+
+    public void Dispose()
+    {
+        _timer.Stop();
+        _player.Close();
+    }
 }

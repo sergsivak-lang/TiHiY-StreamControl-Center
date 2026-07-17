@@ -116,6 +116,23 @@ public partial class MainWindow : Window
             layout.DashboardLayoutVersion = 18;
             _services.Save();
         }
+        if (layout.DashboardLayoutVersion < 19)
+        {
+            // v1.0.5.3: еталонний український макет. Старі ручні перестановки
+            // несумісні з об'єднаним блоком донатів і сповіщень, тому скидаємо їх один раз.
+            layout.MainLeftColumnWidth = 1.02;
+            layout.MainBottomLeftColumnWidth = 1.02;
+            layout.MainTopRowHeight = 1.42;
+            layout.FooterHeight = 145;
+            layout.FooterSystemColumnWeight = 0.32;
+            layout.FooterEventsColumnWeight = 0.50;
+            layout.FooterMonitorColumnWeight = 0.18;
+            layout.DashboardBlockSlots.Clear();
+            layout.UiScaleAuto = true;
+            layout.UiScalePercent = 100;
+            layout.DashboardLayoutVersion = 19;
+            _services.Save();
+        }
         RestoreDashboardLayout(layout);
         RestoreDashboardBlockSlots();
         ApplyScale();
@@ -862,7 +879,7 @@ public partial class MainWindow : Window
             settings.FooterEventsColumnWeight = FooterEventsColumn.ActualWidth / footerTotal;
             settings.FooterMonitorColumnWeight = FooterMonitorColumn.ActualWidth / footerTotal;
         }
-        settings.DashboardLayoutVersion = 17;
+        settings.DashboardLayoutVersion = 19;
         if (saveToDisk)
         {
             try { _services.Save(); } catch { }
@@ -1045,7 +1062,8 @@ public partial class MainWindow : Window
         // default layout baseline. Fonts, icons, buttons, sliders and pixel GridLength
         // values therefore follow the block while GridSplitter changes its size.
         _responsiveBlocks.Add(ResponsiveBlockService.Attach(ChatBlockPanel, 0.35, 1.20));
-        _responsiveBlocks.Add(ResponsiveBlockService.Attach(NotificationsBlockPanel, 0.34, 1.22));
+        // NotificationsBlockPanel is nested inside DonationsBlockPanel in the Ukraine Exact layout.
+        // Scaling the parent is sufficient and avoids applying a second transform to the inner panel.
         _responsiveBlocks.Add(ResponsiveBlockService.Attach(DonationsBlockPanel, 0.32, 1.20));
         _responsiveBlocks.Add(ResponsiveBlockService.Attach(MixerBlockPanel, 0.34, 1.22));
         _responsiveBlocks.Add(ResponsiveBlockService.Attach(SystemStatusBlockPanel, 0.42, 1.28));
