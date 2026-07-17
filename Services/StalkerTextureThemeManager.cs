@@ -77,6 +77,15 @@ public static class StalkerTextureThemeManager
 
         foreach (Window window in app.Windows)
         {
+            // MainWindow now has the approved STALKER composition directly in XAML.
+            // Applying the legacy overlay here would duplicate and crop the header.
+            if (window is TiHiY.StreamControlCenter.MainWindow)
+            {
+                if (PreviousWindowStyles.TryGetValue(window, out var previous))
+                    window.Style = previous;
+                continue;
+            }
+
             if (!PreviousWindowStyles.ContainsKey(window))
                 PreviousWindowStyles[window] = window.Style;
             if (!ReferenceEquals(window.Style, style))
