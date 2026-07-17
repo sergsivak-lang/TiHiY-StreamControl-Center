@@ -1,0 +1,52 @@
+name: STALKER Preview
+
+on:
+  push:
+    branches: [ "feature/stalker-theme-ci-preview" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore and build
+        run: |
+          dotnet restore TiHiY.StreamControlCenter.sln
+          dotnet build TiHiY.StreamControlCenter.sln --configuration Release --no-restore
+
+      - name: Publish Windows app
+        run: dotnet publish TiHiY.StreamControlCenter.csproj --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=false --output publish
+
+      - name: Launch real app and capture STALKER main window
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path preview | Out-Null
+          $exe = (Resolve-Path "publish/TiHiY.StreamControlCenter.exe").Path
+          $shot = Join-Path $PWD "preview/TiHiY-StreamControl-Center-STALKER.png"
+          $process = Start-Process -FilePath $exe -WorkingDirectory (Split-Path $exe) -ArgumentList @("--ci-screenshot=$shot", "--ci-theme=Сталкер") -PassThru -Wait
+          if ($process.ExitCode -ne 0) { throw "Application exited with code $($process.ExitCode)." }
+          if (-not (Test-Path $shot)) { throw "STALKER screenshot was not created." }
+
+      - name: Upload STALKER screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: TiHiY-StreamControl-Center-STALKER-Screenshot
+          path: preview/**
+          if-no-files-found: error
+
+      - name: Upload Windows program
+        uses: actions/upload-artifact@v4
+        with:
+          name: TiHiY-StreamControl-Center-STALKER-win-x64
+          path: publish/**
