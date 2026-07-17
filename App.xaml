@@ -10,6 +10,8 @@
                 <ResourceDictionary Source="Themes/UkraineReference.xaml"/>
                 <!-- Isolated resources only. ThemeService activates them only when "Сталкер" is selected. -->
                 <ResourceDictionary Source="Themes/StalkerReference.xaml"/>
+                <!-- Full textured artwork pass: metal, rust, scratches, bolts and hazard markings. -->
+                <ResourceDictionary Source="Themes/StalkerTextureOverrides.xaml"/>
                 <ResourceDictionary Source="Localization/Strings.uk-UA.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
