@@ -221,7 +221,7 @@ internal static class StalkerDecorationRuntime
             VerticalAlignment = VerticalAlignment.Center,
             Margin = new Thickness(5, 0, 0, 0)
         };
-        emblem.Children.Add(new Path
+        emblem.Children.Add(new System.Windows.Shapes.Path
         {
             Data = Geometry.Parse("M8,68 L59,8 L110,68 Z"),
             Fill = new SolidColorBrush(Color.FromArgb(205, 29, 31, 22)),
