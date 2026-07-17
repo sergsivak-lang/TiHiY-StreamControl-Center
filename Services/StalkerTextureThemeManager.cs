@@ -54,7 +54,13 @@ public static class StalkerTextureThemeManager
         InstallPrimary(resources, "AmberButtonGradient", _textureDictionary["AmberButtonBackground"]);
 
         foreach (var key in _controlDictionary!.Keys)
+        {
+            // The approved MainWindow owns its complete frame and composition.
+            // Installing the old implicit Window style wraps it in a second shell,
+            // adds large margins and destroys the approved proportions.
+            if (key is Type type && type == typeof(Window)) continue;
             InstallPrimary(resources, key, _controlDictionary[key]);
+        }
 
         if (!_activationHooked)
         {
