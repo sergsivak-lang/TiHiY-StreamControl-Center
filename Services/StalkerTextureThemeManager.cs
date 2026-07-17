@@ -43,8 +43,6 @@ public static class StalkerTextureThemeManager
             return;
         }
 
-        ApplyApprovedDashboardProportions();
-
         Add(resources, ref _textureDictionary, TextureSourceUri);
         Add(resources, ref _windowSkinDictionary, WindowSkinSourceUri);
         Add(resources, ref _controlDictionary, ControlSourceUri);
@@ -69,25 +67,6 @@ public static class StalkerTextureThemeManager
         ApplyOverlayToOpenWindows();
     }
 
-    private static void ApplyApprovedDashboardProportions()
-    {
-        try
-        {
-            var settings = TiHiY.StreamControlCenter.App.Services?.Settings.Value;
-            if (settings is null) return;
-
-            settings.FooterSystemColumnWeight = 0.35;
-            settings.FooterEventsColumnWeight = 0.29;
-            settings.FooterMonitorColumnWeight = 0.36;
-            settings.MainLeftColumnWidth = 1.03;
-            settings.MainTopRowHeight = 1.14;
-        }
-        catch
-        {
-            // Theme application must never prevent startup.
-        }
-    }
-
     private static void ApplyApprovedMainWindowLayout(TiHiY.StreamControlCenter.MainWindow main)
     {
         try
@@ -110,7 +89,7 @@ public static class StalkerTextureThemeManager
         }
         catch
         {
-            // Layout correction is visual only and must not interrupt the app.
+            // Theme-specific layout correction must never interrupt the app.
         }
     }
 
