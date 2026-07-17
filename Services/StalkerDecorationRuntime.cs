@@ -5,7 +5,7 @@ namespace TiHiY.StreamControlCenter.Services;
 internal static class StalkerDecorationRuntime
 {
     private static readonly ConditionalWeakTable<Image, ImageState> ImageStates = new();
-    private static readonly Dictionary<Grid, FrameworkElement> CenterOverlays = new();
+    private static readonly ConditionalWeakTable<ContentControl, CenterContentState> CenterStates = new();
     private static DispatcherTimer? _timer;
 
     [ModuleInitializer]
@@ -62,13 +62,14 @@ internal static class StalkerDecorationRuntime
                     image.Opacity = 0;
                     image.Visibility = Visibility.Hidden;
                 }
-                EnsureCenterOverlay(ukraineImages);
+
+                ReplaceFooterCenter(window);
             }
             else
             {
                 foreach (var image in ukraineImages)
                     RestoreImage(image);
-                RemoveOverlays(window);
+                RestoreFooterCenter(window);
             }
         }
     }
@@ -79,30 +80,38 @@ internal static class StalkerDecorationRuntime
         return source.Contains("UkraineExact", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static void EnsureCenterOverlay(IReadOnlyList<Image> images)
+    private static void ReplaceFooterCenter(Window window)
     {
-        var candidate = images
-            .Where(x => x.Parent is Grid)
-            .OrderByDescending(x => Math.Max(x.ActualWidth, x.Width) * Math.Max(x.ActualHeight, x.Height))
-            .FirstOrDefault();
-        if (candidate?.Parent is not Grid parent || CenterOverlays.ContainsKey(parent)) return;
+        if (window.FindName("FooterBlocksGrid") is not Grid footer) return;
 
-        var overlay = BuildOverlay();
-        Grid.SetRow(overlay, Grid.GetRow(candidate));
-        Grid.SetColumn(overlay, Grid.GetColumn(candidate));
-        Grid.SetRowSpan(overlay, Grid.GetRowSpan(candidate));
-        Grid.SetColumnSpan(overlay, Grid.GetColumnSpan(candidate));
-        Panel.SetZIndex(overlay, Math.Max(20, Panel.GetZIndex(candidate) + 1));
-        parent.Children.Add(overlay);
-        CenterOverlays[parent] = overlay;
+        var center = footer.Children
+            .OfType<ContentControl>()
+            .FirstOrDefault(control => Grid.GetColumn(control) == 2);
+        if (center is null || CenterStates.TryGetValue(center, out _)) return;
+
+        CenterStates.Add(center, new CenterContentState(center.Content));
+        center.Content = BuildOverlay();
+    }
+
+    private static void RestoreFooterCenter(Window window)
+    {
+        if (window.FindName("FooterBlocksGrid") is not Grid footer) return;
+
+        var center = footer.Children
+            .OfType<ContentControl>()
+            .FirstOrDefault(control => Grid.GetColumn(control) == 2);
+        if (center is null || !CenterStates.TryGetValue(center, out var state)) return;
+
+        center.Content = state.Content;
+        CenterStates.Remove(center);
     }
 
     private static FrameworkElement BuildOverlay()
     {
         var frame = new Border
         {
-            Margin = new Thickness(3),
-            CornerRadius = new CornerRadius(3),
+            Margin = new Thickness(0),
+            CornerRadius = new CornerRadius(4),
             BorderThickness = new Thickness(2),
             BorderBrush = new SolidColorBrush(Color.FromRgb(151, 88, 28)),
             Background = CreateZoneBrush(),
@@ -156,10 +165,7 @@ internal static class StalkerDecorationRuntime
     {
         var group = new DrawingGroup();
         group.Children.Add(new GeometryDrawing(
-            new LinearGradientBrush(
-                Color.FromRgb(26, 25, 18),
-                Color.FromRgb(7, 9, 6),
-                90),
+            new LinearGradientBrush(Color.FromRgb(26, 25, 18), Color.FromRgb(7, 9, 6), 90),
             null,
             new RectangleGeometry(new Rect(0, 0, 1, 1))));
 
@@ -184,27 +190,6 @@ internal static class StalkerDecorationRuntime
         ImageStates.Remove(image);
     }
 
-    private static void RemoveOverlays(DependencyObject window)
-    {
-        foreach (var pair in CenterOverlays.ToList())
-        {
-            if (!IsDescendantOf(pair.Key, window)) continue;
-            pair.Key.Children.Remove(pair.Value);
-            CenterOverlays.Remove(pair.Key);
-        }
-    }
-
-    private static bool IsDescendantOf(DependencyObject element, DependencyObject ancestor)
-    {
-        DependencyObject? current = element;
-        while (current is not null)
-        {
-            if (ReferenceEquals(current, ancestor)) return true;
-            current = VisualTreeHelper.GetParent(current);
-        }
-        return false;
-    }
-
     private static IEnumerable<T> FindVisualChildren<T>(DependencyObject root) where T : DependencyObject
     {
         for (var index = 0; index < VisualTreeHelper.GetChildrenCount(root); index++)
@@ -216,4 +201,5 @@ internal static class StalkerDecorationRuntime
     }
 
     private sealed record ImageState(double Opacity, Visibility Visibility);
+    private sealed record CenterContentState(object? Content);
 }
