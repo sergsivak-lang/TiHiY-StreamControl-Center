@@ -18,7 +18,7 @@ internal static class StalkerCiRuntime
     {
         for (var attempt = 0; attempt < 300; attempt++)
         {
-            await Task.Delay(50).ConfigureAwait(false);
+            await Task.Delay(35).ConfigureAwait(false);
             var application = Application.Current;
             if (application is null) continue;
 
@@ -29,13 +29,13 @@ internal static class StalkerCiRuntime
                 if (!ready) continue;
 
                 await ApplyThemeAsync(application, "Україна", "CI roundtrip 1/4: Ukraine base restored.");
-                await Task.Delay(650).ConfigureAwait(false);
+                await Task.Delay(110).ConfigureAwait(false);
                 await ApplyThemeAsync(application, "Сталкер", "CI roundtrip 2/4: Stalker textures applied.");
-                await Task.Delay(650).ConfigureAwait(false);
+                await Task.Delay(110).ConfigureAwait(false);
                 await ApplyThemeAsync(application, "Україна", "CI roundtrip 3/4: Ukraine restored after Stalker.");
-                await Task.Delay(650).ConfigureAwait(false);
+                await Task.Delay(110).ConfigureAwait(false);
                 await ApplyThemeAsync(application, "Сталкер", "CI roundtrip 4/4: final Stalker capture state.");
-                await Task.Delay(900).ConfigureAwait(false);
+                await Task.Delay(260).ConfigureAwait(false);
                 return;
             }
             catch
