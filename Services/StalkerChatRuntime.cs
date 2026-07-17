@@ -3,18 +3,16 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using System.Windows.Controls;
-using System.Windows.Data;
+using System.Windows.Markup;
 using System.Windows.Media;
-using TiHiY.StreamControlCenter.Controls;
 using TiHiY.StreamControlCenter.Models;
 
 namespace TiHiY.StreamControlCenter.Services;
 
 /// <summary>
 /// Isolated runtime integration for the optional Stalker theme and rich chat.
-/// It does not modify the Ukraine layout and restores original local values
-/// whenever another theme becomes active.
+/// The Ukraine layout remains untouched and all local values are restored when
+/// another theme is selected.
 /// </summary>
 internal static class StalkerChatRuntime
 {
@@ -61,7 +59,7 @@ internal static class StalkerChatRuntime
             }
             catch
             {
-                // Services can still be under construction. Retry without affecting startup.
+                // AppServices can still be under construction. Retry silently.
             }
         }
     }
@@ -69,13 +67,17 @@ internal static class StalkerChatRuntime
     private static void Twitch_MessageReceived(object? sender, ChatMessage message)
     {
         if (!message.Platform.Equals("TWITCH", StringComparison.OrdinalIgnoreCase) ||
-            string.IsNullOrWhiteSpace(message.Text) || TwitchEmotes.Count == 0)
+            string.IsNullOrWhiteSpace(message.Text))
             return;
 
         var found = new List<ChatEmote>();
         foreach (Match match in Regex.Matches(message.Text, @"\S+", RegexOptions.CultureInvariant))
         {
-            if (!TwitchEmotes.TryGetValue(match.Value, out var definition)) continue;
+            EmoteDefinition? definition;
+            lock (TwitchEmotes)
+                TwitchEmotes.TryGetValue(match.Value, out definition);
+            if (definition is null) continue;
+
             found.Add(new ChatEmote
             {
                 Platform = "TWITCH",
@@ -136,8 +138,7 @@ internal static class StalkerChatRuntime
         using var response = await Http.SendAsync(request).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode) return;
 
-        var body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-        var root = JsonNode.Parse(body)?.AsObject();
+        var root = JsonNode.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false))?.AsObject();
         if (root?["data"] is not JsonArray data) return;
         var template = root["template"]?.GetValue<string>() ?? string.Empty;
 
@@ -198,71 +199,39 @@ internal static class StalkerChatRuntime
     private static void InstallMainChatTemplate(Window window)
     {
         if (window.FindName("MainChatList") is not ListBox list || Equals(list.Tag, "RichChatInstalled")) return;
-        list.ItemTemplate = BuildMainChatTemplate();
-        list.Tag = "RichChatInstalled";
-    }
-
-    private static DataTemplate BuildMainChatTemplate()
-    {
-        var template = new DataTemplate(typeof(ChatMessage));
-        var root = new FrameworkElementFactory(typeof(Border));
-        root.SetBinding(Border.BackgroundProperty, new Binding(nameof(ChatMessage.Background)));
-        root.SetValue(Border.PaddingProperty, new Thickness(3, 5, 3, 5));
-
-        var grid = new FrameworkElementFactory(typeof(Grid));
-        grid.AppendChild(CreateColumnDefinitions());
-        root.AppendChild(grid);
-
-        var time = new FrameworkElementFactory(typeof(TextBlock));
-        time.SetBinding(TextBlock.TextProperty, new Binding(nameof(ChatMessage.DisplayTime)));
-        time.SetValue(TextBlock.ForegroundProperty, new SolidColorBrush(Color.FromRgb(0x71, 0x89, 0x9C)));
-        time.SetValue(TextBlock.FontFamilyProperty, new FontFamily("Consolas"));
-        time.SetValue(TextBlock.FontSizeProperty, 11d);
-        grid.AppendChild(time);
-
-        var platform = new FrameworkElementFactory(typeof(Border));
-        platform.SetValue(Grid.ColumnProperty, 1);
-        platform.SetValue(FrameworkElement.WidthProperty, 21d);
-        platform.SetValue(FrameworkElement.HeightProperty, 21d);
-        platform.SetValue(Border.CornerRadiusProperty, new CornerRadius(3));
-        platform.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Left);
-        platform.SetBinding(Border.BackgroundProperty, new Binding(nameof(ChatMessage.PlatformColor)));
-        var icon = new FrameworkElementFactory(typeof(Image));
-        icon.SetBinding(Image.SourceProperty, new Binding(nameof(ChatMessage.PlatformIconPath)));
-        icon.SetValue(FrameworkElement.MarginProperty, new Thickness(2));
-        platform.AppendChild(icon);
-        grid.AppendChild(platform);
-
-        var user = new FrameworkElementFactory(typeof(TextBlock));
-        user.SetValue(Grid.ColumnProperty, 2);
-        user.SetBinding(TextBlock.TextProperty, new Binding(nameof(ChatMessage.User)));
-        user.SetBinding(TextBlock.ForegroundProperty, new Binding(nameof(ChatMessage.Foreground)));
-        user.SetValue(TextBlock.FontWeightProperty, FontWeights.Bold);
-        user.SetValue(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis);
-        grid.AppendChild(user);
-
-        var rich = new FrameworkElementFactory(typeof(RichChatTextBlock));
-        rich.SetValue(Grid.ColumnProperty, 3);
-        rich.SetBinding(RichChatTextBlock.MessageProperty, new Binding());
-        rich.SetValue(RichChatTextBlock.MessageBrushProperty, new SolidColorBrush(Color.FromRgb(0xDC, 0xE9, 0xF3)));
-        rich.SetValue(RichChatTextBlock.HighlightBrushProperty, new SolidColorBrush(Color.FromRgb(0xFF, 0xD3, 0x29)));
-        rich.SetValue(RichChatTextBlock.EmoteSizeProperty, 21d);
-        grid.AppendChild(rich);
-
-        template.VisualTree = root;
-        return template;
-    }
-
-    private static FrameworkElementFactory CreateColumnDefinitions()
-    {
-        var holder = new FrameworkElementFactory(typeof(Grid));
-        holder.SetValue(FrameworkElement.VisibilityProperty, Visibility.Collapsed);
-        // FrameworkElementFactory cannot append ColumnDefinition directly to Grid.ColumnDefinitions.
-        // The real columns are installed by the Loaded handler below through the Grid style.
-        var style = new Style(typeof(Grid));
-        style.Setters.Add(new Setter(Grid.TagProperty, "RichChatGrid"));
-        holder.SetValue(FrameworkElement.StyleProperty, style);
-        return holder;
+        try
+        {
+            const string xaml = """
+                <DataTemplate xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                              xmlns:models="clr-namespace:TiHiY.StreamControlCenter.Models;assembly=TiHiY.StreamControlCenter"
+                              xmlns:controls="clr-namespace:TiHiY.StreamControlCenter.Controls;assembly=TiHiY.StreamControlCenter"
+                              DataType="{x:Type models:ChatMessage}">
+                    <Border Background="{Binding Background}" Padding="3,5">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="76"/>
+                                <ColumnDefinition Width="32"/>
+                                <ColumnDefinition Width="145"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding DisplayTime}" Foreground="#71899C" FontFamily="Consolas" FontSize="11"/>
+                            <Border Grid.Column="1" Width="21" Height="21" CornerRadius="3" Background="{Binding PlatformColor}" HorizontalAlignment="Left">
+                                <Image Source="{Binding PlatformIconPath}" Margin="2"/>
+                            </Border>
+                            <TextBlock Grid.Column="2" Text="{Binding User}" Foreground="{Binding Foreground}" FontWeight="Bold" TextTrimming="CharacterEllipsis"/>
+                            <controls:RichChatTextBlock Grid.Column="3" Message="{Binding}" MessageBrush="#DCE9F3" HighlightBrush="#FFD329" EmoteSize="21"/>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+                """;
+            list.ItemTemplate = (DataTemplate)XamlReader.Parse(xaml);
+            list.Tag = "RichChatInstalled";
+        }
+        catch (Exception ex)
+        {
+            try { App.Services.Logger.Error("Rich-chat template", ex); } catch { }
+        }
     }
 
     private static void ApplyWindowTheme(Window window, bool stalker)
@@ -273,10 +242,16 @@ internal static class StalkerChatRuntime
             Remember(window);
             if (window.TryFindResource("StalkerWindowBrush") is Brush windowBrush)
                 window.Background = windowBrush;
+            if (FindVisualChild<Border>(window) is { } rootBorder)
+            {
+                Remember(rootBorder);
+                rootBorder.Background = windowBrush;
+            }
         }
         else
         {
             Restore(window);
+            if (FindVisualChild<Border>(window) is { } rootBorder) Restore(rootBorder);
         }
 
         ApplyElementTheme(window, stalker);
@@ -314,12 +289,6 @@ internal static class StalkerChatRuntime
             Remember(element);
             element.SetResourceReference(FrameworkElement.StyleProperty, styleKey);
         }
-
-        if (element is Border border && IsWindowRootBorder(border) && element.TryFindResource("StalkerWindowBrush") is Brush brush)
-        {
-            Remember(element);
-            border.Background = brush;
-        }
     }
 
     private static bool IsDashboardPanel(ContentControl control) =>
@@ -327,20 +296,30 @@ internal static class StalkerChatRuntime
         control.Name is "SystemStatusBlockPanel" or "SystemMonitorPanel";
 
     private static bool IsDangerButton(Button button) =>
-        button.Name.Contains("Close", StringComparison.OrdinalIgnoreCase) ||
-        button.Content?.ToString() == "×";
+        button.Name.Contains("Close", StringComparison.OrdinalIgnoreCase) || button.Content?.ToString() == "×";
 
-    private static bool IsWindowRootBorder(Border border) => border.Parent is Grid && border.TemplatedParent is null;
+    private static T? FindVisualChild<T>(DependencyObject root) where T : DependencyObject
+    {
+        for (var index = 0; index < VisualTreeHelper.GetChildrenCount(root); index++)
+        {
+            var child = VisualTreeHelper.GetChild(root, index);
+            if (child is T match) return match;
+            if (FindVisualChild<T>(child) is { } descendant) return descendant;
+        }
+        return null;
+    }
 
     private static void Remember(FrameworkElement element)
     {
         if (OriginalStates.TryGetValue(element, out _)) return;
-        OriginalStates.Add(element, new OriginalState(
-            element.ReadLocalValue(FrameworkElement.StyleProperty),
-            element is Control control ? control.ReadLocalValue(Control.BackgroundProperty) :
-            element is Panel panel ? panel.ReadLocalValue(Panel.BackgroundProperty) :
-            element is Border border ? border.ReadLocalValue(Border.BackgroundProperty) :
-            element is Window window ? window.ReadLocalValue(Window.BackgroundProperty) : DependencyProperty.UnsetValue));
+        var background = element switch
+        {
+            Control control => control.ReadLocalValue(Control.BackgroundProperty),
+            Panel panel => panel.ReadLocalValue(Panel.BackgroundProperty),
+            Border border => border.ReadLocalValue(Border.BackgroundProperty),
+            _ => DependencyProperty.UnsetValue
+        };
+        OriginalStates.Add(element, new OriginalState(element.ReadLocalValue(FrameworkElement.StyleProperty), background));
     }
 
     private static void Restore(FrameworkElement element)
@@ -352,7 +331,6 @@ internal static class StalkerChatRuntime
             case Control control: RestoreValue(control, Control.BackgroundProperty, state.Background); break;
             case Panel panel: RestoreValue(panel, Panel.BackgroundProperty, state.Background); break;
             case Border border: RestoreValue(border, Border.BackgroundProperty, state.Background); break;
-            case Window window: RestoreValue(window, Window.BackgroundProperty, state.Background); break;
         }
         OriginalStates.Remove(element);
     }
