@@ -24,20 +24,34 @@ internal static class StalkerCiRuntime
 
             try
             {
-                var applied = await application.Dispatcher.InvokeAsync(() =>
-                {
-                    if (App.Services is null || application.MainWindow is null) return false;
-                    App.Services.Theme.Apply("Сталкер", save: false);
-                    App.Services.Settings.Value.UiTheme = "Сталкер";
-                    App.Services.Logger.Info("CI: Stalker theme applied.");
-                    return true;
-                });
-                if (applied) return;
+                var ready = await application.Dispatcher.InvokeAsync(() =>
+                    App.Services is not null && application.MainWindow is not null && application.MainWindow.IsLoaded);
+                if (!ready) continue;
+
+                await ApplyThemeAsync(application, "Україна", "CI roundtrip 1/4: Ukraine base restored.");
+                await Task.Delay(650).ConfigureAwait(false);
+                await ApplyThemeAsync(application, "Сталкер", "CI roundtrip 2/4: Stalker textures applied.");
+                await Task.Delay(650).ConfigureAwait(false);
+                await ApplyThemeAsync(application, "Україна", "CI roundtrip 3/4: Ukraine restored after Stalker.");
+                await Task.Delay(650).ConfigureAwait(false);
+                await ApplyThemeAsync(application, "Сталкер", "CI roundtrip 4/4: final Stalker capture state.");
+                await Task.Delay(900).ConfigureAwait(false);
+                return;
             }
             catch
             {
                 // Startup is still constructing services or the main window.
             }
         }
+    }
+
+    private static async Task ApplyThemeAsync(Application application, string theme, string logMessage)
+    {
+        await application.Dispatcher.InvokeAsync(() =>
+        {
+            App.Services.Theme.Apply(theme, save: false);
+            App.Services.Settings.Value.UiTheme = theme;
+            App.Services.Logger.Info(logMessage);
+        }, DispatcherPriority.Send);
     }
 }
