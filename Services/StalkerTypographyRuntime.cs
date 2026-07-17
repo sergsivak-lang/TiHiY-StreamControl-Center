@@ -58,7 +58,7 @@ internal static class StalkerTypographyRuntime
                 if (!ShouldStyle(text)) continue;
                 Save(text);
                 text.FontFamily = Condensed;
-                text.TextOptions.TextFormattingMode = TextFormattingMode.Display;
+                TextOptions.SetTextFormattingMode(text, TextFormattingMode.Display);
 
                 if (text.FontSize >= 24)
                 {
@@ -132,5 +132,9 @@ internal static class StalkerTypographyRuntime
         }
     }
 
-    private sealed record TextState(FontFamily FontFamily, FontWeight FontWeight, Brush Foreground, Effect? Effect);
+    private sealed record TextState(
+        FontFamily FontFamily,
+        FontWeight FontWeight,
+        Brush Foreground,
+        System.Windows.Media.Effects.Effect? Effect);
 }
