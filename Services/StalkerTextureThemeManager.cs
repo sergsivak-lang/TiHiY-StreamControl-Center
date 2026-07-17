@@ -43,6 +43,8 @@ public static class StalkerTextureThemeManager
             return;
         }
 
+        ApplyApprovedDashboardProportions();
+
         Add(resources, ref _textureDictionary, TextureSourceUri);
         Add(resources, ref _windowSkinDictionary, WindowSkinSourceUri);
         Add(resources, ref _controlDictionary, ControlSourceUri);
@@ -55,9 +57,6 @@ public static class StalkerTextureThemeManager
 
         foreach (var key in _controlDictionary!.Keys)
         {
-            // The approved MainWindow owns its complete frame and composition.
-            // Installing the old implicit Window style wraps it in a second shell,
-            // adds large margins and destroys the approved proportions.
             if (key is Type type && type == typeof(Window)) continue;
             InstallPrimary(resources, key, _controlDictionary[key]);
         }
@@ -68,6 +67,26 @@ public static class StalkerTextureThemeManager
             _activationHooked = true;
         }
         ApplyOverlayToOpenWindows();
+    }
+
+    private static void ApplyApprovedDashboardProportions()
+    {
+        try
+        {
+            var settings = TiHiY.StreamControlCenter.App.Services?.Settings.Value;
+            if (settings is null) return;
+
+            // Approved STALKER sketch: system ≈35%, center art ≈29%, monitor ≈36%.
+            settings.FooterSystemColumnWeight = 0.35;
+            settings.FooterEventsColumnWeight = 0.29;
+            settings.FooterMonitorColumnWeight = 0.36;
+            settings.MainLeftColumnWidth = 1.03;
+            settings.MainTopRowHeight = 1.14;
+        }
+        catch
+        {
+            // Theme application must never prevent startup.
+        }
     }
 
     private static void OnApplicationActivated(object? sender, EventArgs e)
@@ -83,8 +102,6 @@ public static class StalkerTextureThemeManager
 
         foreach (Window window in app.Windows)
         {
-            // MainWindow now has the approved STALKER composition directly in XAML.
-            // Applying the legacy overlay here would duplicate and crop the header.
             if (window is TiHiY.StreamControlCenter.MainWindow)
             {
                 if (PreviousWindowStyles.TryGetValue(window, out var previous))
