@@ -1,0 +1,115 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style x:Key="StalkerWindowOverlayStyle" TargetType="Window">
+        <Setter Property="Background" Value="{DynamicResource WindowGradient}"/>
+        <Setter Property="Foreground" Value="#E6E2D4"/>
+        <Setter Property="FontFamily" Value="Bahnschrift, Segoe UI Semibold, Segoe UI"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Window">
+                    <Grid Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                        <Border Margin="3" BorderBrush="#171810" BorderThickness="8"/>
+                        <Border Margin="7" BorderBrush="#9B8548" BorderThickness="2"/>
+                        <Border Margin="11" BorderBrush="#3D3926" BorderThickness="2"/>
+                        <ContentPresenter Margin="13"/>
+
+                        <Border Width="620" Height="43" Margin="22,102,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                Background="#FB17180F" BorderBrush="#625837" BorderThickness="0,1,1,1" IsHitTestVisible="False">
+                            <Grid Margin="14,4,10,4">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Ellipse Width="9" Height="9" Fill="#7FAD53" Stroke="#B7D77B" StrokeThickness="1"/>
+                                    <TextBlock Text="  ZONE NETWORK ONLINE" Margin="3,0,0,0" FontSize="11" FontWeight="Bold" Foreground="#B8C994" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="SECTOR 07  •  BUNKER NODE TSC-01" FontSize="9.5" FontWeight="Bold" Foreground="#77745D" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <Grid Height="91" Margin="22,19,22,0" VerticalAlignment="Top" IsHitTestVisible="False">
+                            <Border Background="#F017180F" BorderBrush="#9D8748" BorderThickness="2" CornerRadius="2">
+                                <Grid>
+                                    <Rectangle Margin="6" Stroke="#4B472F" StrokeThickness="1"/>
+                                    <Rectangle Height="9" VerticalAlignment="Top" Margin="11,8,11,0">
+                                        <Rectangle.Fill>
+                                            <DrawingBrush TileMode="Tile" Viewport="0,0,34,9" ViewportUnits="Absolute">
+                                                <DrawingBrush.Drawing>
+                                                    <DrawingGroup>
+                                                        <GeometryDrawing Brush="#C39124" Geometry="M0,0 H20 L12,9 H0 Z"/>
+                                                        <GeometryDrawing Brush="#15150D" Geometry="M20,0 H34 V9 H12 Z"/>
+                                                    </DrawingGroup>
+                                                </DrawingBrush.Drawing>
+                                            </DrawingBrush>
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+                                    <StackPanel Margin="24,21,245,8" VerticalAlignment="Center">
+                                        <TextBlock Text="S.T.A.L.K.E.R." FontFamily="Bahnschrift Condensed, Impact" FontSize="32" FontWeight="Black" Foreground="#D4C78E">
+                                            <TextBlock.Effect><DropShadowEffect Color="#000000" BlurRadius="2" ShadowDepth="3" Opacity="0.95"/></TextBlock.Effect>
+                                        </TextBlock>
+                                        <TextBlock Text="TiHiY STREAM CONTROL CENTER  //  ZONE OPERATIONS TERMINAL" FontSize="10.5" FontWeight="Bold" Foreground="#9E9A78"/>
+                                    </StackPanel>
+                                    <Border Width="204" Height="47" HorizontalAlignment="Right" Margin="0,24,22,8" Background="#F00A0C08" BorderBrush="#827141" BorderThickness="2">
+                                        <Grid Margin="8,4">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <Grid Width="34" Height="34">
+                                                <Ellipse Fill="#14160D" Stroke="#C99B2F" StrokeThickness="2"/>
+                                                <TextBlock Text="☢" FontFamily="Segoe UI Symbol" FontSize="23" Foreground="#D5A52B" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Grid>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="ZONE STATUS" FontSize="9" Foreground="#8E8A6D" FontWeight="Bold"/>
+                                                <TextBlock Text="CONTROLLED  •  0.18 μSv/h" FontSize="11" Foreground="#AFC36E" FontWeight="Bold"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                    <Ellipse Width="8" Height="8" Fill="#11120B" Stroke="#B49A52" StrokeThickness="1.5" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"/>
+                                    <Ellipse Width="8" Height="8" Fill="#11120B" Stroke="#B49A52" StrokeThickness="1.5" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"/>
+                                    <Ellipse Width="8" Height="8" Fill="#11120B" Stroke="#B49A52" StrokeThickness="1.5" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10"/>
+                                    <Ellipse Width="8" Height="8" Fill="#11120B" Stroke="#B49A52" StrokeThickness="1.5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <Border Height="26" Margin="31,0,31,25" VerticalAlignment="Bottom" Background="#F10A0D08" BorderBrush="#756840" BorderThickness="1" IsHitTestVisible="False">
+                            <Grid Margin="10,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.15*"/><ColumnDefinition Width="1.25*"/><ColumnDefinition Width="1.15*"/><ColumnDefinition Width="1.1*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Ellipse Width="7" Height="7" Fill="#79A553" Stroke="#A9D17B" StrokeThickness="1"/>
+                                    <TextBlock Text="  PDA LINK: STABLE" FontSize="9.5" FontWeight="Bold" Foreground="#AFC792"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Ellipse Width="7" Height="7" Fill="#79A553" Stroke="#A9D17B" StrokeThickness="1"/>
+                                    <TextBlock Text="  OBS CORE: READY" FontSize="9.5" FontWeight="Bold" Foreground="#AFC792"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Ellipse Width="7" Height="7" Fill="#C18B2A" Stroke="#E0B04A" StrokeThickness="1"/>
+                                    <TextBlock Text="  ALERT BUS: ARMED" FontSize="9.5" FontWeight="Bold" Foreground="#C7B77D"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Ellipse Width="7" Height="7" Fill="#8F4434" Stroke="#BD6A53" StrokeThickness="1"/>
+                                    <TextBlock Text="  ANOMALY SCAN: IDLE" FontSize="9.5" FontWeight="Bold" Foreground="#B9A17F"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <Rectangle Margin="15" IsHitTestVisible="False" Opacity="0.02">
+                            <Rectangle.Fill>
+                                <DrawingBrush TileMode="Tile" Viewport="0,0,1,7" ViewportUnits="Absolute">
+                                    <DrawingBrush.Drawing>
+                                        <DrawingGroup>
+                                            <GeometryDrawing Brush="#00000000" Geometry="M0,0 H1 V6 H0 Z"/>
+                                            <GeometryDrawing Brush="#89966F" Geometry="M0,6 H1 V7 H0 Z"/>
+                                        </DrawingGroup>
+                                    </DrawingBrush.Drawing>
+                                </DrawingBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <Border Margin="13" BorderBrush="#90000000" BorderThickness="16" IsHitTestVisible="False"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
