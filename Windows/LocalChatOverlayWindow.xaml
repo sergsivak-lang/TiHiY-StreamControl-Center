@@ -79,31 +79,22 @@
                                 <Border Width="24" Height="22" CornerRadius="4" Background="{Binding PlatformColor}" VerticalAlignment="Top">
                                     <Image Source="{Binding PlatformIconPath}" Stretch="Uniform" Margin="2"/>
                                 </Border>
-                                <StackPanel Grid.Column="1" Margin="6,0,0,0">
-                                    <TextBlock Text="{Binding User, StringFormat={}{0}:}" Foreground="{DynamicResource LocalOverlayUserBrush}" FontWeight="Bold" TextWrapping="Wrap"/>
-                                    <Grid Margin="0,2,0,0">
-                                        <TextBlock Text="{Binding Text}" Foreground="{DynamicResource LocalOverlayTextBrush}" TextWrapping="Wrap">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsHighlighted}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                        <TextBlock Text="{Binding Text}" Foreground="#FFD329" FontWeight="Bold" TextWrapping="Wrap">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsHighlighted}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </Grid>
-                                </StackPanel>
+                                <TextBlock Grid.Column="1" Margin="6,0,0,0" TextWrapping="Wrap" LineStackingStrategy="BlockLineHeight">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource LocalOverlayTextBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
+                                                    <Setter Property="Foreground" Value="#FFD329"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                    <Run Text="{Binding User}" Foreground="{DynamicResource LocalOverlayUserBrush}" FontWeight="Bold"/>
+                                    <Run Text=": "/>
+                                    <Run Text="{Binding Text}"/>
+                                </TextBlock>
                             </Grid>
                         </Border>
                     </DataTemplate>
