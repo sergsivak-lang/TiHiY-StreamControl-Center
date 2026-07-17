@@ -88,6 +88,17 @@ public partial class App : Application
 
                 await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
                 await Task.Delay(900);
+
+                // Background connection/status callbacks can refresh the collections after
+                // the first demo-state pass. Reapply immediately before rendering so the
+                // screenshot always represents the approved populated dashboard.
+                if (ReferenceEquals(captureWindow, main))
+                {
+                    main.ApplyCiDemoState();
+                    await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Render);
+                    main.UpdateLayout();
+                }
+
                 SaveWindowScreenshot(captureWindow, screenshotPath!);
                 if (!ReferenceEquals(captureWindow, main)) captureWindow.Close();
                 Shutdown(0);
