@@ -8,6 +8,8 @@
                 <ResourceDictionary Source="Themes/CyberAmber.xaml"/>
                 <ResourceDictionary Source="Themes/Compatibility.xaml"/>
                 <ResourceDictionary Source="Themes/UkraineReference.xaml"/>
+                <!-- Isolated resources only. ThemeService activates them only when "Сталкер" is selected. -->
+                <ResourceDictionary Source="Themes/StalkerReference.xaml"/>
                 <ResourceDictionary Source="Localization/Strings.uk-UA.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
