@@ -3,20 +3,33 @@
     <DrawingBrush x:Key="WindowGradient" Viewbox="0,0,1000,500" ViewboxUnits="Absolute" Stretch="Fill">
         <DrawingBrush.Drawing>
             <DrawingGroup>
-                <ImageDrawing Rect="0,0,1000,500" ImageSource="{DynamicResource ThemeMapImage}"/>
                 <GeometryDrawing Geometry="M0,0 H1000 V500 H0 Z">
                     <GeometryDrawing.Brush>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <GradientStop Color="#72060705" Offset="0"/>
-                            <GradientStop Color="#B2060805" Offset="0.30"/>
-                            <GradientStop Color="#EA070906" Offset="1"/>
+                            <GradientStop Color="#222116" Offset="0"/>
+                            <GradientStop Color="#11130D" Offset="0.23"/>
+                            <GradientStop Color="#090B07" Offset="0.58"/>
+                            <GradientStop Color="#060705" Offset="1"/>
                         </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#29271A" Geometry="M0,112 L28,112 L28,86 L43,86 L43,112 L76,112 L76,61 L87,61 L87,112 L122,112 L122,92 L139,92 L139,112 L178,112 L178,68 L188,68 L188,112 L230,112 L230,45 L242,45 L242,112 L281,112 L281,83 L296,83 L296,112 L337,112 L337,72 L348,72 L348,112 L390,112 L390,36 L402,36 L402,112 L447,112 L447,89 L463,89 L463,112 L505,112 L505,56 L517,56 L517,112 L557,112 L557,78 L573,78 L573,112 L616,112 L616,29 L628,29 L628,112 L671,112 L671,66 L684,66 L684,112 L731,112 L731,49 L743,49 L743,112 L786,112 L786,82 L801,82 L801,112 L846,112 L846,57 L858,57 L858,112 L902,112 L902,71 L916,71 L916,112 L1000,112 V138 H0 Z"/>
+                <GeometryDrawing Geometry="M87,61 V31 M82,31 H92 M236,45 V17 M231,17 H241 M396,36 V10 M391,10 H401 M622,29 V6 M617,6 H627 M737,49 V21 M732,21 H742 M852,57 V26 M847,26 H857"><GeometryDrawing.Pen><Pen Brush="#665C3C" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Brush="#171910" Geometry="M0,130 C95,116 169,142 258,126 C347,111 432,143 523,125 C617,107 701,145 794,124 C876,107 938,129 1000,116 V156 H0 Z"/>
+                <GeometryDrawing Geometry="M60,92 L147,20 M162,104 L222,41 M690,94 L783,15 M805,103 L870,45"><GeometryDrawing.Pen><Pen Brush="#9B7B33" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Geometry="M0,0 H1000 V500 H0 Z">
+                    <GeometryDrawing.Brush>
+                        <RadialGradientBrush Center="0.5,0.28" GradientOrigin="0.5,0.2" RadiusX="0.78" RadiusY="0.74">
+                            <GradientStop Color="#001D1E13" Offset="0"/>
+                            <GradientStop Color="#5A090A06" Offset="0.55"/>
+                            <GradientStop Color="#C8040503" Offset="1"/>
+                        </RadialGradientBrush>
                     </GeometryDrawing.Brush>
                 </GeometryDrawing>
                 <GeometryDrawing Geometry="M5,5 H995 V495 H5 Z"><GeometryDrawing.Pen><Pen Brush="#887546" Thickness="3"/></GeometryDrawing.Pen></GeometryDrawing>
                 <GeometryDrawing Geometry="M13,13 H987 V487 H13 Z"><GeometryDrawing.Pen><Pen Brush="#302E21" Thickness="6"/></GeometryDrawing.Pen></GeometryDrawing>
                 <GeometryDrawing Geometry="M20,20 H980 V480 H20 Z"><GeometryDrawing.Pen><Pen Brush="#9B8550" Thickness="1.4"/></GeometryDrawing.Pen></GeometryDrawing>
-                <GeometryDrawing Geometry="M30,35 L190,29 M235,56 L408,50 M575,34 L748,30 M805,61 L967,55 M48,457 L238,463 M681,461 L952,468"><GeometryDrawing.Pen><Pen Brush="#80714A" Thickness="1"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Geometry="M31,36 L190,29 M236,57 L408,50 M574,35 L748,30 M805,62 L967,55 M48,457 L238,463 M681,461 L952,468 M115,170 L109,411 M336,153 L347,430 M608,165 L599,421 M876,147 L886,431"><GeometryDrawing.Pen><Pen Brush="#776A45" Thickness="1"/></GeometryDrawing.Pen></GeometryDrawing>
                 <GeometryDrawing Brush="#15160F" Geometry="M25,25 A7,7 0 1 1 11,25 A7,7 0 1 1 25,25 M989,25 A7,7 0 1 1 975,25 A7,7 0 1 1 989,25 M25,475 A7,7 0 1 1 11,475 A7,7 0 1 1 25,475 M989,475 A7,7 0 1 1 975,475 A7,7 0 1 1 989,475"/>
             </DrawingGroup>
         </DrawingBrush.Drawing>
