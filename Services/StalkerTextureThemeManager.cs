@@ -5,11 +5,15 @@ public static class StalkerTextureThemeManager
     private static readonly Uri TextureSourceUri = new(
         "pack://application:,,,/TiHiY.StreamControlCenter;component/Themes/StalkerTextureTheme.xaml",
         UriKind.Absolute);
+    private static readonly Uri WindowSkinSourceUri = new(
+        "pack://application:,,,/TiHiY.StreamControlCenter;component/Themes/StalkerWindowSkin.xaml",
+        UriKind.Absolute);
     private static readonly Uri ControlSourceUri = new(
         "pack://application:,,,/TiHiY.StreamControlCenter;component/Themes/StalkerControlOverrides.xaml",
         UriKind.Absolute);
 
     private static ResourceDictionary? _textureDictionary;
+    private static ResourceDictionary? _windowSkinDictionary;
     private static ResourceDictionary? _controlDictionary;
 
     public static void ApplyFor(string? themeName)
@@ -22,21 +26,21 @@ public static class StalkerTextureThemeManager
         if (!shouldEnable)
         {
             Remove(resources, ref _controlDictionary);
+            Remove(resources, ref _windowSkinDictionary);
             Remove(resources, ref _textureDictionary);
             return;
         }
 
-        if (_textureDictionary is null || !resources.MergedDictionaries.Contains(_textureDictionary))
-        {
-            _textureDictionary = new ResourceDictionary { Source = TextureSourceUri };
-            resources.MergedDictionaries.Add(_textureDictionary);
-        }
+        Add(resources, ref _textureDictionary, TextureSourceUri);
+        Add(resources, ref _windowSkinDictionary, WindowSkinSourceUri);
+        Add(resources, ref _controlDictionary, ControlSourceUri);
+    }
 
-        if (_controlDictionary is null || !resources.MergedDictionaries.Contains(_controlDictionary))
-        {
-            _controlDictionary = new ResourceDictionary { Source = ControlSourceUri };
-            resources.MergedDictionaries.Add(_controlDictionary);
-        }
+    private static void Add(ResourceDictionary resources, ref ResourceDictionary? dictionary, Uri source)
+    {
+        if (dictionary is not null && resources.MergedDictionaries.Contains(dictionary)) return;
+        dictionary = new ResourceDictionary { Source = source };
+        resources.MergedDictionaries.Add(dictionary);
     }
 
     private static void Remove(ResourceDictionary resources, ref ResourceDictionary? dictionary)
