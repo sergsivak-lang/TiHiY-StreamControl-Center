@@ -4,8 +4,9 @@ namespace TiHiY.StreamControlCenter.Services;
 
 internal static class StalkerDecorationRuntime
 {
+    private const string CenterBlockKey = "UkraineCenterBlock";
     private static readonly ConditionalWeakTable<Image, ImageState> ImageStates = new();
-    private static readonly ConditionalWeakTable<Grid, CenterGridState> CenterStates = new();
+    private static readonly ConditionalWeakTable<Grid, CenterHostState> CenterStates = new();
     private static DispatcherTimer? _timer;
 
     [ModuleInitializer]
@@ -18,7 +19,6 @@ internal static class StalkerDecorationRuntime
             await Task.Delay(100).ConfigureAwait(false);
             var application = Application.Current;
             if (application is null) continue;
-
             try
             {
                 await application.Dispatcher.InvokeAsync(() =>
@@ -26,7 +26,7 @@ internal static class StalkerDecorationRuntime
                     if (_timer is not null || App.Services is null) return;
                     _timer = new DispatcherTimer(DispatcherPriority.Background, application.Dispatcher)
                     {
-                        Interval = TimeSpan.FromMilliseconds(500)
+                        Interval = TimeSpan.FromMilliseconds(350)
                     };
                     _timer.Tick += (_, _) => Apply();
                     _timer.Start();
@@ -36,7 +36,7 @@ internal static class StalkerDecorationRuntime
             }
             catch
             {
-                // Application services and windows are still being created.
+                // Services and the freeform dashboard are still being created.
             }
         }
     }
@@ -49,84 +49,75 @@ internal static class StalkerDecorationRuntime
 
         foreach (Window window in application.Windows)
         {
-            var ukraineImages = FindVisualChildren<Image>(window)
-                .Where(IsUkraineDecoration)
-                .ToList();
-
-            if (stalker)
+            foreach (var image in FindVisualChildren<Image>(window).Where(IsUkraineDecoration).ToList())
             {
-                foreach (var image in ukraineImages)
+                if (stalker)
                 {
                     if (!ImageStates.TryGetValue(image, out _))
                         ImageStates.Add(image, new ImageState(image.Opacity, image.Visibility));
                     image.Opacity = 0;
                     image.Visibility = Visibility.Hidden;
                 }
-
-                ReplaceCenterVisual(window);
-            }
-            else
-            {
-                foreach (var image in ukraineImages)
+                else
+                {
                     RestoreImage(image);
-                RestoreCenterVisual(window);
+                }
             }
+
+            if (stalker) ReplaceCenterHost(window);
+            else RestoreCenterHost(window);
         }
     }
 
-    private static bool IsUkraineDecoration(Image image)
+    private static bool IsUkraineDecoration(Image image) =>
+        (image.Source?.ToString() ?? string.Empty).Contains("UkraineExact", StringComparison.OrdinalIgnoreCase);
+
+    private static void ReplaceCenterHost(Window window)
     {
-        var source = image.Source?.ToString() ?? string.Empty;
-        return source.Contains("UkraineExact", StringComparison.OrdinalIgnoreCase);
-    }
+        var host = FindCenterHost(window);
+        if (host is null || CenterStates.TryGetValue(host, out _)) return;
 
-    private static void ReplaceCenterVisual(Window window)
-    {
-        var centerGrid = FindCenterGrid(window);
-        if (centerGrid is null || CenterStates.TryGetValue(centerGrid, out _)) return;
-
-        var visibility = centerGrid.Children
-            .Cast<UIElement>()
-            .ToDictionary(child => child, child => child.Visibility);
-
-        foreach (var child in visibility.Keys)
-            child.Visibility = Visibility.Hidden;
+        var originalChildren = host.Children.Cast<UIElement>().ToList();
+        var originalVisibility = originalChildren.ToDictionary(x => x, x => x.Visibility);
+        foreach (var child in originalChildren) child.Visibility = Visibility.Hidden;
 
         var overlay = BuildOverlay();
-        Panel.SetZIndex(overlay, 100);
-        centerGrid.Children.Add(overlay);
-        CenterStates.Add(centerGrid, new CenterGridState(visibility, overlay));
+        Panel.SetZIndex(overlay, 1000);
+        host.Children.Add(overlay);
+        CenterStates.Add(host, new CenterHostState(originalVisibility, overlay));
     }
 
-    private static void RestoreCenterVisual(Window window)
+    private static void RestoreCenterHost(Window window)
     {
-        var centerGrid = FindCenterGrid(window);
-        if (centerGrid is null || !CenterStates.TryGetValue(centerGrid, out var state)) return;
+        var host = FindCenterHost(window);
+        if (host is null || !CenterStates.TryGetValue(host, out var state)) return;
 
-        centerGrid.Children.Remove(state.Overlay);
-        foreach (var pair in state.Visibility)
-            pair.Key.Visibility = pair.Value;
-        CenterStates.Remove(centerGrid);
+        host.Children.Remove(state.Overlay);
+        foreach (var pair in state.Visibility) pair.Key.Visibility = pair.Value;
+        CenterStates.Remove(host);
     }
 
-    private static Grid? FindCenterGrid(Window window)
+    private static Grid? FindCenterHost(Window window)
     {
-        var title = FindVisualChildren<TextBlock>(window)
-            .FirstOrDefault(text => (text.Text ?? string.Empty)
-                .Trim()
-                .StartsWith("СЛАВА УКРАЇНІ", StringComparison.OrdinalIgnoreCase));
-        if (title is null) return null;
+        // MainWindowVisualTuner creates this exact direct host after detaching the
+        // original footer ContentControl into the freeform Canvas.
+        var runtimeHost = FindVisualChildren<Grid>(window)
+            .FirstOrDefault(grid => string.Equals(grid.Tag?.ToString(), CenterBlockKey, StringComparison.Ordinal));
+        if (runtimeHost is not null) return runtimeHost;
 
-        DependencyObject? current = title;
-        while (current is not null)
+        // Fallback before the freeform dashboard is built.
+        if (window.FindName("FooterBlocksGrid") is Grid footer)
         {
-            current = VisualTreeHelper.GetParent(current);
-            if (current is Grid grid &&
-                FindVisualChildren<TextBlock>(grid)
-                    .Any(text => (text.Text ?? string.Empty)
-                        .Trim()
-                        .StartsWith("ГЕРОЯМ СЛАВА", StringComparison.OrdinalIgnoreCase)))
-                return grid;
+            var center = footer.Children.OfType<ContentControl>()
+                .FirstOrDefault(control => Grid.GetColumn(control) == 2 && string.IsNullOrWhiteSpace(control.Name));
+            if (center is not null)
+            {
+                return new Grid
+                {
+                    Tag = CenterBlockKey,
+                    Visibility = Visibility.Collapsed
+                };
+            }
         }
 
         return null;
@@ -136,7 +127,6 @@ internal static class StalkerDecorationRuntime
     {
         var frame = new Border
         {
-            Margin = new Thickness(0),
             CornerRadius = new CornerRadius(4),
             BorderThickness = new Thickness(2),
             BorderBrush = new SolidColorBrush(Color.FromRgb(151, 88, 28)),
@@ -196,16 +186,10 @@ internal static class StalkerDecorationRuntime
             new LinearGradientBrush(Color.FromRgb(26, 25, 18), Color.FromRgb(7, 9, 6), 90),
             null,
             new RectangleGeometry(new Rect(0, 0, 1, 1))));
-
         var linePen = new Pen(new SolidColorBrush(Color.FromArgb(80, 112, 91, 45)), 0.012);
         for (var offset = -1.0; offset < 2.0; offset += 0.18)
             group.Children.Add(new GeometryDrawing(null, linePen, new LineGeometry(new Point(offset, 1), new Point(offset + 1, 0))));
-
-        var brush = new DrawingBrush(group)
-        {
-            Stretch = Stretch.Fill,
-            TileMode = TileMode.None
-        };
+        var brush = new DrawingBrush(group) { Stretch = Stretch.Fill };
         brush.Freeze();
         return brush;
     }
@@ -229,5 +213,5 @@ internal static class StalkerDecorationRuntime
     }
 
     private sealed record ImageState(double Opacity, Visibility Visibility);
-    private sealed record CenterGridState(Dictionary<UIElement, Visibility> Visibility, FrameworkElement Overlay);
+    private sealed record CenterHostState(Dictionary<UIElement, Visibility> Visibility, FrameworkElement Overlay);
 }
