@@ -39,6 +39,9 @@ public partial class App : Application
         {
             WriteStartupStage("01 Services construction");
             Services = new AppServices();
+            Services.Theme.ThemeChanged += (_, _) =>
+                StalkerTextureThemeManager.ApplyFor(Services.Theme.CurrentTheme);
+            StalkerTextureThemeManager.ApplyFor(Services.Theme.CurrentTheme);
             WriteStartupStage("02 Services initialized in memory");
             await Services.InitializeAsync();
             WriteStartupStage("03 Background services initialized");
@@ -46,6 +49,7 @@ public partial class App : Application
             if (ciMode && !string.IsNullOrWhiteSpace(ciTheme))
             {
                 Services.Theme.Apply(ciTheme, save: false);
+                StalkerTextureThemeManager.ApplyFor(ciTheme);
                 WriteStartupStage($"03.1 CI theme applied: {ciTheme}");
             }
 
