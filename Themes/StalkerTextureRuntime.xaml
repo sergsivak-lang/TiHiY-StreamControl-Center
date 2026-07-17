@@ -3,84 +3,48 @@
     <DrawingBrush x:Key="PanelGradient" Viewbox="0,0,1000,620" ViewboxUnits="Absolute" Stretch="Fill" TileMode="None">
         <DrawingBrush.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Brush="#11130D" Geometry="M0,0 H1000 V620 H0 Z"/>
+                <GeometryDrawing Brush="#10120D" Geometry="M0,0 H1000 V620 H0 Z"/>
                 <GeometryDrawing Geometry="M8,8 H992 V612 H8 Z">
                     <GeometryDrawing.Brush>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#2B2A1E" Offset="0"/>
-                            <GradientStop Color="#15170F" Offset="0.28"/>
-                            <GradientStop Color="#0B0D08" Offset="0.64"/>
-                            <GradientStop Color="#1A1B12" Offset="1"/>
+                            <GradientStop Color="#28291E" Offset="0"/>
+                            <GradientStop Color="#171910" Offset="0.24"/>
+                            <GradientStop Color="#0A0C08" Offset="0.66"/>
+                            <GradientStop Color="#17180F" Offset="1"/>
                         </LinearGradientBrush>
                     </GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#76663A" Thickness="5"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#7A693C" Thickness="5"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Brush="#0A0C07" Geometry="M20,20 H980 V600 H20 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#353527" Thickness="2"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-                <GeometryDrawing Brush="#3E2918" Geometry="M30,35 C145,2 235,66 360,28 C475,-8 585,55 710,24 C815,-2 905,41 970,23 L970,72 C860,97 752,55 645,88 C520,126 410,64 294,104 C178,143 91,87 30,112 Z"/>
-                <GeometryDrawing Brush="#192113" Geometry="M36,305 C190,267 330,335 470,294 C615,252 760,329 964,284 L964,360 C814,396 675,343 535,384 C375,430 210,360 36,411 Z"/>
-                <GeometryDrawing Geometry="M42,142 L950,118 M75,492 L920,528 M126,52 L94,566 M838,44 L888,570 M390,38 L355,585 M690,61 L725,570">
-                    <GeometryDrawing.Pen><Pen Brush="#675F42" Thickness="1.4"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-                <GeometryDrawing Geometry="M28,172 H972 M28,438 H972">
-                    <GeometryDrawing.Pen><Pen Brush="#8E793D" Thickness="3"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-                <GeometryDrawing Brush="#12130C" Geometry="M20,20 A8,8 0 1 1 4,20 A8,8 0 1 1 20,20 M996,20 A8,8 0 1 1 980,20 A8,8 0 1 1 996,20 M20,600 A8,8 0 1 1 4,600 A8,8 0 1 1 20,600 M996,600 A8,8 0 1 1 980,600 A8,8 0 1 1 996,600"/>
+                <GeometryDrawing Brush="#0A0C07" Geometry="M20,20 H980 V600 H20 Z"><GeometryDrawing.Pen><Pen Brush="#39382A" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Geometry="M46,58 L286,49 M344,83 L686,68 M745,47 L947,39 M65,192 L410,177 M522,205 L936,187 M38,336 L318,350 M390,327 L725,341 M770,305 L958,320 M78,486 L353,468 M460,505 L905,482"><GeometryDrawing.Pen><Pen Brush="#5D573C" Thickness="1.3"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Geometry="M126,34 L94,574 M838,42 L888,577 M390,30 L355,590 M690,55 L725,576"><GeometryDrawing.Pen><Pen Brush="#282A1E" Thickness="1.2"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Geometry="M28,172 H972 M28,438 H972"><GeometryDrawing.Pen><Pen Brush="#75663A" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Brush="#14150E" Geometry="M20,20 A8,8 0 1 1 4,20 A8,8 0 1 1 20,20 M996,20 A8,8 0 1 1 980,20 A8,8 0 1 1 996,20 M20,600 A8,8 0 1 1 4,600 A8,8 0 1 1 20,600 M996,600 A8,8 0 1 1 980,600 A8,8 0 1 1 996,600"/>
             </DrawingGroup>
         </DrawingBrush.Drawing>
     </DrawingBrush>
 
     <DrawingBrush x:Key="BlueButtonBackground" Viewbox="0,0,100,40" ViewboxUnits="Absolute" Stretch="Fill">
-        <DrawingBrush.Drawing><DrawingGroup>
-            <GeometryDrawing Brush="#2F3023" Geometry="M0,0 H100 V40 H0 Z"/>
-            <GeometryDrawing Brush="#12150E" Geometry="M2,3 H98 V37 H2 Z"><GeometryDrawing.Pen><Pen Brush="#7D764C" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
-            <GeometryDrawing Brush="#58643A" Geometry="M5,4 H95 V8 H5 Z"/>
-            <GeometryDrawing Brush="#14140D" Geometry="M8,8 A3,3 0 1 1 2,8 A3,3 0 1 1 8,8 M98,32 A3,3 0 1 1 92,32 A3,3 0 1 1 98,32"/>
-        </DrawingGroup></DrawingBrush.Drawing>
+        <DrawingBrush.Drawing><DrawingGroup><GeometryDrawing Brush="#2F3023" Geometry="M0,0 H100 V40 H0 Z"/><GeometryDrawing Brush="#12150E" Geometry="M2,3 H98 V37 H2 Z"><GeometryDrawing.Pen><Pen Brush="#7D764C" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing><GeometryDrawing Brush="#58643A" Geometry="M5,4 H95 V8 H5 Z"/><GeometryDrawing Brush="#14140D" Geometry="M8,8 A3,3 0 1 1 2,8 A3,3 0 1 1 8,8 M98,32 A3,3 0 1 1 92,32 A3,3 0 1 1 98,32"/></DrawingGroup></DrawingBrush.Drawing>
     </DrawingBrush>
     <DrawingBrush x:Key="AmberButtonBackground" Viewbox="0,0,100,40" ViewboxUnits="Absolute" Stretch="Fill">
-        <DrawingBrush.Drawing><DrawingGroup>
-            <GeometryDrawing Brush="#3C2E19" Geometry="M0,0 H100 V40 H0 Z"/>
-            <GeometryDrawing Brush="#1A160C" Geometry="M2,3 H98 V37 H2 Z"><GeometryDrawing.Pen><Pen Brush="#B9872B" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
-            <GeometryDrawing Brush="#8E6523" Geometry="M5,4 H95 V8 H5 Z"/>
-        </DrawingGroup></DrawingBrush.Drawing>
+        <DrawingBrush.Drawing><DrawingGroup><GeometryDrawing Brush="#3C2E19" Geometry="M0,0 H100 V40 H0 Z"/><GeometryDrawing Brush="#1A160C" Geometry="M2,3 H98 V37 H2 Z"><GeometryDrawing.Pen><Pen Brush="#B9872B" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing><GeometryDrawing Brush="#8E6523" Geometry="M5,4 H95 V8 H5 Z"/></DrawingGroup></DrawingBrush.Drawing>
     </DrawingBrush>
     <DrawingBrush x:Key="RedButtonBackground" Viewbox="0,0,100,40" ViewboxUnits="Absolute" Stretch="Fill">
-        <DrawingBrush.Drawing><DrawingGroup>
-            <GeometryDrawing Brush="#39231D" Geometry="M0,0 H100 V40 H0 Z"/>
-            <GeometryDrawing Brush="#20100D" Geometry="M2,3 H98 V37 H2 Z"><GeometryDrawing.Pen><Pen Brush="#98503B" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
-            <GeometryDrawing Brush="#713127" Geometry="M5,4 H95 V8 H5 Z"/>
-        </DrawingGroup></DrawingBrush.Drawing>
+        <DrawingBrush.Drawing><DrawingGroup><GeometryDrawing Brush="#39231D" Geometry="M0,0 H100 V40 H0 Z"/><GeometryDrawing Brush="#20100D" Geometry="M2,3 H98 V37 H2 Z"><GeometryDrawing.Pen><Pen Brush="#98503B" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing><GeometryDrawing Brush="#713127" Geometry="M5,4 H95 V8 H5 Z"/></DrawingGroup></DrawingBrush.Drawing>
     </DrawingBrush>
     <DrawingBrush x:Key="PurpleButtonBackground" Viewbox="0,0,100,40" ViewboxUnits="Absolute" Stretch="Fill">
-        <DrawingBrush.Drawing><DrawingGroup>
-            <GeometryDrawing Brush="#292824" Geometry="M0,0 H100 V40 H0 Z"/>
-            <GeometryDrawing Brush="#161713" Geometry="M2,3 H98 V37 H2 Z"><GeometryDrawing.Pen><Pen Brush="#706B58" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
-        </DrawingGroup></DrawingBrush.Drawing>
+        <DrawingBrush.Drawing><DrawingGroup><GeometryDrawing Brush="#292824" Geometry="M0,0 H100 V40 H0 Z"/><GeometryDrawing Brush="#161713" Geometry="M2,3 H98 V37 H2 Z"><GeometryDrawing.Pen><Pen Brush="#706B58" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing></DrawingGroup></DrawingBrush.Drawing>
     </DrawingBrush>
 
     <DrawingBrush x:Key="HeaderBackground" Viewbox="0,0,1000,100" ViewboxUnits="Absolute" Stretch="Fill">
-        <DrawingBrush.Drawing><DrawingGroup>
-            <GeometryDrawing Brush="#24251A" Geometry="M0,0 H1000 V100 H0 Z"/>
-            <GeometryDrawing Brush="#11130D" Geometry="M8,8 H992 V92 H8 Z"><GeometryDrawing.Pen><Pen Brush="#73633A" Thickness="3"/></GeometryDrawing.Pen></GeometryDrawing>
-            <GeometryDrawing Brush="#3D2A18" Geometry="M20,12 C150,-5 230,38 355,13 C480,-12 570,39 690,14 C805,-9 900,31 980,12 L980,31 C865,51 780,25 680,45 C570,68 470,29 360,52 C245,76 140,33 20,57 Z"/>
-        </DrawingGroup></DrawingBrush.Drawing>
+        <DrawingBrush.Drawing><DrawingGroup><GeometryDrawing Brush="#24251A" Geometry="M0,0 H1000 V100 H0 Z"/><GeometryDrawing Brush="#11130D" Geometry="M8,8 H992 V92 H8 Z"><GeometryDrawing.Pen><Pen Brush="#73633A" Thickness="3"/></GeometryDrawing.Pen></GeometryDrawing><GeometryDrawing Geometry="M25,21 L270,16 M350,31 L610,24 M710,17 L970,12"><GeometryDrawing.Pen><Pen Brush="#63583A" Thickness="1.2"/></GeometryDrawing.Pen></GeometryDrawing></DrawingGroup></DrawingBrush.Drawing>
     </DrawingBrush>
     <DrawingBrush x:Key="PanelBackground" Viewbox="0,0,1000,500" ViewboxUnits="Absolute" Stretch="Fill">
-        <DrawingBrush.Drawing><DrawingGroup>
-            <GeometryDrawing Brush="#171912" Geometry="M0,0 H1000 V500 H0 Z"/>
-            <GeometryDrawing Brush="#0C0F09" Geometry="M12,14 H988 V486 H12 Z"><GeometryDrawing.Pen><Pen Brush="#675D3A" Thickness="4"/></GeometryDrawing.Pen></GeometryDrawing>
-            <GeometryDrawing Brush="#28311C" Geometry="M30,42 C180,5 300,67 450,29 C590,-6 720,52 970,18 L970,70 C790,98 650,56 510,91 C350,132 195,74 30,122 Z"/>
-            <GeometryDrawing Geometry="M40,175 H960 M40,360 H960"><GeometryDrawing.Pen><Pen Brush="#4B4A34" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
-        </DrawingGroup></DrawingBrush.Drawing>
+        <DrawingBrush.Drawing><DrawingGroup><GeometryDrawing Brush="#171912" Geometry="M0,0 H1000 V500 H0 Z"/><GeometryDrawing Brush="#0C0F09" Geometry="M12,14 H988 V486 H12 Z"><GeometryDrawing.Pen><Pen Brush="#675D3A" Thickness="4"/></GeometryDrawing.Pen></GeometryDrawing><GeometryDrawing Geometry="M42,55 L310,45 M410,74 L740,62 M810,38 L957,31 M38,238 L320,251 M512,218 L932,235 M66,408 L380,391 M470,425 L930,404"><GeometryDrawing.Pen><Pen Brush="#4D4934" Thickness="1.2"/></GeometryDrawing.Pen></GeometryDrawing></DrawingGroup></DrawingBrush.Drawing>
     </DrawingBrush>
     <DrawingBrush x:Key="ModuleBackground" Viewbox="0,0,100,40" ViewboxUnits="Absolute" Stretch="Fill">
-        <DrawingBrush.Drawing><DrawingGroup>
-            <GeometryDrawing Brush="#202218" Geometry="M0,0 H100 V40 H0 Z"/>
-            <GeometryDrawing Brush="#11140D" Geometry="M2,3 H98 V37 H2 Z"><GeometryDrawing.Pen><Pen Brush="#716B43" Thickness="1.5"/></GeometryDrawing.Pen></GeometryDrawing>
-            <GeometryDrawing Brush="#4E5832" Geometry="M4,4 H96 V9 H4 Z"/>
-        </DrawingGroup></DrawingBrush.Drawing>
+        <DrawingBrush.Drawing><DrawingGroup><GeometryDrawing Brush="#202218" Geometry="M0,0 H100 V40 H0 Z"/><GeometryDrawing Brush="#11140D" Geometry="M2,3 H98 V37 H2 Z"><GeometryDrawing.Pen><Pen Brush="#716B43" Thickness="1.5"/></GeometryDrawing.Pen></GeometryDrawing><GeometryDrawing Brush="#4E5832" Geometry="M4,4 H96 V9 H4 Z"/></DrawingGroup></DrawingBrush.Drawing>
     </DrawingBrush>
 
     <SolidColorBrush x:Key="PanelDeep" Color="#080B07"/>
