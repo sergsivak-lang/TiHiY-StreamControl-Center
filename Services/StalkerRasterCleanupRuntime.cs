@@ -3,9 +3,9 @@ using System.Runtime.CompilerServices;
 namespace TiHiY.StreamControlCenter.Services;
 
 /// <summary>
-/// Removes only the broad oval raster overlays from the approved STALKER artwork pass.
-/// Functional controls, the central poster, monitoring card and every non-STALKER theme
-/// are left untouched and restored exactly when the theme changes.
+/// Replaces the broad oval artwork backgrounds on the outer STALKER dashboard surfaces
+/// with clean industrial metal. Inner lists, cards, the central poster and all controls
+/// keep their existing content and behaviour. Original visuals are restored on theme exit.
 /// </summary>
 internal static class StalkerRasterCleanupRuntime
 {
@@ -29,9 +29,9 @@ internal static class StalkerRasterCleanupRuntime
             await app.Dispatcher.InvokeAsync(() =>
             {
                 if (_timer is not null || App.Services is null) return;
-                _timer = new DispatcherTimer(DispatcherPriority.Loaded, app.Dispatcher)
+                _timer = new DispatcherTimer(DispatcherPriority.ContextIdle, app.Dispatcher)
                 {
-                    Interval = TimeSpan.FromMilliseconds(250)
+                    Interval = TimeSpan.FromMilliseconds(180)
                 };
                 _timer.Tick += (_, _) => Apply();
                 _timer.Start();
@@ -49,6 +49,13 @@ internal static class StalkerRasterCleanupRuntime
 
         foreach (Window window in Application.Current.Windows)
         {
+            var header = FindHeader(window);
+            if (header is not null)
+            {
+                if (active) ApplyBackground(header, CleanHeader);
+                else Restore(header);
+            }
+
             foreach (var element in FindVisualChildren<FrameworkElement>(window))
             {
                 if (!active)
@@ -57,42 +64,59 @@ internal static class StalkerRasterCleanupRuntime
                     continue;
                 }
 
-                if (element is Image image && IsUnwantedRaster(image.Source?.ToString()))
-                {
-                    Save(element);
-                    image.Opacity = 0;
-                    image.IsHitTestVisible = false;
-                    continue;
-                }
-
-                var background = GetBackground(element);
-                if (background is not ImageBrush imageBrush || !IsUnwantedRaster(imageBrush.ImageSource?.ToString()))
-                {
-                    continue;
-                }
-
-                Save(element);
-                SetBackground(element, IsHeader(element) ? CleanHeader : CleanPanel);
+                if (!IsOuterDashboardSurface(element) || ReferenceEquals(element, header)) continue;
+                ApplyBackground(element, CleanPanel);
             }
         }
     }
 
-    private static bool IsUnwantedRaster(string? source)
+    private static FrameworkElement? FindHeader(Window window)
     {
-        if (string.IsNullOrWhiteSpace(source)) return false;
-        return source.Contains("header-approved", StringComparison.OrdinalIgnoreCase)
-               || source.Contains("panel-frame-approved", StringComparison.OrdinalIgnoreCase);
+        if (window.FindName("DesignSurface") is not Grid surface) return null;
+
+        return surface.Children
+            .OfType<FrameworkElement>()
+            .FirstOrDefault(element =>
+                Grid.GetRow(element) == 0
+                && element.ActualWidth > 700
+                && element.ActualHeight is > 45 and < 170);
     }
 
-    private static bool IsHeader(FrameworkElement element)
+    private static bool IsOuterDashboardSurface(FrameworkElement element)
     {
-        if (element.Name.Contains("Header", StringComparison.OrdinalIgnoreCase)) return true;
-        if (element is Grid grid && Grid.GetRow(grid) == 0 && element.ActualWidth > 700 && element.ActualHeight < 160)
+        if (!element.IsVisible || element.Opacity < 0.25) return false;
+        if (element.ActualWidth < 330 || element.ActualHeight < 72) return false;
+        if (element is TextBox or ListBox or Button or Image) return false;
+
+        var name = element.Name ?? string.Empty;
+        if (ContainsAny(name, "Poster", "Portrait", "MonitorCard", "DonationCard", "ChatItem", "List", "Items"))
         {
-            return true;
+            return false;
         }
 
-        return element.ActualWidth > 800 && element.ActualHeight < 170;
+        if (ContainsAny(name,
+                "BlockPanel", "Chat", "Donation", "Mixer", "Notification", "System", "Aida", "Monitoring", "Monitor"))
+        {
+            return element is Border or Panel or ContentControl;
+        }
+
+        // Template-generated outer frames usually have no name. Limit the fallback to
+        // broad, shallow dashboard frames so inner cards and the centre poster are spared.
+        return string.IsNullOrWhiteSpace(name)
+               && element is Border
+               && element.ActualWidth > 430
+               && element.ActualHeight > 90
+               && element.ActualHeight < 430;
+    }
+
+    private static bool ContainsAny(string source, params string[] values) =>
+        values.Any(value => source.Contains(value, StringComparison.OrdinalIgnoreCase));
+
+    private static void ApplyBackground(FrameworkElement element, Brush brush)
+    {
+        if (!CanSetBackground(element)) return;
+        Save(element);
+        SetBackground(element, brush);
     }
 
     private static Brush CreateCleanHeaderBrush()
@@ -100,10 +124,11 @@ internal static class StalkerRasterCleanupRuntime
         var brush = new LinearGradientBrush(
             new GradientStopCollection
             {
-                new(Color.FromRgb(35, 31, 22), 0.00),
-                new(Color.FromRgb(19, 20, 16), 0.28),
-                new(Color.FromRgb(10, 13, 11), 0.68),
-                new(Color.FromRgb(27, 22, 15), 1.00)
+                new(Color.FromRgb(39, 34, 23), 0.00),
+                new(Color.FromRgb(22, 22, 17), 0.16),
+                new(Color.FromRgb(11, 14, 12), 0.58),
+                new(Color.FromRgb(20, 18, 13), 0.88),
+                new(Color.FromRgb(51, 34, 18), 1.00)
             },
             new Point(0, 0),
             new Point(0, 1));
@@ -116,9 +141,9 @@ internal static class StalkerRasterCleanupRuntime
         var brush = new LinearGradientBrush(
             new GradientStopCollection
             {
-                new(Color.FromRgb(22, 22, 17), 0.00),
-                new(Color.FromRgb(12, 16, 13), 0.46),
-                new(Color.FromRgb(8, 12, 10), 0.74),
+                new(Color.FromRgb(24, 23, 17), 0.00),
+                new(Color.FromRgb(14, 17, 14), 0.20),
+                new(Color.FromRgb(8, 12, 10), 0.72),
                 new(Color.FromRgb(20, 18, 13), 1.00)
             },
             new Point(0, 0),
@@ -126,6 +151,9 @@ internal static class StalkerRasterCleanupRuntime
         brush.Freeze();
         return brush;
     }
+
+    private static bool CanSetBackground(FrameworkElement element) =>
+        element is Control or Panel or Border;
 
     private static Brush? GetBackground(FrameworkElement element) => element switch
     {
@@ -154,15 +182,13 @@ internal static class StalkerRasterCleanupRuntime
     private static void Save(FrameworkElement element)
     {
         if (States.TryGetValue(element, out _)) return;
-        States.Add(element, new ElementState(GetBackground(element), element.Opacity, element.IsHitTestVisible));
+        States.Add(element, new ElementState(GetBackground(element)));
     }
 
     private static void Restore(FrameworkElement element)
     {
         if (!States.TryGetValue(element, out var state)) return;
         SetBackground(element, state.Background);
-        element.Opacity = state.Opacity;
-        element.IsHitTestVisible = state.IsHitTestVisible;
         States.Remove(element);
     }
 
@@ -176,5 +202,5 @@ internal static class StalkerRasterCleanupRuntime
         }
     }
 
-    private sealed record ElementState(Brush? Background, double Opacity, bool IsHitTestVisible);
+    private sealed record ElementState(Brush? Background);
 }
