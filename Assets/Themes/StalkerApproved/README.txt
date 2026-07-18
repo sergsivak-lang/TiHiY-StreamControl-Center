@@ -1,0 +1,1 @@
+Approved STALKER raster assets extracted from the accepted UI sketch. These assets are applied only when the "Сталкер" theme is active; functional WPF controls and event handlers remain unchanged.

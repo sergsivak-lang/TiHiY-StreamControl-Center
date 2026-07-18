@@ -1,0 +1,1 @@
+Trigger Windows Build and STALKER validation after fixing the WPF Path type conflict.

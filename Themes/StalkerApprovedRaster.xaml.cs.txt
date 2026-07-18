@@ -1,0 +1,1 @@
+The approved raster dictionary is intentionally separate from the functional theme runtime. Image files are added to Assets/Themes/StalkerApproved and then the dictionary can be merged without touching Ukraine resources.

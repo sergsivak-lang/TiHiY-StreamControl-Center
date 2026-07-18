@@ -1,0 +1,103 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Approved artwork layer: localized illustrations plus restrained edge wear. -->
+    <DrawingBrush x:Key="StalkerApprovedHeaderArtwork" Stretch="Fill" Viewbox="0,0,1000,110" ViewboxUnits="Absolute">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#151610" Geometry="M0,0 H1000 V110 H0 Z"/>
+                <GeometryDrawing Brush="#2A2117" Geometry="M0,0 H1000 V11 H0 Z M0,97 H1000 V110 H0 Z"/>
+                <GeometryDrawing Brush="#3F2718" Geometry="M0,12 H118 L158,24 H84 L48,31 H0 Z M1000,73 H918 L875,84 H956 L1000,94 Z"/>
+                <GeometryDrawing Brush="#221C14" Geometry="M205,10 H765 V99 H205 Z"/>
+                <GeometryDrawing Geometry="M0,55 H1000 M214,22 H756 M214,88 H756" Brush="Transparent"><GeometryDrawing.Pen><Pen Brush="#65513A2B" Thickness="1.6"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Geometry="M36,32 L158,29 M258,31 L423,27 M476,77 L664,72 M812,36 L948,31" Brush="Transparent"><GeometryDrawing.Pen><Pen Brush="#556F6551" Thickness="1.1"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Brush="#B98929" Geometry="M0,88 H180 V110 H0 Z M820,88 H1000 V110 H820 Z"/>
+                <GeometryDrawing Brush="#151510" Geometry="M-8,110 L17,88 H43 L18,110 Z M44,110 L69,88 H95 L70,110 Z M96,110 L121,88 H147 L122,110 Z M148,110 L173,88 H199 L174,110 Z M812,110 L837,88 H863 L838,110 Z M864,110 L889,88 H915 L890,110 Z M916,110 L941,88 H967 L942,110 Z M968,110 L993,88 H1019 L994,110 Z"/>
+                <!-- small radiation plate on far left -->
+                <GeometryDrawing Brush="#202118" Geometry="M65,18 L105,73 H25 Z"/>
+                <GeometryDrawing Geometry="M65,18 L105,73 H25 Z" Brush="Transparent"><GeometryDrawing.Pen><Pen Brush="#C99637" Thickness="3"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Brush="#7FCA45" Geometry="M65,36 A6,6 0 1 0 65,48 A6,6 0 1 0 65,36 M63,33 C51,31 44,40 47,50 L56,46 C55,41 59,37 63,37 Z M68,33 C80,31 87,40 84,50 L75,46 C76,41 72,37 68,37 Z M65,52 C56,58 57,67 65,72 L69,61 C65,59 64,56 65,52 Z"/>
+                <!-- restrained gas-mask silhouette on far right -->
+                <GeometryDrawing Brush="#10110D" Geometry="M909,21 C886,21 873,36 876,55 C878,67 885,74 895,79 L895,94 H923 V79 C933,74 940,67 942,55 C945,36 932,21 909,21 Z M891,42 A8,8 0 1 0 907,42 A8,8 0 1 0 891,42 M911,42 A8,8 0 1 0 927,42 A8,8 0 1 0 911,42 M901,59 H917 L922,75 H896 Z"/>
+                <GeometryDrawing Geometry="M883,32 C895,22 923,22 935,32 M895,84 H923" Brush="Transparent"><GeometryDrawing.Pen><Pen Brush="#70583A" Thickness="2.3"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Brush="#82755B" Geometry="M10,10 A3,3 0 1 0 16,10 A3,3 0 1 0 10,10 M984,10 A3,3 0 1 0 990,10 A3,3 0 1 0 984,10 M10,94 A3,3 0 1 0 16,94 A3,3 0 1 0 10,94 M984,94 A3,3 0 1 0 990,94 A3,3 0 1 0 984,94"/>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <!-- Large tile avoids repetition; corrosion is limited to seams and edges. -->
+    <DrawingBrush x:Key="StalkerApprovedPanelArtwork" TileMode="Tile" Viewport="0,0,720,460" ViewportUnits="Absolute" Stretch="None">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#0D0F0B" Geometry="M0,0 H720 V460 H0 Z"/>
+                <GeometryDrawing Brush="#221910" Geometry="M0,0 H720 V13 H0 Z M0,447 H720 V460 H0 Z"/>
+                <GeometryDrawing Brush="#342014" Geometry="M0,14 H92 L128,21 H58 L22,30 H0 Z M720,420 H646 L611,430 H676 L720,443 Z M0,214 H16 L27,238 H0 Z M720,112 H705 L696,143 H720 Z"/>
+                <GeometryDrawing Brush="#4A2715" Geometry="M0,16 H46 L64,21 H30 L12,26 H0 Z M720,427 H682 L664,433 H696 L720,439 Z"/>
+                <GeometryDrawing Geometry="M18,83 L176,77 M104,132 L361,124 M25,229 L245,218 M389,76 L681,66 M337,356 L676,342 M50,410 L281,399" Brush="Transparent"><GeometryDrawing.Pen><Pen Brush="#4B746A55" Thickness="1"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Geometry="M63,17 L69,149 M226,33 L219,202 M414,22 L421,178 M630,171 L620,423 M311,262 L318,442" Brush="Transparent"><GeometryDrawing.Pen><Pen Brush="#4D000000" Thickness="1.8"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Brush="#756A543C" Geometry="M12,12 A4,4 0 1 0 20,12 A4,4 0 1 0 12,12 M700,12 A4,4 0 1 0 708,12 A4,4 0 1 0 700,12 M12,440 A4,4 0 1 0 20,440 A4,4 0 1 0 12,440 M700,440 A4,4 0 1 0 708,440 A4,4 0 1 0 700,440"/>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DrawingBrush x:Key="StalkerApprovedInnerArtwork" TileMode="Tile" Viewport="0,0,440,320" ViewportUnits="Absolute" Stretch="None">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#080A07" Geometry="M0,0 H440 V320 H0 Z"/>
+                <GeometryDrawing Brush="#18130D" Geometry="M0,0 H440 V7 H0 Z M0,313 H440 V320 H0 Z"/>
+                <GeometryDrawing Brush="#2C190F" Geometry="M0,8 H56 L76,14 H34 L12,20 H0 Z M440,286 H399 L378,294 H414 L440,305 Z M0,150 H10 L18,171 H0 Z"/>
+                <GeometryDrawing Geometry="M17,72 L162,67 M97,131 L327,123 M23,246 L197,238 M252,54 L421,49" Brush="Transparent"><GeometryDrawing.Pen><Pen Brush="#41685E4D" Thickness="0.9"/></GeometryDrawing.Pen></GeometryDrawing>
+                <GeometryDrawing Geometry="M54,13 L59,164 M214,25 L208,184 M365,93 L359,303" Brush="Transparent"><GeometryDrawing.Pen><Pen Brush="#43000000" Thickness="1.5"/></GeometryDrawing.Pen></GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <Style x:Key="StalkerWindowHeaderPanel" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource StalkerApprovedHeaderArtwork}"/>
+        <Setter Property="BorderBrush" Value="#865026"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="CornerRadius" Value="1"/>
+        <Setter Property="Effect" Value="{StaticResource StalkerExactPanelShadow}"/>
+    </Style>
+
+    <Style x:Key="StalkerHudPanel" TargetType="ContentControl">
+        <Setter Property="Foreground" Value="#E1DCCB"/>
+        <Setter Property="Background" Value="{StaticResource StalkerApprovedPanelArtwork}"/>
+        <Setter Property="Padding" Value="18,14"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Grid ClipToBounds="True">
+                        <Border Margin="5,6,0,0" Background="#A8000000"/>
+                        <Border x:Name="Outer" Background="{TemplateBinding Background}" BorderBrush="#80502A" BorderThickness="2.5"/>
+                        <Border Margin="3" BorderBrush="#4C402D" BorderThickness="1"/>
+                        <Rectangle Height="8" Margin="6" VerticalAlignment="Top" Fill="{StaticResource StalkerHazardBrush}" Opacity="0.62"/>
+                        <Path Data="M0,28 L0,7 L7,0 L80,0" Stroke="#C68B31" StrokeThickness="2.2" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2"/>
+                        <Path Data="M80,28 L80,7 L73,0 L0,0" Stroke="#655A3C" StrokeThickness="2.2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="2"/>
+                        <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Outer" Property="BorderBrush" Value="#AE7230"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="StalkerInnerBorder" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource StalkerApprovedInnerArtwork}"/>
+        <Setter Property="BorderBrush" Value="#65452A"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="CornerRadius" Value="1"/>
+    </Style>
+
+    <Style x:Key="StalkerListBox" TargetType="ListBox">
+        <Setter Property="Foreground" Value="#E1DCCB"/>
+        <Setter Property="Background" Value="{StaticResource StalkerApprovedInnerArtwork}"/>
+        <Setter Property="BorderBrush" Value="#65452A"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="Padding" Value="6"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+    </Style>
+</ResourceDictionary>

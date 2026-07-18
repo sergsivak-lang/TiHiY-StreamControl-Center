@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -14,6 +15,7 @@ public sealed class OverlayServer : IAsyncDisposable
     private readonly Func<object> _streamStatsProvider;
     private readonly Func<object> _donationSummaryProvider;
     private readonly Func<string> _themeProvider;
+    private readonly Func<AppSettings> _settingsProvider;
     private TcpListener? _listener;
     private CancellationTokenSource? _cts;
     private Task? _loop;
@@ -28,7 +30,8 @@ public sealed class OverlayServer : IAsyncDisposable
         Func<object> nowPlayingProvider,
         Func<object> streamStatsProvider,
         Func<object> donationSummaryProvider,
-        Func<string> themeProvider)
+        Func<string> themeProvider,
+        Func<AppSettings> settingsProvider)
     {
         _chatProvider = chatProvider;
         _donationProvider = donationProvider;
@@ -36,6 +39,7 @@ public sealed class OverlayServer : IAsyncDisposable
         _streamStatsProvider = streamStatsProvider;
         _donationSummaryProvider = donationSummaryProvider;
         _themeProvider = themeProvider;
+        _settingsProvider = settingsProvider;
     }
 
     public Task StartAsync(int port)
@@ -50,7 +54,11 @@ public sealed class OverlayServer : IAsyncDisposable
         return Task.CompletedTask;
     }
 
-    public async Task RestartAsync(int port) { await StopAsync(); await StartAsync(port); }
+    public async Task RestartAsync(int port)
+    {
+        await StopAsync();
+        await StartAsync(port);
+    }
 
     private async Task AcceptLoopAsync(CancellationToken token)
     {
@@ -62,7 +70,11 @@ public sealed class OverlayServer : IAsyncDisposable
                 _ = Task.Run(() => HandleClientAsync(client, token), token);
             }
             catch (OperationCanceledException) { break; }
-            catch { try { await Task.Delay(100, token); } catch { break; } }
+            catch
+            {
+                try { await Task.Delay(100, token); }
+                catch { break; }
+            }
         }
     }
 
@@ -76,6 +88,7 @@ public sealed class OverlayServer : IAsyncDisposable
             if (string.IsNullOrWhiteSpace(first)) return;
             string? line;
             do { line = await reader.ReadLineAsync(token); } while (!string.IsNullOrEmpty(line));
+
             var parts = first.Split(' ');
             var target = parts.Length > 1 ? parts[1] : "/";
             var uri = new Uri($"http://127.0.0.1:{Port}{target}");
@@ -83,7 +96,7 @@ public sealed class OverlayServer : IAsyncDisposable
 
             if (path == "/api/chat")
             {
-                var data = _chatProvider().TakeLast(30).Select(m => new
+                var data = _chatProvider().TakeLast(50).Select(m => new
                 {
                     id = string.IsNullOrWhiteSpace(m.ExternalId) ? $"{m.Time.Ticks}:{m.Platform}:{m.User}:{m.Text}" : m.ExternalId,
                     platform = m.Platform,
@@ -96,6 +109,7 @@ public sealed class OverlayServer : IAsyncDisposable
                 await RespondAsync(stream, "application/json; charset=utf-8", JsonSerializer.Serialize(data), token);
                 return;
             }
+
             if (path == "/api/donations")
             {
                 var data = _donationProvider().Where(x => x.ShowOnOverlay).TakeLast(30).Select(d => new
@@ -115,47 +129,53 @@ public sealed class OverlayServer : IAsyncDisposable
                 await RespondAsync(stream, "application/json; charset=utf-8", JsonSerializer.Serialize(data), token);
                 return;
             }
+
             if (path == "/api/now-playing")
             {
                 await RespondAsync(stream, "application/json; charset=utf-8", JsonSerializer.Serialize(_nowPlayingProvider()), token);
                 return;
             }
+
             if (path == "/api/stream-stats")
             {
                 await RespondAsync(stream, "application/json; charset=utf-8", JsonSerializer.Serialize(_streamStatsProvider()), token);
                 return;
             }
+
             if (path == "/api/donation-summary")
             {
                 await RespondAsync(stream, "application/json; charset=utf-8", JsonSerializer.Serialize(_donationSummaryProvider()), token);
                 return;
             }
-            if (path == "/overlay/chat")
+
+            var theme = GetQuery(uri, "theme") ?? _themeProvider();
+            switch (path)
             {
-                await RespondAsync(stream, "text/html; charset=utf-8", BuildChatHtml(GetQuery(uri, "theme") ?? _themeProvider()), token);
-                return;
+                case "/overlay/chat":
+                    await RespondAsync(stream, "text/html; charset=utf-8", BuildChatHtml(theme, _settingsProvider()), token);
+                    return;
+                case "/overlay/alerts":
+                    await RespondAsync(stream, "text/html; charset=utf-8", BuildAlertsHtml(theme), token);
+                    return;
+                case "/overlay/now-playing":
+                    await RespondAsync(stream, "text/html; charset=utf-8", BuildNowPlayingHtml(theme), token);
+                    return;
+                case "/overlay/donatello":
+                    await RespondAsync(stream, "text/html; charset=utf-8", BuildDonatelloHtml(theme), token);
+                    return;
+                case "/overlay/top-donors":
+                    await RespondAsync(stream, "text/html; charset=utf-8", BuildTopDonorsHtml(), token);
+                    return;
+                case "/overlay/goal":
+                    await RespondAsync(stream, "text/html; charset=utf-8", BuildGoalHtml(), token);
+                    return;
+                case "/health":
+                    await RespondAsync(stream, "text/plain; charset=utf-8", "TiHiY Overlay Server OK", token);
+                    return;
+                default:
+                    await RespondAsync(stream, "text/plain; charset=utf-8", "Not found", token, "404 Not Found");
+                    return;
             }
-            if (path == "/overlay/alerts")
-            {
-                await RespondAsync(stream, "text/html; charset=utf-8", BuildAlertsHtml(GetQuery(uri, "theme") ?? _themeProvider()), token);
-                return;
-            }
-            if (path == "/overlay/now-playing")
-            {
-                await RespondAsync(stream, "text/html; charset=utf-8", BuildNowPlayingHtml(GetQuery(uri, "theme") ?? _themeProvider()), token);
-                return;
-            }
-            if (path == "/overlay/donatello")
-            {
-                await RespondAsync(stream, "text/html; charset=utf-8", BuildDonatelloHtml(GetQuery(uri, "theme") ?? _themeProvider()), token);
-                return;
-            }
-            if (path == "/health")
-            {
-                await RespondAsync(stream, "text/plain; charset=utf-8", "TiHiY Overlay Server OK", token);
-                return;
-            }
-            await RespondAsync(stream, "text/plain; charset=utf-8", "Not found", token, "404 Not Found");
         }
     }
 
@@ -164,7 +184,8 @@ public sealed class OverlayServer : IAsyncDisposable
         foreach (var pair in uri.Query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries))
         {
             var parts = pair.Split('=', 2);
-            if (parts.Length == 2 && string.Equals(parts[0], name, StringComparison.OrdinalIgnoreCase)) return Uri.UnescapeDataString(parts[1]);
+            if (parts.Length == 2 && string.Equals(parts[0], name, StringComparison.OrdinalIgnoreCase))
+                return Uri.UnescapeDataString(parts[1]);
         }
         return null;
     }
@@ -178,35 +199,44 @@ public sealed class OverlayServer : IAsyncDisposable
         await stream.FlushAsync(token);
     }
 
-    private static string BuildChatHtml(string theme)
+    private static string BuildChatHtml(string theme, AppSettings settings)
     {
+        var fontSize = Math.Clamp(settings.StreamChatOverlayFontSize, 11, 48).ToString("0.#", CultureInfo.InvariantCulture);
+        var maxMessages = Math.Clamp(settings.StreamChatOverlayMaxMessages, 3, 30).ToString(CultureInfo.InvariantCulture);
+        var textColor = CssColor(settings.StreamChatOverlayTextColor, "#F2FAFF");
+        var userColor = CssColor(settings.StreamChatOverlayUserColor, "#55C8FF");
+        var background = CssRgba(settings.StreamChatOverlayBackgroundColor, settings.StreamChatOverlayBackgroundOpacity);
+
         var template = """
 <!doctype html><html lang="uk"><head><meta charset="utf-8"><style>
-html,body{margin:0;background:transparent;overflow:hidden;font-family:"Segoe UI",sans-serif}.wrap{position:absolute;left:12px;right:12px;bottom:44px;display:flex;flex-direction:column;gap:4px}.stats{position:absolute;left:12px;right:12px;bottom:8px;display:flex;justify-content:flex-end;gap:16px;padding:4px 2px;background:transparent;font-size:13px;font-weight:800;color:#dff7ff;text-shadow:0 2px 5px rgba(0,0,0,.95)}.msg{padding:5px 6px;border-radius:0;font-size:17px;line-height:1.3;background:transparent!important;box-shadow:none!important;text-shadow:0 2px 5px rgba(0,0,0,.98);transition:none;animation:none}.line{display:flex;gap:8px;align-items:flex-start}.platformIcon{width:24px;height:20px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:900;flex:0 0 auto}.platformIcon.tw{background:#9147ff}.platformIcon.yt{background:#ff0000}.platformIcon.dn{background:#e0a800;color:#101010}.statIcon{width:18px;height:18px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:900;margin-right:5px;text-shadow:none}.statIcon.tw{background:#9147ff}.statIcon.yt{background:#ff0000}.user{font-weight:800;flex:0 0 auto}.text{word-break:break-word;min-width:0}.highlight{background:transparent!important;border-left:none!important;padding-left:0!important}.highlight .text,.highlight .user{color:#FFD329!important;font-weight:900}
+html,body{margin:0;background:transparent;overflow:hidden;font-family:"Segoe UI",sans-serif}.wrap{position:absolute;left:12px;right:12px;bottom:44px;display:flex;flex-direction:column;gap:6px}.stats{position:absolute;left:12px;right:12px;bottom:7px;display:flex;justify-content:flex-end;gap:16px;padding:5px 3px;background:transparent;font-size:14px;font-weight:800;color:#dff7ff;text-shadow:0 2px 5px rgba(0,0,0,.95)}.msg{padding:7px 9px;border-radius:5px;font-size:__FONT__px;line-height:1.32;color:__TEXT__;background:__BACKGROUND__;text-shadow:0 2px 5px rgba(0,0,0,.98)}.line{display:grid;grid-template-columns:30px minmax(0,1fr);column-gap:9px;align-items:start}.content{min-width:0}.platformIcon,.statIcon{display:inline-flex;align-items:center;justify-content:center}.platformIcon{width:28px;height:23px}.statIcon{width:20px;height:18px;margin-right:5px}.platformIcon svg,.statIcon svg{display:block;width:100%;height:100%}.user{display:block;font-weight:900;color:__USER__;line-height:1.15;word-break:break-word}.text{display:block;margin-top:3px;word-break:break-word;white-space:pre-wrap}.highlight .text,.highlight .user{color:#FFD329!important;font-weight:900}
 __THEME__
-.msg{background:transparent!important;box-shadow:none!important}.stats{background:transparent!important}
-</style></head><body><div id="chat" class="wrap"></div><div class="stats"><span id="tw"></span><span id="yt"></span><span id="likes">👍 0</span></div><script>
-const nodes=new Map();
-function icon(platform,small=false){const p=(platform||'').toUpperCase();const e=document.createElement('span');let cls='tw',text='T',title='Twitch';if(p==='YOUTUBE'){cls='yt';text='▶';title='YouTube'}else if(p==='DONATELLO'){cls='dn';text='♥';title='Donatello'}e.className=(small?'statIcon ':'platformIcon ')+cls;e.textContent=text;e.title=title;return e}
-function makeMessage(m){const box=document.createElement('div');box.className='msg'+(m.highlighted?' highlight':'');box.style.color=m.foreground||'#fff';const line=document.createElement('div');line.className='line';line.append(icon(m.platform));const user=document.createElement('span');user.className='user';user.textContent=m.user+':';line.append(user);const text=document.createElement('span');text.className='text';text.textContent=m.text;line.append(text);box.append(line);return box}
-async function update(){try{const data=await(await fetch('/api/chat',{cache:'no-store'})).json();const root=document.getElementById('chat');const latest=data.slice(-12);const active=new Set();for(const m of latest){const key=String(m.id||((m.platform||'')+'|'+(m.user||'')+'|'+(m.text||'')));active.add(key);let box=nodes.get(key);if(!box){box=makeMessage(m);nodes.set(key,box)}root.append(box)}for(const [key,box] of [...nodes]){if(!active.has(key)){box.remove();nodes.delete(key)}}const st=await(await fetch('/api/stream-stats',{cache:'no-store'})).json();const tw=document.getElementById('tw');tw.replaceChildren(icon('TWITCH',true),document.createTextNode('👁 '+(st.twitchViewers||0)));const yt=document.getElementById('yt');yt.replaceChildren(icon('YOUTUBE',true),document.createTextNode('👁 '+(st.youtubeViewers||0)));document.getElementById('likes').textContent='👍 '+(st.youtubeLikes||0)}catch(e){}}setInterval(update,1000);update();
+</style></head><body><div id="chat" class="wrap"></div><div class="stats"><span id="tw"></span><span id="yt"></span><span id="likes">♥ 0</span></div><script>
+const nodes=new Map();const maxMessages=__MAX__;
+function svg(platform){const p=(platform||'').toUpperCase();if(p==='YOUTUBE')return '<svg viewBox="0 0 32 22" aria-label="YouTube"><rect width="32" height="22" rx="6" fill="#ff0033"/><path d="M13 6.5L22 11l-9 4.5z" fill="#fff"/></svg>';if(p==='DONATELLO')return '<svg viewBox="0 0 24 24"><path d="M12 21S3 15.6 3 8.8C3 5.2 7.5 3.7 12 7.5 16.5 3.7 21 5.2 21 8.8 21 15.6 12 21 12 21z" fill="#ffd329"/></svg>';return '<svg viewBox="0 0 28 28" aria-label="Twitch"><path d="M4 3h21v15l-6 6h-5l-3 3v-3H4z" fill="#9147ff"/><path d="M9 7h3v8H9zm7 0h3v8h-3z" fill="#fff"/></svg>'}
+function icon(platform,small=false){const e=document.createElement('span');e.className=small?'statIcon':'platformIcon';e.innerHTML=svg(platform);return e}
+function makeMessage(m){const box=document.createElement('div');box.className='msg'+(m.highlighted?' highlight':'');const line=document.createElement('div');line.className='line';line.append(icon(m.platform));const content=document.createElement('div');content.className='content';const user=document.createElement('span');user.className='user';user.style.color=m.foreground||'__USER__';user.textContent=(m.user||'Глядач')+':';content.append(user);const text=document.createElement('span');text.className='text';text.textContent=m.text||'';content.append(text);line.append(content);box.append(line);return box}
+async function update(){try{const data=await(await fetch('/api/chat',{cache:'no-store'})).json();const root=document.getElementById('chat');const latest=data.slice(-maxMessages);const active=new Set();for(const m of latest){const key=String(m.id||((m.platform||'')+'|'+(m.user||'')+'|'+(m.text||'')));active.add(key);let box=nodes.get(key);if(!box){box=makeMessage(m);nodes.set(key,box)}root.append(box)}for(const [key,box] of [...nodes])if(!active.has(key)){box.remove();nodes.delete(key)}const st=await(await fetch('/api/stream-stats',{cache:'no-store'})).json();const tw=document.getElementById('tw');tw.replaceChildren(icon('TWITCH',true),document.createTextNode(' '+(st.twitchViewers||0)));const yt=document.getElementById('yt');yt.replaceChildren(icon('YOUTUBE',true),document.createTextNode(' '+(st.youtubeViewers||0)));document.getElementById('likes').textContent='♥ '+(st.youtubeLikes||0)}catch(e){}}
+setInterval(update,900);update();
 </script></body></html>
 """;
-        return template.Replace("__THEME__", ThemeCss(theme), StringComparison.Ordinal);
+        return template
+            .Replace("__FONT__", fontSize, StringComparison.Ordinal)
+            .Replace("__MAX__", maxMessages, StringComparison.Ordinal)
+            .Replace("__TEXT__", textColor, StringComparison.Ordinal)
+            .Replace("__USER__", userColor, StringComparison.Ordinal)
+            .Replace("__BACKGROUND__", background, StringComparison.Ordinal)
+            .Replace("__THEME__", ThemeCss(theme), StringComparison.Ordinal);
     }
 
     private static string BuildAlertsHtml(string theme)
     {
         var template = """
 <!doctype html><html lang="uk"><head><meta charset="utf-8"><style>
-html,body{margin:0;background:transparent;overflow:hidden;font-family:"Segoe UI",sans-serif;color:#fff}#host{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}#card{min-width:520px;max-width:1000px;padding:24px 34px;border-radius:14px;opacity:0;transform:scale(.86) translateY(30px);transition:opacity .28s,transform .28s;text-align:center;text-shadow:0 3px 8px #000;background:rgba(4,20,32,.88);border:2px solid #FFD329;box-shadow:0 0 38px rgba(255,211,41,.34)}#card.on{opacity:1;transform:scale(1) translateY(0)}.source{font-size:15px;font-weight:900;letter-spacing:2px;color:#FFD329}.amount{font-size:48px;font-weight:1000;line-height:1.05;margin:8px 0}.user{font-size:27px;font-weight:900}.message{font-size:21px;margin-top:8px;white-space:pre-wrap;word-break:break-word}.sub .source,.sub .amount{color:#7DFFB2}.sub{border-color:#2BEB82;box-shadow:0 0 38px rgba(43,235,130,.34)}
+html,body{margin:0;background:transparent;overflow:hidden;font-family:"Segoe UI",sans-serif;color:#fff}#host{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}#card{min-width:520px;max-width:1000px;padding:24px 34px;border-radius:14px;opacity:0;transform:scale(.86) translateY(30px);transition:opacity .28s,transform .28s;text-align:center;text-shadow:0 3px 8px #000;background:rgba(4,20,32,.88);border:2px solid #FFD329;box-shadow:0 0 38px rgba(255,211,41,.34)}#card.on{opacity:1;transform:scale(1) translateY(0)}.source{font-size:15px;font-weight:900;letter-spacing:2px;color:#FFD329}.amount{font-size:48px;font-weight:1000;line-height:1.05;margin:8px 0}.user{font-size:27px;font-weight:900}.message{font-size:21px;margin-top:8px;white-space:pre-wrap;word-break:break-word}.sub .source,.sub .amount{color:#7DFFB2}.sub{border-color:#2BEB82}
 __THEME__
 </style></head><body><div id="host"><div id="card"><div id="source" class="source"></div><div id="amount" class="amount"></div><div id="user" class="user"></div><div id="message" class="message"></div></div></div><script>
-let initialized=false,lastId='',queue=[],showing=false;
-function chime(){try{const c=new(window.AudioContext||window.webkitAudioContext)();const g=c.createGain();g.gain.setValueAtTime(.001,c.currentTime);g.gain.exponentialRampToValueAtTime(.12,c.currentTime+.03);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.55);g.connect(c.destination);[523,659,784].forEach((f,i)=>{const o=c.createOscillator();o.frequency.value=f;o.connect(g);o.start(c.currentTime+i*.08);o.stop(c.currentTime+.55+i*.08)});setTimeout(()=>c.close(),1200)}catch(e){}}
-async function poll(){try{const data=await(await fetch('/api/donations',{cache:'no-store'})).json();if(!data.length)return;const latest=data[data.length-1];if(!initialized){initialized=true;lastId=String(latest.id||'');return}let fresh=[];let found=false;for(let i=data.length-1;i>=0;i--){const id=String(data[i].id||'');if(id===lastId){found=true;break}fresh.unshift(data[i])}if(!found)fresh=[latest];if(fresh.length){lastId=String(latest.id||lastId);queue.push(...fresh);showNext()}}catch(e){}}
-function showNext(){if(showing||!queue.length)return;showing=true;const d=queue.shift();const card=document.getElementById('card');card.classList.toggle('sub',(d.kind||'').toUpperCase()==='SUBSCRIPTION');document.getElementById('source').textContent=(d.kind||'').toUpperCase()==='SUBSCRIPTION'?'НОВА ПЛАТНА ПІДПИСКА':(d.source||'ДОНАТ');document.getElementById('amount').textContent=(Number(d.amount)||0).toLocaleString('uk-UA',{maximumFractionDigits:2})+' '+(d.currency||'');document.getElementById('user').textContent=d.user||'Анонім';document.getElementById('message').textContent=d.message||'';requestAnimationFrame(()=>card.classList.add('on'));chime();setTimeout(()=>{card.classList.remove('on');setTimeout(()=>{showing=false;showNext()},420)},7000)}
-setInterval(poll,750);poll();
+let initialized=false,lastId='',queue=[],showing=false;async function poll(){try{const data=await(await fetch('/api/donations',{cache:'no-store'})).json();if(!data.length)return;const latest=data[data.length-1];if(!initialized){initialized=true;lastId=String(latest.id||'');return}let fresh=[];for(let i=data.length-1;i>=0;i--){if(String(data[i].id||'')===lastId)break;fresh.unshift(data[i])}if(fresh.length){lastId=String(latest.id||lastId);queue.push(...fresh);showNext()}}catch(e){}}function showNext(){if(showing||!queue.length)return;showing=true;const d=queue.shift();const c=document.getElementById('card');c.classList.toggle('sub',(d.kind||'').toUpperCase()==='SUBSCRIPTION');document.getElementById('source').textContent=(d.kind||'').toUpperCase()==='SUBSCRIPTION'?'НОВА ПЛАТНА ПІДПИСКА':(d.source||'ДОНАТ');document.getElementById('amount').textContent=(Number(d.amount)||0).toLocaleString('uk-UA')+' '+(d.currency||'');document.getElementById('user').textContent=d.user||'Анонім';document.getElementById('message').textContent=d.message||'';requestAnimationFrame(()=>c.classList.add('on'));setTimeout(()=>{c.classList.remove('on');setTimeout(()=>{showing=false;showNext()},400)},7000)}setInterval(poll,800);poll();
 </script></body></html>
 """;
         return template.Replace("__THEME__", ThemeCss(theme), StringComparison.Ordinal);
@@ -216,18 +246,30 @@ setInterval(poll,750);poll();
     {
         var template = """
 <!doctype html><html lang="uk"><head><meta charset="utf-8"><style>
-html,body{margin:0;background:transparent;overflow:hidden;font-family:"Segoe UI",sans-serif;color:#F0FAFF}.wrap{position:absolute;left:16px;top:16px;right:16px;display:grid;grid-template-columns:minmax(320px,1.08fr) minmax(280px,.92fr);gap:16px}.card{background:rgba(5,19,31,.88);border:1px solid rgba(65,214,255,.45);border-radius:16px;box-shadow:0 0 28px rgba(45,208,255,.16), inset 0 0 20px rgba(13,35,54,.28);padding:16px 18px}.title{font-size:14px;font-weight:900;letter-spacing:1.3px;color:#45D6FF;text-transform:uppercase}.sub{font-size:12px;opacity:.78}.goalTitle{font-size:24px;font-weight:900;line-height:1.1;margin:8px 0 6px;color:#FFFFFF}.goalLine{display:flex;justify-content:space-between;gap:12px;font-weight:800;color:#FFD24A;font-size:18px}.bar{height:16px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;border:1px solid rgba(79,169,209,.3);margin-top:10px}.fill{height:100%;width:0;background:linear-gradient(90deg,#FFB100,#FF7B00);box-shadow:0 0 18px rgba(255,177,0,.45)}.meta{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:#B9D2DE}.lastUser{font-size:26px;font-weight:900;color:#FFF}.lastAmount{font-size:34px;font-weight:1000;color:#FFD24A;line-height:1.05;margin-top:4px}.lastMessage{margin-top:8px;font-size:19px;line-height:1.35;white-space:pre-wrap;word-break:break-word}.pill{display:inline-flex;align-items:center;gap:8px;padding:4px 10px;border-radius:999px;border:1px solid rgba(255,177,0,.55);background:rgba(255,177,0,.12);color:#FFD24A;font-size:12px;font-weight:900;margin-top:10px}.list{display:flex;flex-direction:column;gap:10px;margin-top:10px}.item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;padding:10px 12px;border-radius:12px;background:rgba(2,11,18,.72);border:1px solid rgba(34,137,178,.25)}.icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,177,0,.14);border:1px solid rgba(255,177,0,.5);color:#FFD24A;font-weight:900}.itemUser{font-size:15px;font-weight:900;color:#FFF}.itemText{font-size:13px;color:#B6CBD6}.time{font-size:12px;color:#8BA3B1;white-space:nowrap}.empty{opacity:.65;font-style:italic}
+html,body{margin:0;background:transparent;overflow:hidden;font-family:"Segoe UI",sans-serif;color:#F0FAFF}.wrap{position:absolute;left:16px;top:16px;right:16px;display:grid;grid-template-columns:minmax(320px,1.08fr) minmax(280px,.92fr);gap:16px}.card{background:rgba(5,19,31,.88);border:1px solid rgba(65,214,255,.45);border-radius:16px;padding:16px 18px}.title{font-size:14px;font-weight:900;color:#45D6FF}.goalTitle{font-size:24px;font-weight:900;margin:8px 0;color:#fff}.goalLine{display:flex;justify-content:space-between;font-weight:800;color:#FFD24A;font-size:18px}.bar{height:16px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin-top:10px}.fill{height:100%;width:0;background:#FFD329}.lastUser{font-size:26px;font-weight:900}.lastAmount{font-size:34px;font-weight:1000;color:#FFD24A}.lastMessage{margin-top:8px;font-size:19px}.list{display:flex;flex-direction:column;gap:8px;margin-top:10px}.item{display:grid;grid-template-columns:1fr auto;gap:10px;padding:8px 10px;background:rgba(2,11,18,.72);border:1px solid rgba(34,137,178,.25)}
 __THEME__
-</style></head><body><div class="wrap"><div class="card"><div class="title">Donatello • ціль збору</div><div id="goalSub" class="sub">Синхронізація з Donatello та внутрішньою історією донатів</div><div id="goalTitle" class="goalTitle">Ціль збору</div><div class="goalLine"><span id="goalCurrent">0 UAH</span><span id="goalTarget">0 UAH</span></div><div class="bar"><div id="goalFill" class="fill"></div></div><div class="meta"><span id="goalPercent">0%</span><span id="goalSource">Donatello: offline</span><span id="goalEvents">0 подій</span></div></div><div class="card"><div class="title">Останній донат / сповіщення</div><div id="lastUser" class="lastUser">Очікування подій…</div><div id="lastAmount" class="lastAmount">—</div><div id="lastMessage" class="lastMessage empty">Після підключення Donatello тут з’явиться останній донат або підписка.</div><div id="lastPill" class="pill">DONATELLO</div><div id="list" class="list"></div></div></div><script>
-function fmtAmount(v,c){const n=Number(v)||0;return n.toLocaleString('uk-UA',{maximumFractionDigits:2})+' '+(c||'UAH')}
-function icon(kind){return (kind||'').toUpperCase()==='SUBSCRIPTION'?'★':'♥'}
-function itemHtml(d){const row=document.createElement('div');row.className='item';const ic=document.createElement('div');ic.className='icon';ic.textContent=icon(d.kind);const body=document.createElement('div');const u=document.createElement('div');u.className='itemUser';u.textContent=(d.user||'Анонім')+' • '+fmtAmount(d.amount,d.currency);const t=document.createElement('div');t.className='itemText';t.textContent=d.message||'';body.append(u,t);const tm=document.createElement('div');tm.className='time';const dt=d.time?new Date(d.time):null;tm.textContent=dt && !Number.isNaN(dt.getTime())?dt.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';row.append(ic,body,tm);return row}
-async function update(){try{const data=await(await fetch('/api/donation-summary',{cache:'no-store'})).json();document.getElementById('goalTitle').textContent=data.goalTitle||'Ціль збору';document.getElementById('goalCurrent').textContent=fmtAmount(data.currentAmount,data.goalCurrency);document.getElementById('goalTarget').textContent=fmtAmount(data.goalAmount,data.goalCurrency);document.getElementById('goalFill').style.width=Math.max(0,Math.min(100,Number(data.progressPercent)||0))+'%';document.getElementById('goalPercent').textContent=(Number(data.progressPercent)||0).toFixed(0)+'%';document.getElementById('goalSource').textContent='Donatello: '+(data.donatelloStatus||'—');document.getElementById('goalEvents').textContent=(Array.isArray(data.recent)?data.recent.length:0)+' подій';const last=data.lastDonation;const msg=document.getElementById('lastMessage');if(last){document.getElementById('lastUser').textContent=last.user||'Анонім';document.getElementById('lastAmount').textContent=fmtAmount(last.amount,last.currency);msg.classList.remove('empty');msg.textContent=last.message||'Без повідомлення';document.getElementById('lastPill').textContent=(last.source||'DONATELLO')+' • '+((last.kind||'DONATION').toUpperCase()==='SUBSCRIPTION'?'ПІДПИСКА':'ДОНАТ');}const list=document.getElementById('list');list.replaceChildren();for(const d of (data.recent||[]).slice(0,5)){list.append(itemHtml(d))}}catch(e){}}
-setInterval(update,1000);update();
+</style></head><body><div class="wrap"><div class="card"><div class="title">DONATELLO • ЦІЛЬ ЗБОРУ</div><div id="goalTitle" class="goalTitle">Ціль збору</div><div class="goalLine"><span id="goalCurrent">0 UAH</span><span id="goalTarget">0 UAH</span></div><div class="bar"><div id="goalFill" class="fill"></div></div></div><div class="card"><div class="title">ОСТАННІ ДОНАТИ</div><div id="lastUser" class="lastUser">Очікування…</div><div id="lastAmount" class="lastAmount">—</div><div id="lastMessage" class="lastMessage"></div><div id="list" class="list"></div></div></div><script>
+function fmt(v,c){return (Number(v)||0).toLocaleString('uk-UA',{maximumFractionDigits:2})+' '+(c||'UAH')}async function update(){try{const d=await(await fetch('/api/donation-summary',{cache:'no-store'})).json();document.getElementById('goalTitle').textContent=d.goalTitle||'Ціль збору';document.getElementById('goalCurrent').textContent=fmt(d.currentAmount,d.goalCurrency);document.getElementById('goalTarget').textContent=fmt(d.goalAmount,d.goalCurrency);document.getElementById('goalFill').style.width=Math.max(0,Math.min(100,Number(d.progressPercent)||0))+'%';if(d.lastDonation){document.getElementById('lastUser').textContent=d.lastDonation.user||'Анонім';document.getElementById('lastAmount').textContent=fmt(d.lastDonation.amount,d.lastDonation.currency);document.getElementById('lastMessage').textContent=d.lastDonation.message||''}const list=document.getElementById('list');list.replaceChildren();for(const x of (d.recent||[]).slice(0,5)){const row=document.createElement('div');row.className='item';row.innerHTML='<b></b><span></span>';row.children[0].textContent=(x.user||'Анонім')+' • '+fmt(x.amount,x.currency);row.children[1].textContent=new Date(x.time).toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});list.append(row)}}catch(e){}}setInterval(update,1000);update();
 </script></body></html>
 """;
         return template.Replace("__THEME__", ThemeCss(theme), StringComparison.Ordinal);
     }
+
+    private static string BuildTopDonorsHtml() => """
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><style>
+html,body{margin:0;background:transparent;overflow:hidden;font-family:"Segoe UI",sans-serif}#frame{position:absolute;inset:0;display:flex;align-items:center;overflow:hidden;border-radius:8px}#track{display:flex;align-items:center;gap:42px;white-space:nowrap;will-change:transform;font-size:30px;font-weight:900;text-shadow:0 2px 6px #000}.item{display:inline-flex;gap:10px;align-items:center}.rank{opacity:.72}.amount{font-weight:1000}
+</style></head><body><div id="frame"><div id="track"></div></div><script>
+let signature='';let animation=null;function hexRgba(hex,a){const h=(hex||'#06172A').replace('#','');const v=h.length===8?h.slice(2):h;const n=parseInt(v,16)||0;return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${Math.max(0,Math.min(1,Number(a)||0))})`}async function update(){try{const d=await(await fetch('/api/donation-summary',{cache:'no-store'})).json();const items=d.topDonors||[];const sig=JSON.stringify(items)+JSON.stringify(d.tickerStyle||{});if(sig===signature)return;signature=sig;const s=d.tickerStyle||{};const frame=document.getElementById('frame');const track=document.getElementById('track');frame.style.background=hexRgba(s.backgroundColor,s.backgroundOpacity);track.style.color=s.textColor||'#FFD329';track.replaceChildren();const source=items.length?items:[{rank:1,user:'Очікування донатів',amount:0,currency:d.goalCurrency||'UAH'}];for(let r=0;r<2;r++)for(const x of source){const el=document.createElement('span');el.className='item';el.innerHTML='<span class="rank"></span><span class="user"></span><span class="amount"></span>';el.children[0].textContent='#'+x.rank;el.children[1].textContent=x.user||'Анонім';el.children[2].textContent=(Number(x.amount)||0).toLocaleString('uk-UA')+' '+(x.currency||'UAH');track.append(el)}requestAnimationFrame(()=>{animation?.cancel();const distance=Math.max(1,track.scrollWidth/2);const speed=Math.max(20,Math.min(250,Number(s.speed)||70));animation=track.animate([{transform:'translateX(0)'},{transform:`translateX(-${distance}px)`}],{duration:distance/speed*1000,iterations:Infinity,easing:'linear'})})}catch(e){}}setInterval(update,1500);update();
+</script></body></html>
+""";
+
+    private static string BuildGoalHtml() => """
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><style>
+html,body{margin:0;background:transparent;overflow:hidden;font-family:"Segoe UI",sans-serif}#card{position:absolute;inset:0;border-radius:12px;padding:18px 22px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;text-shadow:0 2px 6px #000}.title{font-size:28px;font-weight:1000}.line{display:flex;justify-content:space-between;gap:20px;font-size:22px;font-weight:900;margin-top:8px}.bar{height:22px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.24);border-radius:999px;overflow:hidden;margin-top:12px}.fill{height:100%;width:0;transition:width .5s}.percent{text-align:right;font-size:16px;font-weight:900;margin-top:5px}
+</style></head><body><div id="card"><div id="title" class="title">Ціль збору</div><div class="line"><span id="current">0 UAH</span><span id="target">0 UAH</span></div><div class="bar"><div id="fill" class="fill"></div></div><div id="percent" class="percent">0%</div></div><script>
+function fmt(v,c){return (Number(v)||0).toLocaleString('uk-UA',{maximumFractionDigits:2})+' '+(c||'UAH')}async function update(){try{const d=await(await fetch('/api/donation-summary',{cache:'no-store'})).json();const s=d.goalStyle||{};const card=document.getElementById('card');card.style.background=s.backgroundColor||'#06172A';card.style.color=s.textColor||'#F4F8FF';document.getElementById('title').textContent=d.goalTitle||'Ціль збору';document.getElementById('current').textContent=fmt(d.currentAmount,d.goalCurrency);document.getElementById('target').textContent=fmt(d.goalAmount,d.goalCurrency);const p=Math.max(0,Math.min(100,Number(d.progressPercent)||0));const fill=document.getElementById('fill');fill.style.width=p+'%';fill.style.background=s.barColor||'#FFD329';document.getElementById('percent').textContent=p.toFixed(0)+'%'}catch(e){}}setInterval(update,1000);update();
+</script></body></html>
+""";
 
     private static string BuildNowPlayingHtml(string theme)
     {
@@ -245,16 +287,32 @@ async function update(){try{const m=await(await fetch('/api/now-playing',{cache:
     private static string ThemeCss(string theme)
     {
         var key = theme.ToLowerInvariant();
-        if (key.Contains("cobra")) return ".msg,#card{background:linear-gradient(90deg,rgba(1,15,8,.94),rgba(2,40,19,.82));border:1px solid rgba(40,255,120,.45);border-left:4px solid #28ff78}.platformIcon{box-shadow:0 0 9px rgba(40,255,120,.45)}.fill{background:#28ff78}";
-        if (key.Contains("ukraine")) return ".msg,#card{background:linear-gradient(90deg,rgba(2,24,65,.95),rgba(8,59,130,.84));border:1px solid rgba(54,158,255,.50);border-left:4px solid #FFD329}.platformIcon{box-shadow:0 0 9px rgba(72,168,255,.55)}.fill{background:#FFD329}";
-        if (key.Contains("neon")) return ".msg,#card{background:linear-gradient(90deg,rgba(18,4,32,.95),rgba(58,7,62,.84));border:1px solid rgba(255,48,202,.55);border-left:4px solid #35EAFF}.platformIcon{box-shadow:0 0 11px rgba(255,48,202,.6)}.fill{background:#FF35D3}";
-        if (key.Contains("military")) return ".msg,#card{background:linear-gradient(90deg,rgba(10,17,8,.95),rgba(30,39,20,.86));border:1px solid rgba(140,158,65,.48);border-left:4px solid #D4B642}.platformIcon{box-shadow:0 0 8px rgba(184,214,106,.35)}.fill{background:#9A7A1C}";
-        if (key.Contains("synthwave")) return ".msg,#card{background:linear-gradient(90deg,rgba(10,4,35,.95),rgba(44,8,68,.86));border:1px solid rgba(189,58,255,.52);border-left:4px solid #FF35B5}.platformIcon{box-shadow:0 0 10px rgba(54,231,255,.55)}.fill{background:#FF35B5}";
-        if (key.Contains("cyberpunk")) return ".msg,#card{background:linear-gradient(90deg,rgba(3,12,16,.96),rgba(9,33,43,.86));border:1px solid rgba(32,224,255,.52);border-left:4px solid #FF2E8A}.platformIcon{box-shadow:0 0 10px rgba(32,224,255,.5)}.fill{background:#FF2E8A}";
-        if (key.Contains("stalker")) return ".msg,#card{background:linear-gradient(90deg,rgba(13,14,10,.96),rgba(39,35,25,.88));border:1px solid rgba(142,130,83,.48);border-left:4px solid #C8893B}.platformIcon{box-shadow:0 0 8px rgba(200,137,59,.35)}.fill{background:#C8893B}";
-        if (key.Contains("minimal")) return ".msg,#card{background:rgba(0,0,0,.18);text-shadow:0 2px 4px #000}.platformIcon{box-shadow:0 0 9px rgba(102,217,255,.45)}";
-        if (key.Contains("compact") || key.Contains("drive")) return ".msg,#card{background:rgba(20,13,6,.90);border:1px solid rgba(255,154,31,.45);border-left:3px solid #FF9A1F}.msg{padding:5px 8px;font-size:14px}.platformIcon{box-shadow:0 0 9px rgba(255,154,31,.45)}";
-        return ".msg,#card{background:linear-gradient(90deg,rgba(4,20,32,.95),rgba(7,44,61,.82));border:1px solid rgba(69,182,255,.48);border-left:4px solid #45b6ff;box-shadow:0 0 16px rgba(0,130,210,.18)}.platformIcon{box-shadow:0 0 9px rgba(69,182,255,.45)}";
+        if (key.Contains("cobra")) return ".msg,#card{border:1px solid rgba(40,255,120,.45);border-left:4px solid #28ff78}.fill{background:#28ff78}";
+        if (key.Contains("ukraine")) return ".msg,#card{border:1px solid rgba(54,158,255,.50);border-left:4px solid #FFD329}.fill{background:#FFD329}";
+        if (key.Contains("neon")) return ".msg,#card{border:1px solid rgba(255,48,202,.55);border-left:4px solid #35EAFF}.fill{background:#FF35D3}";
+        if (key.Contains("military")) return ".msg,#card{border:1px solid rgba(140,158,65,.48);border-left:4px solid #D4B642}.fill{background:#9A7A1C}";
+        if (key.Contains("synthwave")) return ".msg,#card{border:1px solid rgba(189,58,255,.52);border-left:4px solid #FF35B5}.fill{background:#FF35B5}";
+        if (key.Contains("cyberpunk")) return ".msg,#card{border:1px solid rgba(32,224,255,.52);border-left:4px solid #FF2E8A}.fill{background:#FF2E8A}";
+        if (key.Contains("stalker")) return ".msg,#card{border:1px solid rgba(142,130,83,.48);border-left:4px solid #C8893B}.fill{background:#C8893B}";
+        if (key.Contains("minimal")) return ".msg,#card{border:0;background:rgba(0,0,0,.12)}";
+        return ".msg,#card{border:1px solid rgba(69,182,255,.48);border-left:4px solid #45b6ff}";
+    }
+
+    private static string CssColor(string value, string fallback)
+    {
+        var text = value?.Trim() ?? string.Empty;
+        if (!text.StartsWith('#')) text = "#" + text;
+        return text.Length is 7 or 9 && text.Skip(1).All(Uri.IsHexDigit) ? text.ToUpperInvariant() : fallback;
+    }
+
+    private static string CssRgba(string value, double opacity)
+    {
+        var hex = CssColor(value, "#000000").TrimStart('#');
+        if (hex.Length == 8) hex = hex[2..];
+        var red = int.Parse(hex[..2], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        var green = int.Parse(hex.Substring(2, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        var blue = int.Parse(hex.Substring(4, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        return $"rgba({red},{green},{blue},{Math.Clamp(opacity, 0, 0.95).ToString("0.###", CultureInfo.InvariantCulture)})";
     }
 
     public async Task StopAsync()
@@ -263,7 +321,8 @@ async function update(){try{const m=await(await fetch('/api/now-playing',{cache:
         _cts?.Cancel();
         _listener.Stop();
         _listener = null;
-        if (_loop is not null) try { await _loop.ConfigureAwait(false); } catch { }
+        if (_loop is not null)
+            try { await _loop.ConfigureAwait(false); } catch { }
         _cts?.Dispose();
         _cts = null;
         StatusChanged?.Invoke(this, EventArgs.Empty);

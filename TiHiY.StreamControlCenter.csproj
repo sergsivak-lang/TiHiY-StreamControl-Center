@@ -11,15 +11,30 @@
     <AssemblyName>TiHiY.StreamControlCenter</AssemblyName>
     <RootNamespace>TiHiY.StreamControlCenter</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon Condition="Exists('Assets\AppIcon.ico')">Assets\AppIcon.ico</ApplicationIcon>
-    <Version>1.0.5.2</Version>
-    <AssemblyVersion>1.0.5.2</AssemblyVersion>
-    <FileVersion>1.0.5.2</FileVersion>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
+    <Version>1.0.6.0</Version>
+    <AssemblyVersion>1.0.6.0</AssemblyVersion>
+    <FileVersion>1.0.6.0</FileVersion>
   </PropertyGroup>
+
+  <Target Name="GenerateBrandedAppIcon"
+          BeforeTargets="PrepareForBuild"
+          Condition="'$(DesignTimeBuild)' != 'true'">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\Build\Generate-AppIcon.ps1&quot; -ProjectDir &quot;$(MSBuildProjectDirectory)&quot;" />
+  </Target>
+
+  <Target Name="GenerateExactCentralTexture"
+          BeforeTargets="PrepareForBuild"
+          Condition="'$(DesignTimeBuild)' != 'true'">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\Build\Generate-CentralTexture.ps1&quot; -ProjectDir &quot;$(MSBuildProjectDirectory)&quot;" />
+  </Target>
+
   <ItemGroup>
-    <Resource Include="Assets\AppIcon.png" Condition="Exists('Assets\AppIcon.png')" />
+    <Resource Include="Assets\AppIcon.png" />
     <Resource Include="Assets\Platforms\*.png" />
     <Resource Include="Assets\Themes\**\*.png" />
+    <Resource Include="Assets\Themes\UkraineExact\central-glory.jpg" />
+    <None Include="Assets\Themes\UkraineExact\central-glory.b64.*" Visible="false" />
     <Content Include="Design\Cyber-Amber-Exact-Mockup.png" Condition="Exists('Design\Cyber-Amber-Exact-Mockup.png')" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

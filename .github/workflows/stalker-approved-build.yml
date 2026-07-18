@@ -1,0 +1,40 @@
+name: STALKER Approved Build
+
+on:
+  pull_request:
+    branches:
+      - feature/ukraine-reference-theme-v2
+  workflow_dispatch:
+
+jobs:
+  build-and-preview:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Restore
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Publish
+        run: dotnet publish -c Release -r win-x64 --self-contained true -o publish
+      - name: Capture STALKER main window
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path preview | Out-Null
+          $shot = Join-Path $PWD 'preview/TiHiY-STALKER-Approved.png'
+          $exe = (Resolve-Path 'publish/TiHiY.StreamControlCenter.exe').Path
+          $p = Start-Process -FilePath $exe -ArgumentList @("--ci-screenshot=$shot", '--ci-theme=Сталкер') -PassThru
+          if (-not $p.WaitForExit(60000)) { $p.Kill($true); throw 'STALKER preview timed out.' }
+          if ($p.ExitCode -ne 0) { throw "Application exited with code $($p.ExitCode)." }
+          if (-not (Test-Path $shot)) { throw 'STALKER screenshot was not created.' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TiHiY-STALKER-Approved-Screenshot
+          path: preview/TiHiY-STALKER-Approved.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TiHiY-STALKER-Approved-win-x64
+          path: publish/**
