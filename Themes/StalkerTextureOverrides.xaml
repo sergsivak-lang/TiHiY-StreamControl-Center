@@ -8,9 +8,7 @@
                 <GeometryDrawing Brush="#090B08" Geometry="M0,0 H1024 V640 H0 Z"/>
                 <GeometryDrawing Brush="#151710" Geometry="M0,0 H1024 V78 H0 Z M0,292 H1024 V306 H0 Z M0,574 H1024 V640 H0 Z"/>
                 <GeometryDrawing Brush="#211E16" Geometry="M0,78 H1024 V82 H0 Z M0,306 H1024 V310 H0 Z M0,570 H1024 V574 H0 Z"/>
-                <GeometryDrawing Brush="#6A3215" Geometry="M44,36 C104,8 190,18 230,64 C191,111 99,109 44,36 Z M741,458 C814,401 945,425 1011,509 C946,588 817,573 741,458 Z"/>
-                <GeometryDrawing Brush="#8C451A" Geometry="M349,162 C405,121 493,136 523,193 C486,252 397,253 349,162 Z M74,466 C129,421 218,437 246,498 C209,554 119,553 74,466 Z"/>
-                <GeometryDrawing Brush="#3D291A" Geometry="M618,73 C690,39 797,61 836,125 C783,182 683,170 618,73 Z"/>
+                <GeometryDrawing Brush="#4A2917" Geometry="M0,0 H128 V10 H0 Z M896,0 H1024 V10 H896 Z M0,630 H152 V640 H0 Z M872,630 H1024 V640 H872 Z"/>
                 <GeometryDrawing Geometry="M0,160 H1024 M0,420 H1024 M256,0 V640 M768,0 V640" Brush="Transparent">
                     <GeometryDrawing.Pen><Pen Brush="#2E2419" Thickness="3"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
@@ -30,8 +28,7 @@
             <DrawingGroup>
                 <GeometryDrawing Brush="#F014160F" Geometry="M0,0 H640 V420 H0 Z"/>
                 <GeometryDrawing Brush="#2D292019" Geometry="M0,0 H640 V34 H0 Z M0,386 H640 V420 H0 Z"/>
-                <GeometryDrawing Brush="#53301913" Geometry="M18,26 C87,-7 163,7 194,59 C150,116 69,108 18,26 Z M415,271 C479,213 589,236 632,315 C576,398 468,381 415,271 Z"/>
-                <GeometryDrawing Brush="#78401B" Geometry="M231,137 C296,91 387,112 416,174 C373,235 278,229 231,137 Z"/>
+                <GeometryDrawing Brush="#4B2A17" Geometry="M0,0 H86 V12 H0 Z M554,0 H640 V12 H554 Z M0,408 H104 V420 H0 Z M536,408 H640 V420 H536 Z"/>
                 <GeometryDrawing Brush="#2A2117" Geometry="M0,118 H640 V123 H0 Z M318,0 H323 V420 H318 Z"/>
                 <GeometryDrawing Geometry="M25,100 L244,91 M345,42 L602,34 M74,217 L419,202 M39,347 L263,336 M382,382 L616,366" Brush="Transparent">
                     <GeometryDrawing.Pen><Pen Brush="#60776752" Thickness="1.4"/></GeometryDrawing.Pen>
@@ -49,7 +46,7 @@
             <DrawingGroup>
                 <GeometryDrawing Brush="#312D23" Geometry="M0,0 H260 V78 H0 Z"/>
                 <GeometryDrawing Brush="#17160F" Geometry="M0,55 H260 V78 H0 Z"/>
-                <GeometryDrawing Brush="#713718" Geometry="M16,9 C55,-4 101,8 116,31 C90,58 45,52 16,9 Z M176,45 C205,23 245,31 258,58 C232,77 197,72 176,45 Z"/>
+                <GeometryDrawing Brush="#5D321A" Geometry="M0,0 H44 V7 H0 Z M216,0 H260 V7 H216 Z M0,71 H58 V78 H0 Z M202,71 H260 V78 H202 Z"/>
                 <GeometryDrawing Geometry="M22,37 L118,29 M139,61 L235,52" Brush="Transparent">
                     <GeometryDrawing.Pen><Pen Brush="#75857158" Thickness="1.3"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
