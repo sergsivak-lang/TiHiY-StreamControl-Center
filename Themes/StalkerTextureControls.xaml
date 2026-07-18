@@ -6,7 +6,6 @@
             <DrawingGroup>
                 <GeometryDrawing Brush="#F0080A07" Geometry="M0,0 H720 V420 H0 Z"/>
                 <GeometryDrawing Brush="#201A170F" Geometry="M0,0 H720 V30 H0 Z M0,390 H720 V420 H0 Z"/>
-                <GeometryDrawing Brush="#40241410" Geometry="M28,39 C92,3 174,20 200,75 C156,130 73,118 28,39 Z M487,268 C548,214 660,237 708,323 C646,402 538,383 487,268 Z"/>
                 <GeometryDrawing Brush="#2A2117" Geometry="M0,174 H720 V178 H0 Z M359,0 H363 V420 H359 Z"/>
                 <GeometryDrawing Geometry="M31,126 L267,111 M384,61 L672,49 M67,258 L421,239 M199,367 L638,344" Brush="Transparent">
                     <GeometryDrawing.Pen><Pen Brush="#56706450" Thickness="1.2"/></GeometryDrawing.Pen>
@@ -24,7 +23,6 @@
                 <GeometryDrawing Brush="#201E17" Geometry="M0,0 H1100 V110 H0 Z"/>
                 <GeometryDrawing Brush="#352719" Geometry="M0,0 H1100 V14 H0 Z M0,96 H1100 V110 H0 Z"/>
                 <GeometryDrawing Brush="#6B3518" Geometry="M0,0 H185 L122,110 H0 Z M919,0 H1100 V110 H982 Z"/>
-                <GeometryDrawing Brush="#7D3C18" Geometry="M320,8 C395,-8 488,9 528,41 C478,75 392,72 320,8 Z M662,63 C727,34 837,45 895,88 C824,115 726,108 662,63 Z"/>
                 <GeometryDrawing Geometry="M0,55 H1100" Brush="Transparent"><GeometryDrawing.Pen><Pen Brush="#6D4E341F" Thickness="2"/></GeometryDrawing.Pen></GeometryDrawing>
                 <GeometryDrawing Geometry="M187,41 L397,34 M537,22 L785,16 M622,87 L924,78" Brush="Transparent"><GeometryDrawing.Pen><Pen Brush="#5B87775B" Thickness="1.2"/></GeometryDrawing.Pen></GeometryDrawing>
                 <GeometryDrawing Brush="#8B76664C" Geometry="M12,12 A5,5 0 1 0 22,12 A5,5 0 1 0 12,12 M1078,12 A5,5 0 1 0 1088,12 A5,5 0 1 0 1078,12 M12,88 A5,5 0 1 0 22,88 A5,5 0 1 0 12,88 M1078,88 A5,5 0 1 0 1088,88 A5,5 0 1 0 1078,88"/>
@@ -129,7 +127,7 @@
         <Setter Property="Background" Value="{StaticResource StalkerHeaderPlateTexture}"/>
         <Setter Property="BorderBrush" Value="#895027"/>
         <Setter Property="BorderThickness" Value="3"/>
-        <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="CornerRadius" Value="1"/>
         <Setter Property="Effect" Value="{StaticResource StalkerExactPanelShadow}"/>
     </Style>
 </ResourceDictionary>
