@@ -131,9 +131,16 @@ internal static class StalkerApprovedSkinRuntime
         var group = new DrawingGroup();
         group.Children.Add(new GeometryDrawing(
             new LinearGradientBrush(
-                Color.FromRgb(29, 28, 21),
-                Color.FromRgb(12, 15, 13),
-                90),
+                new GradientStopCollection
+                {
+                    new(Color.FromRgb(33, 31, 23), 0.00),
+                    new(Color.FromRgb(20, 21, 17), 0.18),
+                    new(Color.FromRgb(12, 15, 13), 0.52),
+                    new(Color.FromRgb(18, 18, 14), 0.82),
+                    new(Color.FromRgb(29, 25, 18), 1.00)
+                },
+                new Point(0, 0),
+                new Point(0, 1)),
             null,
             new RectangleGeometry(new Rect(0, 0, 1, 1))));
 
@@ -141,12 +148,12 @@ internal static class StalkerApprovedSkinRuntime
             new LinearGradientBrush(
                 new GradientStopCollection
                 {
-                    new(Color.FromArgb(130, 126, 77, 31), 0.00),
-                    new(Color.FromArgb(35, 126, 77, 31), 0.09),
-                    new(Colors.Transparent, 0.22),
-                    new(Colors.Transparent, 0.76),
-                    new(Color.FromArgb(30, 112, 70, 29), 0.91),
-                    new(Color.FromArgb(115, 112, 70, 29), 1.00)
+                    new(Color.FromArgb(118, 129, 81, 34), 0.00),
+                    new(Color.FromArgb(28, 111, 69, 28), 0.035),
+                    new(Colors.Transparent, 0.085),
+                    new(Colors.Transparent, 0.915),
+                    new(Color.FromArgb(24, 107, 64, 25), 0.965),
+                    new(Color.FromArgb(105, 118, 72, 29), 1.00)
                 },
                 new Point(0, 0),
                 new Point(1, 0)),
@@ -170,12 +177,13 @@ internal static class StalkerApprovedSkinRuntime
             new LinearGradientBrush(
                 new GradientStopCollection
                 {
-                    new(Color.FromRgb(19, 21, 17), 0.00),
-                    new(Color.FromRgb(11, 15, 13), 0.46),
-                    new(Color.FromRgb(17, 18, 14), 1.00)
+                    new(Color.FromRgb(24, 24, 18), 0.00),
+                    new(Color.FromRgb(15, 18, 15), 0.22),
+                    new(Color.FromRgb(10, 14, 12), 0.58),
+                    new(Color.FromRgb(16, 17, 13), 1.00)
                 },
                 new Point(0, 0),
-                new Point(1, 1)),
+                new Point(0, 1)),
             null,
             new RectangleGeometry(new Rect(0, 0, 1, 1))));
 
@@ -183,12 +191,12 @@ internal static class StalkerApprovedSkinRuntime
             new LinearGradientBrush(
                 new GradientStopCollection
                 {
-                    new(Color.FromArgb(85, 127, 78, 31), 0.00),
-                    new(Color.FromArgb(18, 127, 78, 31), 0.07),
-                    new(Colors.Transparent, 0.18),
-                    new(Colors.Transparent, 0.82),
-                    new(Color.FromArgb(16, 115, 69, 27), 0.93),
-                    new(Color.FromArgb(70, 115, 69, 27), 1.00)
+                    new(Color.FromArgb(72, 126, 77, 30), 0.00),
+                    new(Color.FromArgb(14, 126, 77, 30), 0.035),
+                    new(Colors.Transparent, 0.075),
+                    new(Colors.Transparent, 0.925),
+                    new(Color.FromArgb(12, 111, 66, 25), 0.965),
+                    new(Color.FromArgb(62, 111, 66, 25), 1.00)
                 },
                 new Point(0, 0),
                 new Point(1, 0)),
