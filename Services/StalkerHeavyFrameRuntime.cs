@@ -12,9 +12,17 @@ internal static class StalkerHeavyFrameRuntime
     private static readonly ConditionalWeakTable<Border, BorderState> BorderStates = new();
     private static readonly ConditionalWeakTable<Button, ButtonState> ButtonStates = new();
 
-    private static readonly Brush OuterRust = new LinearGradientBrush(
-        Color.FromRgb(111, 76, 34), Color.FromRgb(40, 34, 22), 90);
-    private static readonly Brush InnerRust = new SolidColorBrush(Color.FromRgb(84, 57, 29));
+    private static readonly Brush OuterRust = Freeze(new LinearGradientBrush(
+        Color.FromRgb(111, 76, 34), Color.FromRgb(40, 34, 22), 90));
+    private static readonly Brush InnerRust = Freeze(new SolidColorBrush(Color.FromRgb(84, 57, 29)));
+    private static readonly Brush ButtonNormal = Freeze(new LinearGradientBrush(
+        Color.FromRgb(47, 42, 29), Color.FromRgb(22, 23, 18), 90));
+    private static readonly Brush ButtonHover = Freeze(new LinearGradientBrush(
+        Color.FromRgb(105, 68, 31), Color.FromRgb(44, 35, 22), 90));
+    private static readonly Brush ButtonPressed = Freeze(new LinearGradientBrush(
+        Color.FromRgb(33, 29, 21), Color.FromRgb(92, 57, 27), 90));
+    private static readonly Brush ButtonText = Freeze(new SolidColorBrush(Color.FromRgb(225, 198, 133)));
+    private static readonly Brush ButtonTextHot = Freeze(new SolidColorBrush(Color.FromRgb(255, 221, 139)));
 
     [ModuleInitializer]
     internal static void Initialize() => _ = StartAsync();
@@ -31,7 +39,7 @@ internal static class StalkerHeavyFrameRuntime
                 if (_timer is not null || App.Services is null) return;
                 _timer = new DispatcherTimer(DispatcherPriority.Background, app.Dispatcher)
                 {
-                    Interval = TimeSpan.FromMilliseconds(350)
+                    Interval = TimeSpan.FromMilliseconds(120)
                 };
                 _timer.Tick += (_, _) => Apply();
                 _timer.Start();
@@ -83,14 +91,21 @@ internal static class StalkerHeavyFrameRuntime
                 }
 
                 Save(button);
-                button.BorderThickness = new Thickness(1.4);
+                button.BorderThickness = button.IsPressed ? new Thickness(2.0) : new Thickness(1.4);
                 button.BorderBrush = new LinearGradientBrush(
-                    Color.FromRgb(127, 87, 39), Color.FromRgb(54, 42, 24), 90);
+                    button.IsMouseOver ? Color.FromRgb(177, 116, 46) : Color.FromRgb(127, 87, 39),
+                    button.IsPressed ? Color.FromRgb(91, 54, 24) : Color.FromRgb(54, 42, 24),
+                    90);
+                button.Background = button.IsPressed
+                    ? ButtonPressed
+                    : button.IsMouseOver ? ButtonHover : ButtonNormal;
+                button.Foreground = button.IsMouseOver ? ButtonTextHot : ButtonText;
                 button.Padding = new Thickness(
                     Math.Max(button.Padding.Left, 10),
                     Math.Max(button.Padding.Top, 5),
                     Math.Max(button.Padding.Right, 10),
                     Math.Max(button.Padding.Bottom, 5));
+                button.Opacity = button.IsEnabled ? 1.0 : 0.52;
             }
         }
     }
@@ -139,7 +154,10 @@ internal static class StalkerHeavyFrameRuntime
         ButtonStates.Add(button, new ButtonState(
             button.BorderBrush,
             button.BorderThickness,
-            button.Padding));
+            button.Padding,
+            button.Background,
+            button.Foreground,
+            button.Opacity));
     }
 
     private static void Restore(Button button)
@@ -148,6 +166,9 @@ internal static class StalkerHeavyFrameRuntime
         button.BorderBrush = state.BorderBrush;
         button.BorderThickness = state.BorderThickness;
         button.Padding = state.Padding;
+        button.Background = state.Background;
+        button.Foreground = state.Foreground;
+        button.Opacity = state.Opacity;
         ButtonStates.Remove(button);
     }
 
@@ -161,11 +182,23 @@ internal static class StalkerHeavyFrameRuntime
         }
     }
 
+    private static T Freeze<T>(T freezable) where T : Freezable
+    {
+        freezable.Freeze();
+        return freezable;
+    }
+
     private sealed record BorderState(
         Brush? BorderBrush,
         Thickness BorderThickness,
         CornerRadius CornerRadius,
         System.Windows.Media.Effects.Effect? Effect);
 
-    private sealed record ButtonState(Brush? BorderBrush, Thickness BorderThickness, Thickness Padding);
+    private sealed record ButtonState(
+        Brush? BorderBrush,
+        Thickness BorderThickness,
+        Thickness Padding,
+        Brush? Background,
+        Brush Foreground,
+        double Opacity);
 }
