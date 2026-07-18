@@ -12,7 +12,7 @@ internal static class StalkerTypographyRuntime
     private static readonly ConditionalWeakTable<System.Windows.Controls.TextBlock, TextState> States = new();
     private static readonly FontFamily Condensed = new("Bahnschrift Condensed, Impact, Segoe UI Semibold");
     private static readonly Brush Bone = new SolidColorBrush(Color.FromRgb(202, 194, 163));
-    private static readonly Brush Amber = new SolidColorBrush(Color.FromRgb(205, 150, 55));
+    private static readonly Brush Amber = new SolidColorBrush(Color.FromRgb(228, 173, 70));
     private static readonly Brush Muted = new SolidColorBrush(Color.FromRgb(143, 139, 111));
 
     [ModuleInitializer]
@@ -74,8 +74,15 @@ internal static class StalkerTypographyRuntime
                 }
                 else if (IsModuleHeading(text))
                 {
-                    text.FontWeight = FontWeights.Bold;
+                    text.FontWeight = FontWeights.ExtraBold;
                     text.Foreground = Amber;
+                    text.Effect ??= new System.Windows.Media.Effects.DropShadowEffect
+                    {
+                        Color = Colors.Black,
+                        BlurRadius = 2,
+                        ShadowDepth = 1,
+                        Opacity = 0.92
+                    };
                 }
                 else if (text.FontSize <= 11)
                 {
