@@ -1,0 +1,47 @@
+name: StreamControl MINI Windows Build
+
+on:
+  push:
+    branches: [ "streamcontrol-mini" ]
+    paths:
+      - "Mini/**"
+      - "Models/**"
+      - "Services/AppSettingsAccessor.cs"
+      - "Services/ChatService.cs"
+      - "Services/DonationService.cs"
+      - "Services/DonatelloService.cs"
+      - "Services/OAuthLoopback.cs"
+      - "Services/TwitchService.cs"
+      - "Services/YouTubeService.cs"
+      - ".github/workflows/mini-windows-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-mini:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore
+        run: dotnet restore Mini/TiHiY.StreamControlMini.csproj
+
+      - name: Build
+        run: dotnet build Mini/TiHiY.StreamControlMini.csproj -c Release --no-restore
+
+      - name: Publish self-contained Windows x64
+        run: dotnet publish Mini/TiHiY.StreamControlMini.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish-mini
+
+      - name: Upload MINI
+        uses: actions/upload-artifact@v4
+        with:
+          name: TiHiY-StreamControl-MINI-win-x64
+          path: publish-mini/**
