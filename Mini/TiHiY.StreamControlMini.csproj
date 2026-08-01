@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>TiHiY.StreamControlMini</AssemblyName>
+    <RootNamespace>TiHiY.StreamControlMini</RootNamespace>
+    <Version>1.0.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <ApplicationIcon Condition="Exists('..\Assets\AppIcon.ico')">..\Assets\AppIcon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Models\*.cs" Link="Models\%(Filename)%(Extension)" />
+    <Compile Include="..\Services\AppSettingsAccessor.cs" Link="Services\AppSettingsAccessor.cs" />
+    <Compile Include="..\Services\ChatService.cs" Link="Services\ChatService.cs" />
+    <Compile Include="..\Services\DonationService.cs" Link="Services\DonationService.cs" />
+    <Compile Include="..\Services\DonatelloService.cs" Link="Services\DonatelloService.cs" />
+    <Compile Include="..\Services\OAuthLoopback.cs" Link="Services\OAuthLoopback.cs" />
+    <Compile Include="..\Services\TwitchService.cs" Link="Services\TwitchService.cs" />
+    <Compile Include="..\Services\YouTubeService.cs" Link="Services\YouTubeService.cs" />
+    <Resource Include="..\Assets\AppIcon.png" Link="Assets\AppIcon.png" Condition="Exists('..\Assets\AppIcon.png')" />
+  </ItemGroup>
+</Project>
