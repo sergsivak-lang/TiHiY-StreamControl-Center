@@ -1,0 +1,45 @@
+<Application x:Class="TiHiY.StreamControlMini.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <SolidColorBrush x:Key="Bg" Color="#071018"/>
+        <SolidColorBrush x:Key="Panel" Color="#0D1822"/>
+        <SolidColorBrush x:Key="Panel2" Color="#122331"/>
+        <SolidColorBrush x:Key="Line" Color="#274657"/>
+        <SolidColorBrush x:Key="Cyan" Color="#44D5FF"/>
+        <SolidColorBrush x:Key="Amber" Color="#FFB629"/>
+        <SolidColorBrush x:Key="Text" Color="#EDF7FF"/>
+        <SolidColorBrush x:Key="Muted" Color="#8EA5B4"/>
+        <SolidColorBrush x:Key="Green" Color="#40E58A"/>
+        <SolidColorBrush x:Key="Red" Color="#FF5B67"/>
+
+        <Style TargetType="Window">
+            <Setter Property="Background" Value="{StaticResource Bg}"/>
+            <Setter Property="Foreground" Value="{StaticResource Text}"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource Text}"/>
+            <Setter Property="Background" Value="{StaticResource Panel2}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Line}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="11,7"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Foreground" Value="{StaticResource Text}"/>
+            <Setter Property="Background" Value="#09141D"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Line}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource Cyan}"/>
+            <Setter Property="Padding" Value="8"/>
+        </Style>
+        <Style x:Key="PanelBorder" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource Panel}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Line}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12"/>
+        </Style>
+    </Application.Resources>
+</Application>
