@@ -1,0 +1,78 @@
+<Window x:Class="TiHiY.StreamControlMini.ConnectionsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TiHiY StreamControl MINI — Підключення"
+        Width="720" Height="520" MinWidth="620" MinHeight="460"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="14">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+        <StackPanel Margin="0,0,0,12">
+            <TextBlock Text="ПІДКЛЮЧЕННЯ" Foreground="{StaticResource Cyan}" FontSize="22" FontWeight="Bold"/>
+            <TextBlock Text="Twitch • YouTube • Donatello. Секрети зберігаються у Windows Credential Manager." Foreground="{StaticResource Muted}" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <TabControl Grid.Row="1" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" Foreground="{StaticResource Text}">
+            <TabItem Header="TWITCH">
+                <Grid Margin="14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Канал Twitch" Foreground="{StaticResource Muted}"/>
+                    <TextBox x:Name="TwitchChannelBox" Grid.Row="1" Margin="0,5,0,10"/>
+                    <TextBlock Grid.Row="2" Text="Client ID" Foreground="{StaticResource Muted}"/>
+                    <TextBox x:Name="TwitchClientIdBox" Grid.Row="3" Margin="0,5,0,10"/>
+                    <StackPanel Grid.Row="4">
+                        <TextBlock Text="Client Secret (залиште порожнім, якщо вже імпортовано)" Foreground="{StaticResource Muted}"/>
+                        <PasswordBox x:Name="TwitchSecretBox" Margin="0,5,0,10" Padding="8" Background="#09141D" Foreground="{StaticResource Text}" BorderBrush="{StaticResource Line}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="ПІДКЛЮЧИТИ" Click="TwitchConnect_Click"/>
+                            <Button Content="АВТОРИЗУВАТИ" Click="TwitchAuthorize_Click" BorderBrush="{StaticResource Amber}"/>
+                            <Button Content="ЗАБУТИ" Click="TwitchForget_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="YOUTUBE">
+                <Grid Margin="14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Google OAuth Client ID (Desktop app)" Foreground="{StaticResource Muted}"/>
+                    <TextBox x:Name="YouTubeClientIdBox" Grid.Row="1" Margin="0,5,0,10"/>
+                    <TextBlock Grid.Row="2" Text="Google OAuth Client Secret (залиште порожнім, якщо вже імпортовано)" Foreground="{StaticResource Muted}"/>
+                    <StackPanel Grid.Row="3">
+                        <PasswordBox x:Name="YouTubeSecretBox" Margin="0,5,0,10" Padding="8" Background="#09141D" Foreground="{StaticResource Text}" BorderBrush="{StaticResource Line}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="ПІДКЛЮЧИТИ" Click="YouTubeConnect_Click"/>
+                            <Button Content="АВТОРИЗУВАТИ" Click="YouTubeAuthorize_Click" BorderBrush="{StaticResource Amber}"/>
+                            <Button Content="ЗАБУТИ" Click="YouTubeForget_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="DONATELLO">
+                <Grid Margin="14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Donatello API Token" Foreground="{StaticResource Muted}"/>
+                    <PasswordBox x:Name="DonatelloTokenBox" Grid.Row="1" Margin="0,5,0,10" Padding="8" Background="#09141D" Foreground="{StaticResource Text}" BorderBrush="{StaticResource Line}"/>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="ПІДКЛЮЧИТИ" Click="DonatelloConnect_Click" BorderBrush="{StaticResource Amber}"/>
+                        <Button Content="ПЕРЕВІРИТИ" Click="DonatelloCheck_Click"/>
+                        <Button Content="ЗАБУТИ" Click="DonatelloForget_Click"/>
+                    </StackPanel>
+                    <TextBlock Grid.Row="3" Text="Якщо токен був у повній версії StreamControl Center, MINI імпортує його автоматично при першому зверненні." TextWrapping="Wrap" Foreground="{StaticResource Muted}" Margin="0,14,0,0"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <Grid Grid.Row="2" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <TextBlock x:Name="StatusText" Text="Готово" Foreground="{StaticResource Muted}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+            <Button Grid.Column="1" Content="ЗАКРИТИ" Click="Close_Click"/>
+        </Grid>
+    </Grid>
+</Window>
