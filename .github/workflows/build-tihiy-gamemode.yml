@@ -1,0 +1,38 @@
+name: Build TiHiY Game Mode EXE
+
+on:
+  push:
+    branches:
+      - feature/tihiy-game-mode-exe
+    paths:
+      - 'tools/TiHiY.GameMode/**'
+      - '.github/workflows/build-tihiy-gamemode.yml'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish single EXE
+        shell: pwsh
+        run: |
+          dotnet publish .\tools\TiHiY.GameMode\TiHiY.GameMode.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o .\publish
+
+      - name: Verify EXE
+        shell: pwsh
+        run: |
+          Get-Item .\publish\TiHiY.GameMode.exe | Format-List Name,Length,LastWriteTime
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: TiHiY-GameMode-Windows-x64
+          path: .\publish\TiHiY.GameMode.exe
+          if-no-files-found: error
