@@ -7,10 +7,8 @@ public sealed class AppSettings
     public bool AutoConnectObs { get; set; } = true;
     public string MultiStreamVendorName { get; set; } = "tihiy.multistream";
     public int OverlayPort { get; set; } = 17845;
-
     public bool Aida64MonitoringEnabled { get; set; } = true;
     public int SystemMonitorRefreshMilliseconds { get; set; } = 1000;
-
     public string TwitchChannelName { get; set; } = "tihiy_ded";
     public string TwitchClientId { get; set; } = string.Empty;
     public bool TwitchAutoConnect { get; set; } = true;
@@ -19,13 +17,11 @@ public sealed class AppSettings
     public string TwitchUserId { get; set; } = string.Empty;
     public string TwitchLastStreamId { get; set; } = string.Empty;
     public string TwitchCurrentStreamId { get; set; } = string.Empty;
-
     public string YouTubeChannelName { get; set; } = "TiHiY-DED";
     public string YouTubeClientId { get; set; } = string.Empty;
     public bool YouTubeAutoConnect { get; set; } = true;
     public string YouTubeActiveBroadcastId { get; set; } = string.Empty;
     public string YouTubeLastNotifiedBroadcastId { get; set; } = string.Empty;
-
     public string DiscordApplicationId { get; set; } = string.Empty;
     public bool DiscordNotificationsEnabled { get; set; }
     public bool NotificationBotAutoStart { get; set; }
@@ -34,14 +30,12 @@ public sealed class AppSettings
     public bool DiscordNotifyTwitch { get; set; } = true;
     public bool DiscordNotifyYouTube { get; set; } = true;
     public string DiscordMessageTemplate { get; set; } = "🔴 {platform}: трансляція почалася!\n{title}\n{url}";
-
     public bool DiscordMonetizationEnabled { get; set; }
     public string DiscordMonetizationChannelIds { get; set; } = string.Empty;
     public string DiscordMonetizationMention { get; set; } = string.Empty;
     public bool DiscordNotifyDonatelloMonetization { get; set; } = true;
     public bool DiscordNotifyTwitchMonetization { get; set; } = true;
     public bool DiscordNotifyYouTubeMonetization { get; set; } = true;
-
     public bool DonatelloEnabled { get; set; }
     public bool DonatelloAutoStart { get; set; }
     public string DonatelloPageUrl { get; set; } = "https://donatello.to/TiHiY-DED";
@@ -58,7 +52,6 @@ public sealed class AppSettings
     public string DonationGoalCurrency { get; set; } = "UAH";
     public string DonatelloDiscordChannelId { get; set; } = string.Empty;
     public string DonatelloLastMessageId { get; set; } = string.Empty;
-
     public int TwitchViewers { get; set; }
     public int YouTubeViewers { get; set; }
     public int YouTubeLikes { get; set; }
@@ -66,7 +59,6 @@ public sealed class AppSettings
     public bool YouTubeLive { get; set; }
     public string TwitchStreamTitle { get; set; } = string.Empty;
     public string YouTubeStreamTitle { get; set; } = string.Empty;
-
     public string OverlayTheme { get; set; } = "Star Citizen MFD";
     public string UiTheme { get; set; } = "TiHiY Default / Cyber Amber";
     public Dictionary<string, string> DashboardBlockSlots { get; set; } = new(StringComparer.OrdinalIgnoreCase);
@@ -79,13 +71,11 @@ public sealed class AppSettings
     public string BotColor { get; set; } = "#95A4AE";
     public string HighlightTextColor { get; set; } = "#07131E";
     public string HighlightBackgroundColor { get; set; } = "#FFD329";
-
     public bool LocalChatOverlayAutoStart { get; set; }
     public bool LocalChatOverlayClickThrough { get; set; } = true;
     public double LocalChatOverlayBackgroundOpacity { get; set; } = 0.12;
     public double LocalChatOverlayFontSize { get; set; } = 18;
     public int LocalChatOverlayMaxMessages { get; set; } = 12;
-
     public bool AutoNoticesEnabled { get; set; } = true;
     public bool UiScaleAuto { get; set; } = true;
     public int UiScalePercent { get; set; } = 100;
@@ -96,8 +86,15 @@ public sealed class AppSettings
     public List<BotCommand> BotCommands { get; set; } = new();
     public List<string> MusicPlaylistPaths { get; set; } = new();
     public int DashboardLayoutVersion { get; set; } = 0;
+    public double MainLeftColumnWidth { get; set; } = 1.035;
+    public double MainBottomLeftColumnWidth { get; set; } = 1.02;
+    public double MainTopRowHeight { get; set; } = 1.51;
+    public double FooterHeight { get; set; } = 180;
+    public double FooterSystemColumnWeight { get; set; } = 0.22;
+    public double FooterEventsColumnWeight { get; set; } = 0.38;
+    public double FooterMonitorColumnWeight { get; set; } = 0.40;
+    public Dictionary<string, WindowPlacement> WindowPlacements { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
-    // Twitch streaming profiles — v2.6. Values are OBS profile names.
     public string TwitchMode1080p60Profile { get; set; } = "Twitch 1080p60";
     public string TwitchMode1440p60Profile { get; set; } = "Twitch 1440p60";
     public string TwitchMode1440VerticalProfile { get; set; } = "Twitch 1440p + Vertical";
