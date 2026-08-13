@@ -1,0 +1,62 @@
+<Window x:Class="TiHiY.StreamControlCenter.Windows.TwitchModesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TiHiY — Twitch Streaming Modes v2.6"
+        Width="980" Height="720" MinWidth="820" MinHeight="600"
+        WindowStartupLocation="CenterOwner"
+        Background="#07131E" Foreground="#EDF7FF">
+    <Grid Margin="22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="TWITCH STREAMING MODES v2.6" FontSize="25" FontWeight="Bold" Foreground="#6BE5FF"/>
+        <TextBlock Grid.Row="1" Margin="0,6,0,18" Text="Окремі OBS Profiles • автоматичне застосування перед START TWITCH • перевірка Aitum Vertical / Enhanced Broadcasting" Foreground="#95A4AE"/>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="1.05*"/><ColumnDefinition Width="0.95*"/></Grid.ColumnDefinitions>
+            <Border Background="#0A1D29" BorderBrush="#1F4B60" BorderThickness="1" CornerRadius="6" Padding="16" Margin="0,0,10,0">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <TextBlock Text="РЕЖИМ" FontSize="13" FontWeight="Bold" Foreground="#FFD329"/>
+                    <ComboBox x:Name="ModeBox" Grid.Row="1" Margin="0,8,0,12" Height="38" FontSize="15" SelectedIndex="0">
+                        <ComboBoxItem Content="Twitch HD 1080p60"/>
+                        <ComboBoxItem Content="Twitch 2K 1440p60"/>
+                        <ComboBoxItem Content="Twitch 2K + Vertical 1080×1920"/>
+                        <ComboBoxItem Content="Twitch Enhanced Broadcasting"/>
+                    </ComboBox>
+                    <StackPanel Grid.Row="2">
+                        <CheckBox x:Name="AutoApplyBox" Content="Автоматично застосовувати режим перед START TWITCH" IsChecked="True" Margin="0,0,0,14" Foreground="#EDF7FF"/>
+                        <TextBlock Text="OBS PROFILE ДЛЯ РЕЖИМІВ" Foreground="#6BE5FF" FontWeight="Bold"/>
+                        <TextBox x:Name="Profile1080Box" Margin="0,6,0,6" Height="30" ToolTip="Назва OBS Profile для 1080p60"/>
+                        <TextBox x:Name="Profile1440Box" Margin="0,0,0,6" Height="30" ToolTip="Назва OBS Profile для 1440p60"/>
+                        <TextBox x:Name="ProfileVerticalBox" Margin="0,0,0,6" Height="30" ToolTip="Назва OBS Profile для 1440p + Vertical"/>
+                        <TextBox x:Name="ProfileEnhancedBox" Margin="0,0,0,6" Height="30" ToolTip="Назва OBS Profile для Enhanced Broadcasting"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,14,0,0">
+                        <Button Content="ЗАСТОСУВАТИ" Click="Apply_Click" Padding="18,9" Margin="0,0,8,0"/>
+                        <Button Content="START TWITCH" Click="StartTwitch_Click" Padding="18,9" Background="#123C28" Foreground="#72FF9A"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="1" Background="#0A1D29" BorderBrush="#1F4B60" BorderThickness="1" CornerRadius="6" Padding="16" Margin="10,0,0,0">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <TextBlock Text="ПЕРЕВІРКА СИСТЕМИ" FontSize="13" FontWeight="Bold" Foreground="#FFD329"/>
+                    <ScrollViewer Grid.Row="1" Margin="0,10,0,10" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <TextBlock x:Name="ObsStatusText" Text="OBS: —" FontSize="15" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="ProfileStatusText" Text="Profiles: —" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="VideoStatusText" Text="Video: —" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="AitumStatusText" Text="Aitum Vertical: перевірка…" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="EnhancedStatusText" Text="Enhanced Broadcasting: перевірка…" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="ActionLogText" Text="Готово." TextWrapping="Wrap" Foreground="#95A4AE"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                    <Button Grid.Row="2" Content="ПЕРЕВІРИТИ ЗАРАЗ" Click="Check_Click" Padding="16,9"/>
+                </Grid>
+            </Border>
+        </Grid>
+        <TextBlock Grid.Row="3" Margin="0,16,0,0" Text="ВАЖЛИВО: профілі мають бути створені в OBS. Програма не змінює робочу v2.5/main. Enhanced Broadcasting підтверджується через доступні можливості OBS/Twitch; фінальна доступність залежить від акаунта Twitch." Foreground="#95A4AE" TextWrapping="Wrap"/>
+    </Grid>
+</Window>
