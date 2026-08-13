@@ -56,8 +56,6 @@ public sealed class AppSettings
     public string DonationGoalTitle { get; set; } = "Новий ПК для стрімів";
     public decimal DonationGoalAmount { get; set; } = 10000m;
     public string DonationGoalCurrency { get; set; } = "UAH";
-
-    // Застарілі поля лишені тільки для безпечного читання старого settings.json.
     public string DonatelloDiscordChannelId { get; set; } = string.Empty;
     public string DonatelloLastMessageId { get; set; } = string.Empty;
 
@@ -98,12 +96,12 @@ public sealed class AppSettings
     public List<BotCommand> BotCommands { get; set; } = new();
     public List<string> MusicPlaylistPaths { get; set; } = new();
     public int DashboardLayoutVersion { get; set; } = 0;
-    public double MainLeftColumnWidth { get; set; } = 1.035;
-    public double MainBottomLeftColumnWidth { get; set; } = 1.02;
-    public double MainTopRowHeight { get; set; } = 1.51;
-    public double FooterHeight { get; set; } = 180;
-    public double FooterSystemColumnWeight { get; set; } = 0.22;
-    public double FooterEventsColumnWeight { get; set; } = 0.38;
-    public double FooterMonitorColumnWeight { get; set; } = 0.40;
-    public Dictionary<string, WindowPlacement> WindowPlacements { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    // Twitch streaming profiles — v2.6. Values are OBS profile names.
+    public string TwitchMode1080p60Profile { get; set; } = "Twitch 1080p60";
+    public string TwitchMode1440p60Profile { get; set; } = "Twitch 1440p60";
+    public string TwitchMode1440VerticalProfile { get; set; } = "Twitch 1440p + Vertical";
+    public string TwitchModeEnhancedProfile { get; set; } = "Twitch Enhanced Broadcasting";
+    public string TwitchLastMode { get; set; } = "Twitch HD 1080p60";
+    public bool TwitchAutoApplyModeBeforeStart { get; set; } = true;
 }
